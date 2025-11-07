@@ -1,5 +1,5 @@
 {
-  "name": "codebase-research-workflow",
+  "name": "research-plan-build",
   "version": "1.0.0",
   "description": "Comprehensive workflow tools for codebase research, planning, and implementation with specialized agents for Django/Python projects",
   "author": {
