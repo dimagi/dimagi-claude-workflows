@@ -12,6 +12,10 @@ This repository serves as a marketplace for Claude Code plugins, providing speci
 Utility commands for general development tasks.
 
 **Commands**
+* `/create-pr`: Commit staged/unstaged changes, push to a new branch if on main, and open a pull request.
+
+* `/review-plan`: Interactively review a plan across architecture, code quality, tests, and performance before writing any code. Works through issues one section at a time with opinionated recommendations and asks for your input before assuming a direction.
+
 * `/resolve-pr-comments`: Fetch all unresolved review threads on the current branch's PR, evaluate each one, apply fixes where warranted, reply, and optionally resolve threads.
   * `--resolve`: resolve each thread after replying
   * `--dry-run`: print the evaluation plan but make no changes
