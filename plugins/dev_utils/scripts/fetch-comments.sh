@@ -47,7 +47,7 @@ ISSUE=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" \
 # ── 3. Review threads + resolution status (GraphQL) ──────────────────────────
 # NOTE: multiline -f query='...' fails with "UNKNOWN_CHAR" in gh; use single-line.
 THREADS=$(gh api graphql \
-  -f query="{repository(owner:\"$OWNER\",name:\"$REPO_NAME\"){pullRequest(number:$PR_NUMBER){reviewThreads(first:100){nodes{id isResolved comments(first:1){nodes{databaseId body}}}}}}}}" \
+  -f query="{repository(owner:\"$OWNER\",name:\"$REPO_NAME\"){pullRequest(number:$PR_NUMBER){reviewThreads(first:100){nodes{id isResolved comments(first:1){nodes{databaseId body}}}}}}}" \
   --jq '[.data.repository.pullRequest.reviewThreads.nodes[]
          | {thread_id: .id, isResolved, comment_id: .comments.nodes[0].databaseId}]')
 
