@@ -20,7 +20,7 @@ Utility commands for general development tasks.
   * `--resolve`: resolve each thread after replying
   * `--dry-run`: print the evaluation plan but make no changes
 
-* `/pr-failures [<pr_number> [<repo>]]`: Show CI failures for a PR, diagnose the root cause, apply fixes, re-run the failing tests to verify, then commit and push. Defaults to the current branch's PR and repo if arguments are omitted.
+* `/resolve-ci-failures [<pr_number> [<repo>]]`: Show CI failures for a PR, diagnose the root cause, apply fixes, re-run the failing tests to verify, then commit and push. Defaults to the current branch's PR and repo if arguments are omitted.
 
 ## Installation
 

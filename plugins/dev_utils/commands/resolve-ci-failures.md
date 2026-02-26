@@ -6,10 +6,10 @@ allowed-tools: Bash(bash:*), Bash(gh pr checks:*), Bash(gh api:*), Bash(gh repo 
 
 ## 1. Fetch failures
 
-Run the pr-failures script to show which checks failed and the relevant log output:
+Run the script to show which checks failed and the relevant log output:
 
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/scripts/pr-failures.sh $ARGUMENTS
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/resolve-ci-failures.sh $ARGUMENTS
 ```
 
 If there are no failures, tell the user and stop.
