@@ -13,7 +13,7 @@
     {
       "name": "dev-utils",
       "source": "./plugins/dev_utils",
-      "version": "1.0.2",
+      "version": "1.0.3",
       "description": "Utility commands and skill for general development"
     }
   ]
