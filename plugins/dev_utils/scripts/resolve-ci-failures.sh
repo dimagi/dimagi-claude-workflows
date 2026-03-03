@@ -59,7 +59,8 @@ while IFS=' ' read -r RUN_ID JOB_ID; do
             echo "⚠️  This failure is from commit ${RUN_SHA:0:7} — your current HEAD is ${LOCAL_HEAD:0:7}. The failure may already be fixed."
         fi
     fi
+
     gh api "repos/$REPO/actions/jobs/$JOB_ID/logs" 2>&1 \
         | sed 's/^[0-9T:.-]*Z //' \
-        | grep -E "(^FAILED |##\[error\])" || true
+        | grep -E "(^FAILED |error)" -C 3 || true
 done <<< "$RUN_JOB_PAIRS"
