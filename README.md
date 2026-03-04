@@ -40,29 +40,23 @@ Utility commands for general development tasks.
 
 1. [Superpowers](https://github.com/obra/superpowers) - Plan -> Build -> Review workflow
 2. [Official Anthropic Claude Plugins](https://github.com/anthropics/claude-plugins-official)
-  - code-review: Code review
-  - commit-commands: Git skills
-  - playwright: Browser automation
+   - code-review: Code review
+   - commit-commands: Git skills
+   - playwright: Browser automation
 3. [Context7](https://github.com/upstash/context7): Up-to-date code documentation for LLMs and AI code editors
 4. [Humanizer](https://github.com/trailofbits/skills-curated/tree/main/plugins/humanizer): Remove signs of AI-generated writing from text to make it sound natural and human-written.
 5. [Visual Explainer](https://github.com/nicobailon/visual-explainer) - Documentation and visualization support
 
 ## Workflow Summary
 
-```
-Session Start
-    ↓
-[Superpowers: Design + Plan]
-    ↓
-[Review Skill: Validate & Refine]
-    ↓
-[Execute Plan: Build]
-    ↓
-[Dual Review: Code Rabbit + Claude]
-    ↓
-[Resolve: Comments + CI Failures]
-    ↓
-Complete
+```mermaid
+flowchart TD
+    A([🚀 Session Start]) --> B[🧠 Superpowers\nDesign + Plan]
+    B --> C[🔍 Review Skill\nValidate & Refine]
+    C --> D[⚙️ Execute Plan\nBuild]
+    D --> E[👥 Dual Review\nCode Rabbit + Claude]
+    E --> F[🔧 Resolve\nComments + CI Failures]
+    F --> G([✅ Complete])
 ```
 
 ## License
