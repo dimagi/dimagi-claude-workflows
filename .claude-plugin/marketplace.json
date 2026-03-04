@@ -21,5 +21,6 @@
       "source": "./plugins/code-review",
       "version": "0.1",
       "description": "Perform thorough code review"
+    }
   ]
 }
