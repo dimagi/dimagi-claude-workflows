@@ -15,6 +15,11 @@
       "source": "./plugins/dev_utils",
       "version": "1.0.5",
       "description": "Utility commands and skill for general development"
-    }
+    },
+    {
+      "name": "code-review",
+      "source": "./plugins/code-review",
+      "version": "0.1",
+      "description": "Perform thorough code review"
   ]
 }

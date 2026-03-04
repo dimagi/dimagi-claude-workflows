@@ -1,0 +1,15 @@
+{
+  "name": "code-review",
+  "description": "Perform thorough code review",
+  "author": {
+    "name": "Simon Kelly",
+    "email": "skelly@dimagi.com",
+    "url": "https://github.com/dimagi"
+  },
+  "homepage": "https://github.com/dimagi/dimagi-claude-workflows",
+  "repository": "https://github.com/dimagi/dimagi-claude-workflows",
+  "license": "MIT",
+  "keywords": [
+    "code review"
+  ]
+}
