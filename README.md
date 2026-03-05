@@ -40,7 +40,6 @@ Utility commands for general development tasks.
 
 1. [Superpowers](https://github.com/obra/superpowers) - Plan -> Build -> Review workflow
 2. [Official Anthropic Claude Plugins](https://github.com/anthropics/claude-plugins-official)
-   - code-review: Code review
    - commit-commands: Git skills
    - playwright: Browser automation
 3. [Context7](https://github.com/upstash/context7): Up-to-date code documentation for LLMs and AI code editors
