@@ -1,68 +1,48 @@
-# Claude Plugin Marketplace
+# Claude Code Toolkit
 
-A collection of workflow orchestration plugins and development utilities for Claude Code.
+A collection of resources, workflows, and plugins for getting the most out of Claude Code.
 
 ## Overview
 
-This repository serves as a marketplace for Claude Code plugins, providing specialized agents, commands, and skills to enhance your development workflow.
+Claude Code is Anthropic's CLI for AI-assisted software engineering. This repository provides:
 
-## Plugins
+- **Plugins** — agents, commands, and skills that extend Claude Code's capabilities
+- **Workflow patterns** — opinionated development loops that work well with Claude
+- **Curated external resources** — third-party plugins worth knowing about
 
-### code-review
-Thorough code review via 5 parallel specialist agents — design, quality, code smells, security, and maintainability — synthesised into a single prioritised review.
+## Development Workflow
 
-**Skills**
-* `code-review`: Review code, a PR diff, a file, or a directory. Spawns parallel reviewer agents and produces a structured, severity-ranked report.
-
-### dev-utils
-Utility commands for general development tasks.
-
-**Commands**
-* `/create-pr`: Commit staged/unstaged changes, push to a new branch if on main, and open a pull request.
-
-* `/review-plan`: Interactively review a plan across architecture, code quality, tests, and performance before writing any code. Works through issues one section at a time with opinionated recommendations and asks for your input before assuming a direction.
-
-* `/resolve-pr-comments`: Fetch all unresolved review threads on the current branch's PR, evaluate each one, apply fixes where warranted, reply, and optionally resolve threads.
-  * `--resolve`: resolve each thread after replying
-  * `--dry-run`: print the evaluation plan but make no changes
-
-* `/resolve-ci-failures [<pr_number> [<repo>]]`: Show CI failures for a PR, diagnose the root cause, apply fixes, re-run the failing tests to verify, then commit and push. Defaults to the current branch's PR and repo if arguments are omitted.
-
-## Installation
-
-**Add Marketplace**
-```
-/plugin marketplace add dimagi/dimagi-claude-workflows
-```
-
-**Browse Available Plugins**
-```
-/plugins
-```
-
-## Additional plugins
-
-### Skill Plugins
-
-1. [Superpowers](https://github.com/obra/superpowers) - Plan -> Build -> Review workflow
-2. [Official Anthropic Claude Plugins](https://github.com/anthropics/claude-plugins-official)
-   - commit-commands: Git skills
-3. [Context7](https://github.com/upstash/context7): Up-to-date code documentation for LLMs and AI code editors
-4. [Humanizer](https://github.com/trailofbits/skills-curated/tree/main/plugins/humanizer): Remove signs of AI-generated writing from text to make it sound natural and human-written.
-5. [Visual Explainer](https://github.com/nicobailon/visual-explainer) - Documentation and visualization support
-6. [Dogfood](https://skills.sh/vercel-labs/agent-browser/dogfood) - Systematically explore a web application, find issues, and produce a report with full reproduction evidence for every finding.
-
-## Workflow Summary
+A proven loop for Claude-assisted development:
 
 ```mermaid
 flowchart TD
-    A([🚀 Session Start]) --> B[🧠 Superpowers\nDesign + Plan]
-    B --> C[🔍 Review Skill\nValidate & Refine]
-    C --> D[⚙️ Execute Plan\nBuild]
-    D --> E[👥 Dual Review\nCode Rabbit + Claude]
-    E --> F[🔧 Resolve\nComments + CI Failures]
-    F --> G([✅ Complete])
+    A([Session Start]) --> B[Design + Plan\nSuperpowers skill]
+    B --> C[Review Plan\nValidate & Refine]
+    C --> D[Execute Plan\nBuild]
+    D --> E[Code Review\nParallel specialist agents]
+    E --> F[Resolve\nPR comments + CI failures]
+    F --> G([Complete])
 ```
+
+## Plugins in This Repo
+
+See [plugins/README.md](plugins/README.md) for full documentation, including installation instructions.
+
+| Plugin | What it does |
+|--------|-------------|
+| [code-review](plugins/code-review/) | 5 parallel specialist agents produce a prioritised code review |
+| [dev-utils](plugins/dev_utils/) | Commands for PRs, plan review, and CI/CD |
+
+## External Plugins
+
+### Skill Plugins
+
+- [Superpowers](https://github.com/obra/superpowers) — Plan → Build → Review workflow
+- [Official Anthropic Claude Plugins](https://github.com/anthropics/claude-plugins-official) — git commit skills and more
+- [Context7](https://github.com/upstash/context7) — Up-to-date library documentation for LLMs
+- [Humanizer](https://github.com/trailofbits/skills-curated/tree/main/plugins/humanizer) — Remove AI writing patterns from text
+- [Visual Explainer](https://github.com/nicobailon/visual-explainer) — Documentation and visualization
+- [Dogfood](https://skills.sh/vercel-labs/agent-browser/dogfood) — Systematic web app exploration and bug finding
 
 ## License
 
