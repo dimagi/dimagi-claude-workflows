@@ -16,11 +16,11 @@ A proven loop for Claude-assisted development:
 
 ```mermaid
 flowchart TD
-    A([Session Start]) --> B[Design + Plan\nSuperpowers skill]
-    B --> C[Review Plan\nValidate & Refine]
-    C --> D[Execute Plan\nBuild]
-    D --> E[Code Review\nParallel specialist agents]
-    E --> F[Resolve\nPR comments + CI failures]
+    A([Session Start]) --> B["Design + Plan<br/>Superpowers skill"]
+    B --> C["Review Plan<br/>Validate & Refine"]
+    C --> D["Execute Plan<br/>Build"]
+    D --> E["Code Review<br/>Parallel specialist agents"]
+    E --> F["Resolve<br/>PR comments + CI failures"]
     F --> G([Complete])
 ```
 
