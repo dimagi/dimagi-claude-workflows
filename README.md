@@ -44,6 +44,7 @@ Utility commands for general development tasks.
 3. [Context7](https://github.com/upstash/context7): Up-to-date code documentation for LLMs and AI code editors
 4. [Humanizer](https://github.com/trailofbits/skills-curated/tree/main/plugins/humanizer): Remove signs of AI-generated writing from text to make it sound natural and human-written.
 5. [Visual Explainer](https://github.com/nicobailon/visual-explainer) - Documentation and visualization support
+6. [Dogfood](https://skills.sh/vercel-labs/agent-browser/dogfood) - Systematically explore a web application, find issues, and produce a report with full reproduction evidence for every finding.
 
 ## Workflow Summary
 
