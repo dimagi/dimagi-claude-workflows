@@ -8,6 +8,12 @@ This repository serves as a marketplace for Claude Code plugins, providing speci
 
 ## Plugins
 
+### code-review
+Thorough code review via 5 parallel specialist agents — design, quality, code smells, security, and maintainability — synthesised into a single prioritised review.
+
+**Skills**
+* `code-review`: Review code, a PR diff, a file, or a directory. Spawns parallel reviewer agents and produces a structured, severity-ranked report.
+
 ### dev-utils
 Utility commands for general development tasks.
 
