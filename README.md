@@ -10,20 +10,6 @@ Claude Code is Anthropic's CLI for AI-assisted software engineering. This reposi
 - **Workflow patterns** — opinionated development loops that work well with Claude
 - **Curated external resources** — third-party plugins worth knowing about
 
-## Development Workflow
-
-A proven loop for Claude-assisted development:
-
-```mermaid
-flowchart TD
-    A([Session Start]) --> B["Design + Plan<br/>Superpowers skill"]
-    B --> C["Review Plan<br/>Validate & Refine"]
-    C --> D["Execute Plan<br/>Build"]
-    D --> E["Code Review<br/>Parallel specialist agents"]
-    E --> F["Resolve<br/>PR comments + CI failures"]
-    F --> G([Complete])
-```
-
 ## Plugins in This Repo
 
 See [plugins/README.md](plugins/README.md) for full documentation, including installation instructions.
@@ -43,6 +29,20 @@ See [plugins/README.md](plugins/README.md) for full documentation, including ins
 - [Humanizer](https://github.com/trailofbits/skills-curated/tree/main/plugins/humanizer) — Remove AI writing patterns from text
 - [Visual Explainer](https://github.com/nicobailon/visual-explainer) — Documentation and visualization
 - [Dogfood](https://skills.sh/vercel-labs/agent-browser/dogfood) — Systematic web app exploration and bug finding
+
+## Development Workflow
+
+A proven loop for Claude-assisted development:
+
+```mermaid
+flowchart TD
+    A([Session Start]) --> B["Design + Plan<br/>Superpowers skill"]
+    B --> C["Review Plan<br/>Validate & Refine"]
+    C --> D["Execute Plan<br/>Build"]
+    D --> E["Code Review<br/>Parallel specialist agents"]
+    E --> F["Resolve<br/>PR comments + CI failures"]
+    F --> G([Complete])
+```
 
 ## License
 
