@@ -14,12 +14,39 @@ My engineering preferences (use these to guide your recommendations):
 
 ## BEFORE YOU START
 
-Ask if I want one of two options:
+Ask if I want one of two modes:
 
-1. **BIG CHANGE**: Work through this interactively, one section at a time (Architecture → Code Quality → Tests → Performance) with at most 4 top issues in each section.
-2. **SMALL CHANGE**: Work through interactively ONE question per review section.
+1. **Deep review**: Full, thorough review of all sections. Surface every issue worth discussing — including minor code quality concerns, test gaps, and performance opportunities — not just the big ones.
+2. **Major issues only**: Same thorough read-through, but only surface issues that are significant: security vulnerabilities, fundamental design or architecture flaws, critical missing tests, and patterns that will cause serious problems down the line. Skip minor DRY violations, style nits, nice-to-have test improvements, and micro-optimizations.
 
 Use `AskUserQuestion` for this choice before proceeding to any review section.
+
+## 0. Decision Audit (always do this first)
+
+Before evaluating any specific section, read the entire plan and identify the key architectural decisions that are **presented as foregone conclusions** — choices the plan makes without comparing alternatives or explaining the rationale.
+
+These are the decisions most likely to be wrong or suboptimal, because they weren't surfaced for scrutiny at planning time. The goal is to catch them now, before they get built in.
+
+Look specifically for:
+
+* **Transport and protocol choices** — how data is passed between components (HTTP headers, query params, request body, session/cookie, URL path). Plans often pick one without justifying why.
+* **Data model choices** — FK vs M2M vs denormalization, nullable vs required fields, UUID vs integer PKs, choice of related_name.
+* **Security enforcement pattern** — how auth/permission is checked (middleware vs per-view decorator vs utility function, header-based vs session-based, centralized vs distributed).
+* **Integration pattern** — how new components hook into existing ones (monkey-patch, mixin, decorator, utility function, signal, middleware).
+* **Naming and structural choices** — app renames, module reorganization, naming conventions that shape everything downstream.
+
+For each decision found:
+
+* State the decision concretely (e.g. "The plan passes workspace context via a custom `X-Custom-Workspace` HTTP header on every request").
+* Present 2–3 alternatives that would also be reasonable.
+* For each option, give full tradeoff analysis: implementation effort, risk, caching/debuggability implications, and maintenance burden.
+* Give your opinionated recommendation and why, mapped to my engineering preferences above.
+* Then use `AskUserQuestion` to ask whether I want to proceed with the plan's choice or revisit it.
+
+In **Major issues only** mode: surface only decisions with significant security, design, or architectural implications.
+In **Deep review** mode: surface up to 4 decisions.
+
+After addressing all Decision Audit items, use `AskUserQuestion` to confirm I'm ready to move on to the Architecture review.
 
 ## 1. Architecture review
 
@@ -30,6 +57,8 @@ Evaluate:
 * Data flow patterns and potential bottlenecks.
 * Scaling characteristics and single points of failure.
 * Security architecture (auth, data access, API boundaries).
+
+Also surface any decisions that weren't caught in the Decision Audit but emerge from deeper analysis of how the components interact.
 
 ## 2. Code quality review
 
