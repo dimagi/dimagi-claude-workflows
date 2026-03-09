@@ -1,5 +1,6 @@
 {
   "name": "code-review",
+  "version": "0.2",
   "description": "Perform thorough code review",
   "author": {
     "name": "Simon Kelly",
