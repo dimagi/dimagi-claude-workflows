@@ -88,35 +88,40 @@ Before writing the review, process the collected findings:
 
 ---
 
-## Step 5: Write the Review
+## Step 5a: Write the Triage Output
 
-Structure the final review as follows:
+Output three blocks — no individual finding detail yet:
 
 ### Summary
 2–4 sentences on the overall state of the code. Be honest and direct. Praise what's genuinely good.
 
 ### Findings
-Grouped by severity (🔴 Critical → 🟠 Major → 🟡 Minor → 💡 Suggestion):
 
-```
-**[emoji] Title** (`path/to/file.py`, line X–Y)
+A compact numbered table — one row per finding, no detail:
 
-What the problem is and why it matters — the actual consequence or risk.
+| #  | Sev | Finding | Location |
+|----|-----|---------|----------|
+| 1  | 🔴  | [title] | [file:line] |
+| 2  | 🟠  | [title] | [file:line] |
+| …  |     |         |          |
 
-*Suggestion:* What to do instead, with a brief code snippet if it genuinely helps.
-```
+Severity key: 🔴 Critical · 🟠 Major · 🟡 Minor · 💡 Suggestion
 
-Severity guide:
-- 🔴 **Critical** — Security vulnerability, data loss risk, correctness bug. Must fix.
-- 🟠 **Major** — Significant design problem or dangerous pattern that causes pain at scale. Should fix.
-- 🟡 **Minor** — DRY violation, naming issue, or improvement that meaningfully improves clarity. Worth fixing.
-- 💡 **Suggestion** — Refactoring opportunity or nice-to-have worth considering.
+Order rows by severity (critical first). Number sequentially starting at 1.
 
 ### 🔵 Design Observations
 Higher-level architectural concerns that span multiple findings — the "core issue" narrative.
 
 ### ✅ What's Working Well
 2–4 things done well. Anchors the review and tells the author what to preserve.
+
+---
+
+## Step 5b: Gate on User Selection
+
+After outputting the triage, use `AskUserQuestion` to ask:
+
+> "Which findings do you want to expand? Enter numbers (e.g. `1,3`), a range (`1-4`), `all`, or `fix 2,5` to implement directly. Or just ask about any finding."
 
 ---
 
