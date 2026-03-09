@@ -41,3 +41,13 @@ Utility commands for general development tasks.
   - `--dry-run`: print the evaluation plan but make no changes
 
 - `/resolve-ci-failures [<pr_number> [<repo>]]`: Show CI failures for a PR, diagnose the root cause, apply fixes, re-run the failing tests to verify, then commit and push. Defaults to the current branch's PR and repo if arguments are omitted.
+
+---
+
+## commcare-division-jira
+
+CommCare Tech Division skills for interacting with JIRA.
+
+**Skills**
+
+- `sprint-prep`: Prepare for the next sprint. Reviews your Jira board, walks through highlights and carryovers interactively, and drafts a sprint plan message for Slack.
