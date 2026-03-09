@@ -103,7 +103,7 @@ A compact numbered table — one row per finding, no detail:
 |----|-----|---------|----------|
 | 1  | 🔴  | [title] | [file:line] |
 | 2  | 🟠  | [title] | [file:line] |
-| …  |     |         |          |
+| …  | …   | …       | …        |
 
 Severity key: 🔴 Critical · 🟠 Major · 🟡 Minor · 💡 Suggestion
 
@@ -136,18 +136,51 @@ After outputting the triage, use `AskUserQuestion` to ask:
 
 ## Step 6: Cleanup
 
-Remove the temp working directory once the review is delivered:
+Remove the temp working directory after the interactive loop ends (once the user says "done" or has no further requests):
 ```bash
 rm -rf /tmp/code-review-{timestamp}/
 ```
 
 ---
 
-## After the Review
+## Step 7: Expand and Fix Loop
 
-- Ask if the author wants to dig deeper on any specific finding
-- Offer to sketch out a refactored structure for major design issues
-- Offer to pair on the fix for any specific section
+Parse the user's response from Step 5b:
+
+| Input pattern | Action |
+|---------------|--------|
+| `1,3,5` | Expand findings 1, 3, 5 with full detail |
+| `1-4` | Expand findings 1 through 4 |
+| `all` | Expand all findings |
+| `fix 2,5` | Expand + implement findings 2 and 5 |
+| `fix all` | Expand + implement all findings |
+| Natural language (e.g. "tell me more about the SQL issue") | Map to the closest matching finding by title/topic |
+
+**Expanding a finding** means writing the full detail block:
+
+```
+**[emoji] Title** (`path/to/file.py`, line X–Y)
+
+What the problem is and why it matters — the actual consequence or risk.
+
+*Suggestion:* What to do instead, with a brief code snippet if it genuinely helps.
+```
+
+Severity guide:
+- 🔴 **Critical** — Security vulnerability, data loss risk, correctness bug. Must fix.
+- 🟠 **Major** — Significant design problem or dangerous pattern that causes pain at scale. Should fix.
+- 🟡 **Minor** — DRY violation, naming issue, or improvement that meaningfully improves clarity. Worth fixing.
+- 💡 **Suggestion** — Refactoring opportunity or nice-to-have worth considering.
+
+**Implementing a finding** (`fix N`): after expanding, make the code change immediately. Summarise what was changed in 1–2 sentences.
+
+**After expanding/fixing**, use `AskUserQuestion` to ask:
+
+> "Anything else to address? Pick more numbers, ask about a finding, or say 'done'."
+
+If the user pushes back on a finding ("I disagree with #3"), engage with their reasoning directly — they may have context that changes the assessment. This is a conversation, not a report.
+
+Exit the loop when the user says "done" or gives no further numbers/requests.
 
 ---
 
