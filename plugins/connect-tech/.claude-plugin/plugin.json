@@ -1,0 +1,16 @@
+{
+  "name": "connect-tech",
+  "description": "Skills for the CommCare Connect Team",
+  "author": {
+    "name": "Mary Rocheleau",
+    "email": "mrocheleau@dimagi.com",
+    "url": "https://github.com/dimagi"
+  },
+  "homepage": "https://github.com/dimagi/dimagi-claude-workflows",
+  "repository": "https://github.com/dimagi/dimagi-claude-workflows",
+  "license": "MIT",
+  "keywords": [
+    "commcare",
+    "connect-tech"
+  ]
+}
