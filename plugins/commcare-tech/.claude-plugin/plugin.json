@@ -1,6 +1,5 @@
 {
   "name": "commcare-tech",
-  "version": "0.1",
   "description": "Skills for the CommCare Tech Team",
   "author": {
     "name": "Graham Herceg",
@@ -12,6 +11,6 @@
   "license": "MIT",
   "keywords": [
     "commcare",
-    "commcare-tech",
+    "commcare-tech"
   ]
 }
