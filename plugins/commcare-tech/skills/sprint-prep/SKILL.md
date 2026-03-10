@@ -107,7 +107,7 @@ Summarize what's already lined up. If the next sprint is empty for this engineer
 
 Ask the following three questions one at a time, waiting for the engineer's response after each before proceeding to the next.
 
-**Question 1 — Highlights:** Group the completed tickets into thematic categories (up to 5, but could be just 1 if the work was focused). Present those categories — not individual tickets — and ask:
+**Question 1 — Highlights:** Group the completed and in-review tickets into thematic categories (up to 5, but could be just 1 if the work was focused). Include tickets with status Accepted, Deployed, or In Review — if a PR is up, the engineering work is done and it counts as a highlight. Present those categories — not individual tickets — and ask:
 
 > **Here's what you completed this sprint. Which of these do you want to highlight?**
 >
@@ -116,11 +116,10 @@ Ask the following three questions one at a time, waiting for the engineer's resp
 
 Wait for response. When the engineer selects a category, note the individual tickets in that category for use in the draft.
 
-**Question 2 — Carryovers:** Show the tickets still in progress (In Progress, In Review, or Prioritized/not started) and ask:
+**Question 2 — Carryovers:** Show the tickets still in progress (In Progress or Prioritized/not started) and ask. In Review tickets are already covered as highlights above — only include them here if they've been in review for an unusually long time and might genuinely be stuck:
 
 > **Are any of these tickets at risk of rolling over?**
 >
-> • SAAS-ZZZZZ (In Review): summary
 > • SAAS-AAAAA (In Progress): summary
 > • SAAS-BBBBB (Prioritized): summary
 
