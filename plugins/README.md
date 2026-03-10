@@ -44,7 +44,7 @@ Utility commands for general development tasks.
 
 ---
 
-## commcare-division-jira
+## commcare-tech
 
 CommCare Tech Division skills for interacting with JIRA.
 
