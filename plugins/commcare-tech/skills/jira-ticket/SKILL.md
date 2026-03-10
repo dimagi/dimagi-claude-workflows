@@ -145,9 +145,9 @@ Set sprint via `additional_fields`: `"customfield_10010": <sprint_id_number>` (p
 
 ## Components
 
-**Do not set components.** Developers on this team never use them (0% of dev-created tickets have components). Only set a component if the user **explicitly asks** for one (e.g., "component: Formplayer").
+Developers on this team rarely set components on their own tickets. Don't add one unless the input explicitly specifies a component (e.g., "component: Formplayer", "Component: Data Privacy / Security"). Other skills like `/jira-cve` may pass a component — always honor it when present.
 
-If explicitly requested, use `additional_fields`: `"components": [{"name": "Component Name"}]`
+If a component is specified, use `additional_fields`: `"components": [{"name": "Component Name"}]`
 
 ## Description
 
