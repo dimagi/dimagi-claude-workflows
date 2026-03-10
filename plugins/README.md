@@ -51,3 +51,7 @@ CommCare Tech Division skills for interacting with JIRA.
 **Skills**
 
 - `sprint-prep`: Prepare for the next sprint. Reviews your Jira board, walks through highlights and carryovers interactively, and drafts a sprint plan message for Slack.
+
+- `jira-ticket`: Create a SAAS Jira ticket from a plain-English description. Handles assignee, issue type, effort, priority, sprint assignment, and epic linking automatically. Example: `/jira-ticket fix the login redirect bug`
+
+- `jira-cve`: Create a security ticket from a GitHub Dependabot alert URL. Fetches the alert details, maps severity to priority, and delegates to `jira-ticket` with the right fields pre-filled. Example: `/jira-cve https://github.com/dimagi/commcare-hq/security/dependabot/740`

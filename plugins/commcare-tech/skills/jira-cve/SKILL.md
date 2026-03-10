@@ -121,28 +121,25 @@ Set sprint via `additional_fields`: `"customfield_10010": <sprint_id_number>`.
 
 ## Epic
 
-Assume no epic.
+Don't set an epic. Security CVE tickets are standalone — they can always be linked to an epic later if needed.
 
 ## Steps
 
 1. Parse the URL from `$ARGUMENTS` to extract `owner/repo` and alert number.
-2. Run `gh api repos/<owner>/<repo>/dependabot/alerts/<alert_number>` to fetch
-   alert data.
+2. Run `gh api repos/<owner>/<repo>/dependabot/alerts/<alert_number>` to fetch alert data.
 3. Extract package, ecosystem, severity, patched version, CVE ID, and summary.
-4. Ask the user: "Should this go under a security epic? Paste a SAAS key or say 'no'."
-5. Construct the formatted summary and description (see formats above).
-6. Delegate to the `/jira-ticket` skill by invoking it with a single string
-   argument that contains all the relevant information:
+4. Construct the formatted summary and description (see formats above).
+5. Delegate to `/jira-ticket` with a single string containing all the ticket details. Structure it clearly so jira-ticket can parse each field:
 
    ```
-   /jira-ticket <formatted_summary>. Component: Data Privacy / Security. <priority>. Platform sprint. Description — Package: <package>, Patched version: <patched_version> or later, Ecosystem: <py|js>, CVE: <CVE-ID> (<cve_url>), GitHub alert: <alert_html_url>. <advisory_summary>. Fix: upgrade <package> to <patched_version> or later in the relevant dependency file.<if epic:  Epic: <SAAS-key>.>
+   /jira-ticket <formatted_summary>. <priority_label>. Component: Data Privacy / Security. Platform sprint. Hours. No epic. Description: <full_description_text>
    ```
 
-   **Always include the GitHub alert URL** (`html_url` from the API response, or the original `$ARGUMENTS` URL as fallback) in the description. This is required so the ticket links back to the Dependabot alert.
+   Where:
+   - `<formatted_summary>` is the title from the Title Format section
+   - `<priority_label>` is the Jira priority label (e.g., "P2") from the severity mapping
+   - `Description:` is followed by the full description from the Description section above
 
-   The `/jira-ticket` skill will handle assignee lookup, sprint resolution, and
-   ticket creation.
+   The `/jira-ticket` skill handles assignee lookup, sprint resolution, status transition to Prioritized, and ticket creation.
 
-   **Important:** Pass the priority explicitly using the label (e.g. "P2") so
-   `jira-ticket` picks it up. Pass the component as "Component: Data Privacy /
-   Security" so it is set correctly.
+   **The GitHub alert URL must appear in the description** (`html_url` from the API response, or the original `$ARGUMENTS` URL as fallback) so the ticket links back to the Dependabot alert.

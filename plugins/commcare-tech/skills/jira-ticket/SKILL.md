@@ -105,7 +105,10 @@ Set priority via `additional_fields`: `"priority": {"id": "<priority_id>"}`
 
 If the user mentions an epic, link the new ticket as a child of that epic using the `parent` field on `createJiraIssue`.
 
-**Team patterns:** Developers link to a parent epic ~80-100% of the time. If the user doesn't mention an epic, **ask**: "Should this be under an epic? (paste a SAAS key, describe it, or say 'no')". This single question saves time since most tickets need an epic.
+**Team patterns:** Developers link to a parent epic ~80-100% of the time. However, don't always interrupt the flow to ask — use judgment:
+
+- **Ask about epic** when the work sounds like it belongs to a larger initiative (feature work, multi-step projects, anything that implies related tickets exist). Phrase it as: "Should this be under an epic? (paste a SAAS key, describe it, or say 'no')"
+- **Skip the question** when the work is clearly standalone: quick bug fixes, hotfixes, one-off investigations, small cleanup tasks, or anything where the user's phrasing signals urgency or simplicity ("quick fix", "hotfix", "one-off", "small cleanup"). Just create the ticket without an epic — the user can always add one later.
 
 **How to detect epic references (natural language):**
 - "in the X epic" / "under the X epic" / "part of X" / "belongs to X epic"
@@ -142,9 +145,9 @@ Set sprint via `additional_fields`: `"customfield_10010": <sprint_id_number>` (p
 
 ## Components
 
-**Do not set components.** Developers on this team never use them (0% of dev-created tickets have components). Only set a component if the user **explicitly asks** for one (e.g., "component: Formplayer").
+Developers on this team rarely set components on their own tickets. Don't add one unless the input explicitly specifies a component (e.g., "component: Formplayer", "Component: Data Privacy / Security"). Other skills like `/jira-cve` may pass a component — always honor it when present.
 
-If explicitly requested, use `additional_fields`: `"components": [{"name": "Component Name"}]`
+If a component is specified, use `additional_fields`: `"components": [{"name": "Component Name"}]`
 
 ## Description
 
@@ -178,4 +181,11 @@ If the ticket has no sprint, do NOT call `getTransitionsForJiraIssue` or `transi
    - Otherwise, get current user via `atlassianUserInfo` (for self-assignment).
    - Search for active sprints.
 3. Craft a clean **summary**...
-4. After creating the ticket, respond with the full ticket URL so it is clickable in the terminal: `https://dimagi.atlassian.net/browse/SAAS-XXXXX`
+4. After creating the ticket, respond with a brief confirmation that lets the user verify everything at a glance:
+
+```
+Created [SAAS-XXXXX](https://dimagi.atlassian.net/browse/SAAS-XXXXX): Summary here
+Sprint: CommCare Product W | Effort: Hours | Assigned to: Graham
+```
+
+Include the ticket URL (clickable in the terminal), the sprint it was added to (or "Backlog" if none), effort range, and assignee. Only include epic/priority/status lines if they were explicitly set. Keep it compact — no more than 3 lines.
