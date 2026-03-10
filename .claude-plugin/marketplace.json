@@ -21,6 +21,12 @@
       "source": "./plugins/code-review",
       "version": "0.2",
       "description": "Perform thorough code review"
+    },
+    {
+      "name": "commcare-tech",
+      "source": "./plugins/commcare-tech",
+      "version": "0.1",
+      "description": "Skills for the CommCare Tech Team"
     }
   ]
 }
