@@ -119,10 +119,6 @@ Security work is Platform work. Search for the active Platform sprint:
 
 Set sprint via `additional_fields`: `"customfield_10010": <sprint_id_number>`.
 
-## Epic
-
-Don't set an epic. Security CVE tickets are standalone — they can always be linked to an epic later if needed.
-
 ## Steps
 
 1. Parse the URL from `$ARGUMENTS` to extract `owner/repo` and alert number.
