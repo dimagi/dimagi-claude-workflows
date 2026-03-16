@@ -1,6 +1,7 @@
 ---
 name: vertical-ordering
 description: Use when writing new functions, extracting helpers, refactoring modules, or reorganizing code — any time function placement order is a decision
+user-invocable: false
 ---
 
 # Vertical Ordering
