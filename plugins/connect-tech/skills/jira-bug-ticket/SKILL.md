@@ -73,20 +73,22 @@ Before creating, you need the Jira cloudId and the right project. Use the Atlass
 Use `createJiraIssue` with:
 - `issueTypeName`: `"Bug"`
 - `summary`: the summary
+- `contentFormat`: `"markdown"` — always set this so the description renders correctly
 - `description`: Build a well-structured description in Markdown that includes:
   - The user's description
   - A **Troubleshooting Steps Taken** section (if provided)
   - A **Users/Programs Impacted** section (if provided)
   - An **Attachments** section (if provided)
-- `priority` field via `additional_fields`: map the priority as follows:
-  - P1 → `{ "name": "Highest" }`
-  - P2 → `{ "name": "High" }`
-  - P3 → `{ "name": "Medium" }`
-  - P4 → `{ "name": "Low" }`
-  - P5 → `{ "name": "Lowest" }`
-- Optional fields via `additional_fields` if provided:
-  - `"components"`: `[{ "name": "<component>" }]`
-  - `"customfield_10[...]"` for any custom fields if discovered via `getJiraIssueTypeMetaWithFields`
+
+### Handling `additional_fields` — Known Pitfalls
+
+The `additional_fields` parameter passes fields directly to the Jira API. Several fields commonly fail:
+
+- **`priority`**: The priority names must match the project's configured priorities EXACTLY. The names vary by project — "Medium", "Highest", etc. may not exist. **Do NOT include priority in the first attempt.** If the user specified a priority, try adding it in a follow-up `editJiraIssue` call, or first call `getJiraIssueTypeMetaWithFields` to discover the valid priority names for the project.
+- **`components`**: Components must already exist in the project. Jira returns a permissions error ("You do not have permission to create new components") if you reference a component name that doesn't exist — it tries to create it rather than failing gracefully. **Do NOT include components unless you have verified they exist** via `getJiraIssueTypeMetaWithFields`.
+- **`customfield_*`**: Custom field IDs vary by Jira instance. Discover them via `getJiraIssueTypeMetaWithFields` before using.
+
+**Recommended approach:** Create the ticket with only `summary`, `description`, `issueTypeName`, and `contentFormat` first. If that succeeds, use `editJiraIssue` to add priority, components, and other optional fields in a second call. This avoids a single bad field blocking ticket creation entirely.
 
 ### Description Template (Markdown)
 
