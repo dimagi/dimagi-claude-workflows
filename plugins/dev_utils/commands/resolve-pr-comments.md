@@ -4,6 +4,8 @@ argument-hint: [--resolve] [--dry-run]
 allowed-tools: Bash(gh auth status:*), Bash(gh repo view:*), Bash(gh pr view:*), Bash(gh api:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(bash:*), Read, Edit
 ---
 
+> **Deprecated:** This command is superseded by the `iterate-pr` skill, which handles both review feedback and CI failures in a single workflow. Prefer using that skill instead.
+
 Detect the upstream repository and current PR automatically, then work through every unresolved review comment end-to-end.
 
 If `--dry-run` is in $ARGUMENTS, print the plan but make no changes (no commits, no replies, no resolves).

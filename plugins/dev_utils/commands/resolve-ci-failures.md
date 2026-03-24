@@ -4,6 +4,8 @@ argument-hint: [<pr_number> [<repo>]]
 allowed-tools: Bash(bash:*), Bash(gh pr checks:*), Bash(gh api:*), Bash(gh repo view:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Read, Edit
 ---
 
+> **Deprecated:** This command is superseded by the `iterate-pr` skill, which handles both CI failures and review feedback in a single workflow. Prefer using that skill instead.
+
 ## 1. Fetch failures
 
 Run the script to show which checks failed and the relevant log output:
