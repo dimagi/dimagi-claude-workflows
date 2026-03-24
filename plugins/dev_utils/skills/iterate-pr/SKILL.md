@@ -92,16 +92,20 @@ This includes review bot feedback (items with `review_bot: true`). Treat it the 
 - False positive → skip, but note why (will be included in reply)
 - Never silently ignore review bot feedback — always verify the finding
 
-**Prompt user for selection:**
-- `low` - present numbered list and ask which to address:
+**Prompt user for selection (using `AskUserQuestion` tool):**
+- `low` - use the `AskUserQuestion` tool to present options. Build the question text with a numbered list of all low-priority items, then offer these options:
+  - "All" — address every low-priority item
+  - "None" — decline all
+  - "Pick…" — let the user specify which numbers in the "Other" text field (e.g., "1,3")
 
+Example question text:
 ```
 Found 3 low-priority suggestions:
 1. [l] "Consider renaming this variable" - @reviewer in api.py:42
 2. [nit] "Could use a list comprehension" - @reviewer in utils.py:18
 3. [style] "Add a docstring" - @reviewer in models.py:55
 
-Which would you like to address? (e.g., "1,3" or "all" or "none")
+Which would you like to address?
 ```
 
 **Skip silently:**
