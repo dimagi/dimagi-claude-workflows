@@ -1,0 +1,16 @@
+{
+  "name": "commcare-tech",
+  "description": "Skills for the CommCare Tech Team",
+  "author": {
+    "name": "Graham Herceg",
+    "email": "gherceg@dimagi.com",
+    "url": "https://github.com/dimagi"
+  },
+  "homepage": "https://github.com/dimagi/dimagi-claude-workflows",
+  "repository": "https://github.com/dimagi/dimagi-claude-workflows",
+  "license": "MIT",
+  "keywords": [
+    "commcare",
+    "commcare-tech"
+  ]
+}
