@@ -242,7 +242,7 @@ def categorize_comment(comment: dict[str, Any], body: str) -> str:
     low_patterns = [
         r"(?i)nit[:\s]",
         r"(?i)nitpick",
-        r"(?i)suggestion[:\s]",
+        r"(?i)(?<!`)suggestion[:\s]",
         r"(?i)consider\s+",
         r"(?i)could\s+(also\s+)?",
         r"(?i)might\s+(want\s+to|be\s+better)",
