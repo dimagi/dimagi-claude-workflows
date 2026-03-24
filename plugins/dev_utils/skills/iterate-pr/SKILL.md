@@ -69,9 +69,10 @@ uv run ${CLAUDE_SKILL_ROOT}/scripts/reply_to_thread.py THREAD_ID "body" [THREAD_
 
 ```bash
 gh pr view --json number,url,headRefName
+gh repo view --json owner,name -q '"\\(.owner.login)/\\(.name)"'
 ```
 
-Stop if no PR exists for the current branch.
+Store PR number and `{owner}/{repo}` for use in later steps. Stop if no PR exists for the current branch.
 
 ### 2. Gather and Address Review Feedback
 
@@ -109,7 +110,7 @@ Which would you like to address? (e.g., "1,3" or "all" or "none")
 
 Track every thread's disposition (fixed, declined, false-positive, skipped) for the reply step.
 
-If `--dry-run`: print the classification table and skip to the Summary step.
+If `--dry-run`: print the classification table (including the low-priority numbered list for preview, but do NOT prompt the user for selection). Skip to the Summary step.
 
 ### 3. Check CI and Fix Failures
 
