@@ -360,10 +360,6 @@ def main():
         author = first_comment.get("author", {}).get("login", "")
         body = first_comment.get("body", "")
 
-        # Skip if author is PR author (self-comments)
-        if author == pr_author:
-            continue
-
         # Skip empty or very short comments
         if not body or len(body.strip()) < 3:
             continue
