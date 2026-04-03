@@ -1,0 +1,29 @@
+{
+  "name": "manager",
+  "description": "Skills for defining and working towards professional goals — standup, shutdown, sync, and goal-setting",
+  "author": {
+    "name": "Graham Herceg",
+    "email": "gherceg@dimagi.com",
+    "url": "https://github.com/dimagi"
+  },
+  "homepage": "https://github.com/dimagi/claude-plugins",
+  "repository": "https://github.com/dimagi/claude-plugins",
+  "license": "MIT",
+  "keywords": [
+    "goals",
+    "journal",
+    "standup",
+    "productivity",
+    "management"
+  ],
+  "userConfig": {
+    "notes_directory": {
+      "description": "Directory where journal entries and goals are saved (e.g. ~/notes, ~/Documents/journal)",
+      "sensitive": false
+    },
+    "review_day": {
+      "description": "Day of the week for weekly reviews (e.g. Friday, Monday). Defaults to Friday if not set.",
+      "sensitive": false
+    }
+  }
+}
