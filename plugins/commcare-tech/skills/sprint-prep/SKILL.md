@@ -103,9 +103,9 @@ Summarize what's already lined up. If the next sprint is empty for this engineer
 
 > ⚠️ No tickets in the next [Platform|Product] sprint. You may need to pull from the backlog or create tickets for planned work.
 
-### 7. Ask for highlights and confirm carryovers
+### 7. Ask for highlights, carryovers, and upcoming plans
 
-Ask the following three questions one at a time, waiting for the engineer's response after each before proceeding to the next.
+Ask the following four questions one at a time, waiting for the engineer's response after each before proceeding to the next.
 
 **Question 1 — Highlights:** Group the completed and in-review tickets into thematic categories (up to 5, but could be just 1 if the work was focused). Include tickets with status Accepted, Deployed, or In Review — if a PR is up, the engineering work is done and it counts as a highlight. Present those categories — not individual tickets — and ask:
 
@@ -116,12 +116,16 @@ Ask the following three questions one at a time, waiting for the engineer's resp
 
 Wait for response. When the engineer selects a category, note the individual tickets in that category for use in the draft.
 
-**Question 2 — Carryovers:** Show the tickets still in progress (In Progress or Prioritized/not started) and ask. In Review tickets are already covered as highlights above — only include them here if they've been in review for an unusually long time and might genuinely be stuck:
+**Question 2 — Carryovers and why:** Show the tickets still in progress (In Progress or Prioritized/not started) and ask. In Review tickets are already covered as highlights above — only include them here if they've been in review for an unusually long time and might genuinely be stuck:
 
-> **Are any of these tickets at risk of rolling over?**
+> **Are any of these tickets at risk of rolling over? If so, what's blocking them or slowing them down?**
 >
 > • SAAS-AAAAA (In Progress): summary
 > • SAAS-BBBBB (Prioritized): summary
+
+Wait for response.
+
+**Follow-up if the answer is thin:** If the engineer identifies tickets at risk but doesn't explain why (e.g., they just say "yes, SAAS-12345" or "that one might roll"), follow up and ask what's making it hard to finish — is it waiting on review, blocked by another team, more complex than expected, etc. The "why" is the most important part of the sprint update because it's what helps others reading the message understand where they can jump in. Don't be pushy, but do ask once.
 
 Wait for response.
 
@@ -138,17 +142,17 @@ If there are tickets, group them into thematic categories (up to 5, could be jus
 
 Wait for response. When the engineer selects a category, note it for use in the draft summary sentence.
 
-**Question 4 — Blockers:** Ask:
+**Question 4 — Upcoming challenges:** Ask:
 
-> **Anything you're stuck on or could use help with?**
+> **Anything coming up that could impact next sprint? PTO, team members offline, dependencies on other teams, etc.?**
 
-Wait for response. If they mention a blocker, include it as a note at the top of the draft message.
+Wait for response. This is about forward-looking risks — things that haven't blocked work yet but might. If they mention something, weave it into the draft message.
 
 After all four responses are collected, proceed to draft the message.
 
 ### 8. Draft the sprint plan message
 
-Using the engineer's selected highlights and the data collected, draft a three-section message.
+Using the engineer's selected highlights and the data collected, draft a four-section message.
 
 **Format:**
 
@@ -159,7 +163,7 @@ Summary sentence here.
 • [SAAS-YYYYY](https://dimagi.atlassian.net/browse/SAAS-YYYYY): One-line description
 
 **What might carry over**
-Summary sentence here.
+Summary sentence here — this should clearly state WHY these are at risk.
 • [SAAS-ZZZZZ](https://dimagi.atlassian.net/browse/SAAS-ZZZZZ): Brief note on status / why it's carrying over
 
 **What I plan to work on in the next sprint**
@@ -167,18 +171,18 @@ Summary sentence here.
 • [SAAS-AAAAA](https://dimagi.atlassian.net/browse/SAAS-AAAAA): Short description
 • [SAAS-BBBBB](https://dimagi.atlassian.net/browse/SAAS-BBBBB): Short description
 
-**Challenges**
-Brief description of what the engineer is working through or could use help with.
+**Upcoming challenges**
+Forward-looking risks — PTO, dependencies, team availability, etc. If the engineer said nothing, write "None".
 ```
 
 **Important:** When sending to Slack via the API, use `\n\n` (double newline) between each section. Slack collapses single newlines, so you need two to get visible spacing between sections.
 
 **Rules for the draft:**
 - **Highlights:** Use only what the engineer selected — do not decide on their behalf. Write a 1-sentence summary of the highlighted work based on the ticket content and what the engineer said when selecting the category. Place this before the ticket list. For individual ticket lines, use the ticket title as-is.
-- **Carryovers:** Include tickets the engineer confirmed might roll over. Write a 1-sentence summary before the ticket list explaining why they're carrying over, based on what the engineer said. For individual ticket lines, use the ticket title as-is.
+- **Carryovers:** Include tickets the engineer confirmed might roll over. Write a 1-sentence summary before the ticket list that clearly explains **why** they're at risk — this is the most important context in the whole update. Use what the engineer said (waiting on review, blocked by another team, complexity, etc.). The reason should be specific enough that someone reading the channel could understand whether they can help. For individual ticket lines, use the ticket title as-is.
 - **Next sprint:** Include ALL tickets from the next sprint. Write a 1-sentence summary before the ticket list based on the categories the engineer highlighted and the ticket content.
-- **Challenges:** Include what the engineer answered for this above. If the engineer said nothing is challenging them, write "None" as the content.
-- If the engineer mentioned any context about PTO, travel, or reduced availability during the conversation, note it at the top (e.g., "Offline for a couple of days next week").
+- **Upcoming challenges:** Include what the engineer said about forward-looking risks (PTO, dependencies, etc.). If the engineer said nothing, write "None".
+- If the engineer mentioned any context about PTO, travel, or reduced availability during the conversation, note it in the upcoming challenges section.
 - Keep descriptions short — one line per ticket. Match the casual style used in the channel (not formal).
 - Use Slack `**bold**` syntax (double asterisks) for section headers. Single `*` renders as italic in Slack's API.
 
@@ -192,14 +196,19 @@ Output the full report in this order:
 
 The message should be split into two parts for Slack:
 
-**Part 1 — Channel message (TLDR):** A single sentence prefixed with `**Sprint update:** ` (bold, using double asterisks), summarizing what was accomplished and what's coming next. Write it conversationally — avoid stiff phrasing like "Next sprint:" and instead weave the upcoming work naturally into the sentence. This is posted directly in the channel.
+**Part 1 — Channel message (TLDR):** A short natural-language summary (2-3 sentences max). No prefix or label — just jump straight in. This is the message people actually read in the channel, so it needs to do real work. Structure it like this:
+- Start with what was accomplished last sprint.
+- Then — and this is the most important part — call out what's at risk of rolling over and **why**. Be specific about the reason (e.g., "waiting on review from X team", "turned out to be more complex than scoped"). The goal is that someone scanning the channel can see this and jump in to help unblock things.
+- End with what's coming up next sprint.
+
+Write it conversationally — this should read like something a person would actually type in Slack, not a formal report. If nothing is at risk, keep it simple and just cover highlights + what's next. This is posted directly in the channel.
 
 **Part 2 — Thread reply (full update):** The detailed sprint plan, posted as a reply in the thread of the TLDR message.
 
 ```
 ## TLDR (posted in channel)
 
-One-sentence summary of highlights and what's next.
+[Natural language summary — vary the phrasing every time. Don't use a fixed template or start with the same words. Just write it like a person would.]
 
 ## Full Update (posted as thread reply)
 
@@ -215,8 +224,8 @@ Summary sentence here.
 Summary sentence here.
 • [SAAS-ZZZZZ](...): Planned work
 
-**Challenges**
-Brief description of what the engineer is working through or could use help with.
+**Upcoming challenges**
+Forward-looking risks — PTO, dependencies, team availability, etc.
 ```
 
 **6. Ask for confirmation**
