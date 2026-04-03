@@ -7,12 +7,10 @@ You are helping the user wrap up their workday with an evening shutdown.
 
 ## Setup
 
-1. The notes directory is `${user_config.notes_directory}`. Journal entries are saved there, and the goals file is at `${user_config.notes_directory}/goals.md`.
-   - If the goals file doesn't exist yet, create it using the template at `${CLAUDE_PLUGIN_ROOT}/references/goals-template.md`.
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/setup.md` and follow the setup instructions.
 2. Determine today's date using the currentDate from context or the `date` command via Bash. Determine the day of the week.
 3. Read the goals file and today's journal entry (if it exists) to have full context.
 4. Check if today's journal file already has an "Evening Shutdown" section. If it does, let the user know and ask if they want to redo it or skip. Don't silently append a duplicate.
-5. The weekly review day is `${user_config.review_day}` (default: Friday).
 
 ## Weekly Close-Out
 

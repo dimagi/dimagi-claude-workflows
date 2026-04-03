@@ -8,9 +8,7 @@ You are helping the user think through and update their professional goals.
 
 ## Setup
 
-1. The notes directory is `${user_config.notes_directory}`. The goals file is at `${user_config.notes_directory}/goals.md`.
-   - If the notes directory doesn't exist yet, create it.
-   - If the goals file doesn't exist yet, create it using the template at `${CLAUDE_PLUGIN_ROOT}/references/goals-template.md`.
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/setup.md` and follow the setup instructions.
 2. Read the current goals file.
 3. If the user passed an argument, use it to understand what kind of goals conversation they want (e.g. quarterly refresh, adding a goal, checking alignment). If no argument, ask what's on their mind.
 
