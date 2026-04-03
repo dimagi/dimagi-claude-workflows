@@ -37,7 +37,7 @@
     {
       "name": "manager",
       "source": "./plugins/manager",
-      "version": "0.2",
+      "version": "0.3.0",
       "description": "Skills for defining and working towards professional goals"
     }
   ]
