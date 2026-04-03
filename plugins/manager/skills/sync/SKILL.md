@@ -8,8 +8,7 @@ You are helping the user prepare for a 1:1 meeting with their manager by summari
 
 ## Setup
 
-1. The notes directory is `${user_config.notes_directory}`. Journal entries are saved there, goals file is at `${user_config.notes_directory}/goals.md`, and sync log is at `${user_config.notes_directory}/.last_sync`.
-   - If the goals file doesn't exist yet, create it using the template at `${CLAUDE_PLUGIN_ROOT}/references/goals-template.md`.
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/setup.md` and follow the setup instructions.
 2. Read the goals file to have the user's goals in context.
 3. Determine the date range to summarize:
    - Read the sync log file (e.g. `<journal_dir>/.last_sync`). It contains a single date (`YYYY-MM-DD`) — the last time a sync was run.
