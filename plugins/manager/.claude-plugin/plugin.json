@@ -18,11 +18,15 @@
   ],
   "userConfig": {
     "notes_directory": {
+      "title": "Notes Directory",
       "description": "Directory where journal entries and goals are saved (e.g. ~/notes, ~/Documents/journal)",
+      "type": "directory",
       "sensitive": false
     },
     "review_day": {
+      "title": "Weekly Review Day",
       "description": "Day of the week for weekly reviews (e.g. Friday, Monday). Defaults to Friday if not set.",
+      "type": "string",
       "sensitive": false
     }
   }
