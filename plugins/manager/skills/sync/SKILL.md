@@ -8,7 +8,8 @@ You are helping the user prepare for a 1:1 meeting with their manager by summari
 
 ## Setup
 
-1. Read `${CLAUDE_PLUGIN_ROOT}/references/setup.md` and follow the setup instructions.
+1. The notes directory is `${user_config.notes_directory}`. If that's empty or not set, fall back to `${CLAUDE_PLUGIN_DATA}`.
+2. Read `${CLAUDE_PLUGIN_ROOT}/references/setup.md` and follow the setup instructions.
 2. Read the goals file to have the user's goals in context.
 3. Determine the date range to summarize:
    - Read the sync log file (e.g. `<journal_dir>/.last_sync`). It contains a single date (`YYYY-MM-DD`) — the last time a sync was run.
