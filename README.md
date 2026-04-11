@@ -21,14 +21,19 @@ See [plugins/README.md](plugins/README.md) for full documentation, including ins
 
 ## External Plugins
 
-### Skill Plugins
+Included in this repo's [marketplace.json](.claude-plugin/marketplace.json) and installed alongside the local plugins.
 
-- [Superpowers](https://github.com/obra/superpowers) — Plan → Build → Review workflow
+| Plugin | What it does |
+|--------|-------------|
+| [Superpowers](https://github.com/obra/superpowers) | Plan → Build → Review workflow |
+| [Context7](https://github.com/upstash/context7) | Up-to-date library documentation for LLMs |
+| [Humanizer](https://github.com/trailofbits/skills-curated/tree/main/plugins/humanizer) | Remove AI writing patterns from text |
+| [Visual Explainer](https://github.com/nicobailon/visual-explainer) | Documentation and visualization |
+| [Dogfood](https://skills.sh/vercel-labs/agent-browser/dogfood) | Systematic web app exploration and bug finding |
+
+### Other Recommended Plugins
+
 - [Official Anthropic Claude Plugins](https://github.com/anthropics/claude-plugins-official) — git commit skills and more
-- [Context7](https://github.com/upstash/context7) — Up-to-date library documentation for LLMs
-- [Humanizer](https://github.com/trailofbits/skills-curated/tree/main/plugins/humanizer) — Remove AI writing patterns from text
-- [Visual Explainer](https://github.com/nicobailon/visual-explainer) — Documentation and visualization
-- [Dogfood](https://skills.sh/vercel-labs/agent-browser/dogfood) — Systematic web app exploration and bug finding
 
 ## Development Workflow
 

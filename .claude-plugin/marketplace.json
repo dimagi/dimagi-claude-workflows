@@ -39,6 +39,60 @@
       "source": "./plugins/manager",
       "version": "0.3.2",
       "description": "Skills for defining and working towards professional goals"
+    },
+    {
+      "name": "superpowers",
+      "description": "Plan, Build, Review workflow with brainstorming, subagent driven development, systematic debugging, and TDD",
+      "category": "development",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/obra/superpowers.git"
+      },
+      "homepage": "https://github.com/obra/superpowers"
+    },
+    {
+      "name": "context7",
+      "description": "Up-to-date library documentation lookup via Upstash Context7 MCP server",
+      "category": "development",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/upstash/context7.git"
+      },
+      "homepage": "https://github.com/upstash/context7"
+    },
+    {
+      "name": "humanizer",
+      "description": "Remove AI writing patterns from text",
+      "category": "productivity",
+      "source": {
+        "source": "git-subdir",
+        "url": "trailofbits/skills-curated",
+        "path": "plugins/humanizer",
+        "ref": "main"
+      },
+      "homepage": "https://github.com/trailofbits/skills-curated/tree/main/plugins/humanizer"
+    },
+    {
+      "name": "visual-explainer",
+      "description": "Generate beautiful HTML pages that visually explain systems, code changes, and data",
+      "category": "development",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/nicobailon/visual-explainer.git"
+      },
+      "homepage": "https://github.com/nicobailon/visual-explainer"
+    },
+    {
+      "name": "dogfood",
+      "description": "Systematic web app exploration and bug finding",
+      "category": "development",
+      "source": {
+        "source": "git-subdir",
+        "url": "vercel-labs/agent-browser",
+        "path": "skills/dogfood",
+        "ref": "main"
+      },
+      "homepage": "https://skills.sh/vercel-labs/agent-browser/dogfood"
     }
   ]
 }
