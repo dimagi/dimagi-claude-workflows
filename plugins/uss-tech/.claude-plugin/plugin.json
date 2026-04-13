@@ -1,0 +1,13 @@
+{
+  "name": "uss-tech",
+  "description": "Skills for the USS Tech Team",
+  "author": {
+    "name": "Ethan Soergel",
+    "email": "esoergel@dimagi.com",
+    "url": "https://github.com/dimagi"
+  },
+  "homepage": "https://github.com/dimagi/dimagi-claude-workflows",
+  "repository": "https://github.com/dimagi/dimagi-claude-workflows",
+  "license": "MIT",
+  "keywords": ["commcare", "uss-tech"]
+}
