@@ -157,3 +157,25 @@ Use `"Add v{version} release notes"` as the version message.
 
 Tell the user the file path where the notes were saved and confirm the Confluence
 page was updated with a link to it.
+
+## Step 8: Post to Slack
+
+Post the release notes to the Connect release notes Slack channel:
+**Channel:** `#connect-product-feed` (channel ID: `C08MRUZ8T9A`)
+
+Use the Slack MCP `slack_send_message` tool. Format the message using Slack's mrkdwn
+syntax — *not* standard Markdown:
+
+- Opening line: `**Connect v{version}** — Released {date}` (no emojis)
+- Section headers: `**NEW**`, `**IMPROVEMENTS**`, `**BUG FIXES**` (bold all-caps, no `##`)
+- Bullet items: `• Feature Title — Description. <PR_URL|Screenshots>` or `<PR_URL|Demo>`
+  - Feature title is plain text; only section headers are bold
+- Use `**double asterisks**` for bold — the tool uses standard Markdown where `*single*` renders as italic
+- Links: `<url|label>` syntax (not `[label](url)`)
+- Do **not** use `---` horizontal rules — they are invalid in Slack messages
+- Do **not** use emojis anywhere in the message
+- Keep bullet descriptions concise (one sentence); the full notes are on Confluence
+- End with a plain link to the Confluence page:
+  `Full release notes: <https://dimagi.atlassian.net/wiki/spaces/connectpublic/pages/3870556169/Web+Release+Notes|Web Release Notes on Confluence>`
+
+Confirm to the user that the Slack message was posted and include the message link.
