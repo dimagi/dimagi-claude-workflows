@@ -1,13 +1,13 @@
 ---
 name: pr-status-report
-description: Use when the user asks for a PR report, PR status, open PRs overview, or wants to know which pull requests need their attention in dimagi/commcare-android
+description: Use when the user asks for a PR report, PR status, open PRs overview, or wants to know which pull requests need their attention in the current repository
 ---
 
 # PR Status Report
 
 ## Overview
 
-Generate a structured report of all open PRs in dimagi/commcare-android, categorized by what needs the current GitHub user's attention. The report prioritizes actionability — review requests and failing CI on your own PRs come first.
+Generate a structured report of all open PRs in the current repository, categorized by what needs the current GitHub user's attention. The report prioritizes actionability — review requests and failing CI on your own PRs come first.
 
 ## When to Use
 
@@ -16,6 +16,20 @@ Generate a structured report of all open PRs in dimagi/commcare-android, categor
 - User wants to triage their PR workload
 
 ## Process
+
+### 0. Resolve the Target Repository
+
+Determine the repo to report on. Prefer an explicit `owner/repo` the user provided; otherwise auto-detect from the current working directory:
+
+```bash
+gh repo view --json nameWithOwner,owner --jq '{repo: .nameWithOwner, owner: .owner.login}'
+```
+
+If this fails (not inside a gh-recognized repo), ask the user which repo to report on before continuing.
+
+Cache the values for later steps:
+- `REPO` — full `owner/name` (e.g., `dimagi/commcare-android`)
+- `OWNER` — just the owner/org segment
 
 ### 1. Identify the Current User and Their Teams
 
@@ -26,13 +40,15 @@ gh api user --jq '.login'
 ```
 
 ```bash
-gh api orgs/dimagi/teams --jq '.[].slug'
+gh api orgs/OWNER/teams --jq '.[].slug'
 ```
 
-Then for each team, check membership:
+The teams call 404s if `OWNER` is a personal account rather than an organization. Treat a 404 as "no teams" and skip the team-membership checks entirely.
+
+If teams were returned, check membership for each:
 
 ```bash
-gh api orgs/dimagi/teams/TEAM_SLUG/members --jq '.[].login' | grep -q USERNAME
+gh api orgs/OWNER/teams/TEAM_SLUG/members --jq '.[].login' | grep -q USERNAME
 ```
 
 Cache the team names the user belongs to — needed to resolve team-based review requests in step 5.
@@ -44,7 +60,7 @@ Cache the team names the user belongs to — needed to resolve team-based review
 Fetch in a single call with only the fields needed. Avoid fetching full review bodies — they can be massive (200KB+) and blow up context. Include `additions` and `deletions` for sizing.
 
 ```bash
-gh pr list --repo dimagi/commcare-android --state open --limit 100 \
+gh pr list --repo REPO --state open --limit 100 \
   --json number,title,author,reviewRequests,reviewDecision,isDraft,mergeable,labels,createdAt,assignees,url,additions,deletions \
   --jq '.[] | {
     number,
@@ -72,7 +88,7 @@ Get PRs where you have submitted reviews. Fetch the latest review state AND the 
 ```bash
 gh api graphql -f query='
 {
-  search(query: "repo:dimagi/commcare-android is:pr is:open reviewed-by:USERNAME", type: ISSUE, first: 50) {
+  search(query: "repo:REPO is:pr is:open reviewed-by:USERNAME", type: ISSUE, first: 50) {
     nodes {
       ... on PullRequest {
         number
@@ -88,7 +104,7 @@ gh api graphql -f query='
 }'
 ```
 
-Replace `USERNAME` with the GitHub login from step 1.
+Replace `REPO` with the value from step 0 and `USERNAME` with the GitHub login from step 1.
 
 Use the `submittedAt` vs `commits.last.committedDate` comparison to flag PRs where the author pushed new commits after your last review.
 
@@ -97,7 +113,7 @@ Use the `submittedAt` vs `commits.last.committedDate` comparison to flag PRs whe
 Only fetch CI status for PRs that need the user's attention (authored PRs, review-requested PRs).
 
 ```bash
-gh pr view NUMBER --repo dimagi/commcare-android --json statusCheckRollup \
+gh pr view NUMBER --repo REPO --json statusCheckRollup \
   --jq '[.statusCheckRollup[] | select(.name != null) | {name: .name, conclusion: .conclusion, status: .status}]'
 ```
 
@@ -109,7 +125,7 @@ Summarize CI as one of: `passing`, `failing (NAME)`, `pending`, `no checks`.
 
 ### 5. Build the Report
 
-Start with a header line: `**User:** USERNAME | **Date:** YYYY-MM-DD | **Open PRs:** N total`
+Start with a header line: `**Repo:** REPO | **User:** USERNAME | **Date:** YYYY-MM-DD | **Open PRs:** N total`
 
 Organize PRs into these sections, in priority order:
 
@@ -170,3 +186,4 @@ End with a numbered list of concrete next steps, ordered by priority:
 - Including bot-authored draft PRs in the main sections — they clutter the report
 - Not checking CI status, which is critical for knowing if your own PRs are blocked
 - Not comparing review timestamps to latest commit timestamps — miss new activity on reviewed PRs
+- Treating the `gh api orgs/OWNER/teams` 404 for personal-account repos as an error instead of "no teams"
