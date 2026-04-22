@@ -31,7 +31,7 @@
     {
       "name": "connect-tech",
       "source": "./plugins/connect-tech",
-      "version": "0.1",
+      "version": "0.2.0",
       "description": "Skills for the CommCare Connect Team"
     },
     {
