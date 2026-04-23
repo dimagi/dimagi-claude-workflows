@@ -73,3 +73,13 @@ CommCare Connect Team skills for documentation, specs, and release notes.
 - `jira-spec-doc`: Generate a full product spec doc (Design Doc + Tech Spec) from a Jira ticket ID or URL. Fetches ticket data and produces a structured Markdown file following the Connect Spec Doc template. Example: `/jira-spec-doc CCC-284`
 
 - `docs-vs-code-review`: Audit Confluence documentation against actual source code to find inaccuracies and gaps. Fetches all pages under a root Confluence URL, clones the relevant repos, and produces a prioritized edit list. Example: `/docs-vs-code-review https://dimagi.atlassian.net/wiki/spaces/connectpublic/pages/3215458305`
+
+---
+
+## uss-tech
+
+USS Tech Team skills for Jira project management and Confluence design docs.
+
+**Skills**
+
+- `jira-project-management`: Manage USH Jira tickets, epics, sprints, and Confluence design docs. Implicit skill — triggers when you mention a USH ticket, ask about sprint status, request a design doc, etc.
