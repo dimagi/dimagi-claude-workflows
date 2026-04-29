@@ -41,6 +41,12 @@
       "description": "Skills for defining and working towards professional goals"
     },
     {
+      "name": "uss-tech",
+      "source": "./plugins/uss-tech",
+      "version": "0.1.0",
+      "description": "Skills for the USS Tech Team"
+    },
+    {
       "name": "superpowers",
       "description": "Plan, Build, Review workflow with brainstorming, subagent driven development, systematic debugging, and TDD",
       "category": "development",
