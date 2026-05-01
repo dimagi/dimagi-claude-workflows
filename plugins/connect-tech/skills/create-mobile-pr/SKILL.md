@@ -112,9 +112,20 @@ The Safety story is **not** a defense of the PR. Do not stack arguments in favor
 Structure the Safety story with two short lists:
 
 - **What gives confidence:** concrete, factual reasons the change is likely safe -- e.g. the user's personal testing (from step 3, described in their own words), narrow scope of the diff, existing automated coverage that exercises the changed code paths, the change being behind a flag, etc. Only include items that are actually true; do not pad.
-- **Risks to review:** honest risks the reviewer should consider -- e.g. data migrations, behavior changes for existing users, code paths not covered by automated tests, areas the author did not manually exercise, third-party integrations affected, performance-sensitive paths, error-handling changes, etc. If the author did limited testing, that itself is a risk and should be listed.
+- **Risks to review:** honest risks the reviewer should consider -- e.g. data migrations, behavior changes for existing users, code paths not covered by automated tests, areas the user did not manually exercise, third-party integrations affected, performance-sensitive paths, error-handling changes, etc. If the user did limited testing, that itself is a risk and should be listed.
 
 If a risk is genuinely mitigated, say *how* it is mitigated rather than dismissing it. If a risk is not mitigated, leave it in the list so the reviewer can decide whether to ask for more work.
+
+**Voice -- write the Safety story in the first person.**
+
+The PR is authored by the user, so any sentence describing what *they* did to verify the change must be written from their point of view. Use **"I"**, not "the author" or "the user" or "the developer".
+
+- Correct: "I manually exercised the happy path on a device."
+- Correct: "I did not run unit tests locally."
+- Wrong: "The author manually exercised the happy path on a device."
+- Wrong: "The user tested the failure path with airplane mode."
+
+This applies to both the **What gives confidence** and **Risks to review** lists, and to any other sentence in the PR description that refers to actions the PR author took. Statements about the *change itself* (e.g. "the change reuses the existing endpoint") stay in third person -- only switch to "I" when the subject is the PR author.
 
 #### QA Plan -- point to RELEASES.md
 
@@ -190,4 +201,5 @@ After creation, output the PR URL so the user can see it.
 - Writing QA notes that require developer tooling (Android Studio, Logcat, adb, unit tests, internal storage inspection, etc.) -- QA only has a phone build
 - Duplicating QA notes in the PR description's QA Plan section instead of pointing to RELEASES.md
 - Writing the Safety story as advocacy for the PR -- it must list both confidence factors and unresolved risks neutrally
-- Inventing testing the author did not actually do -- ask the user explicitly if it is unclear
+- Inventing testing the user did not actually do -- ask them explicitly if it is unclear
+- Writing the Safety story in the third person ("the author did X", "the user tested Y") -- the PR is authored by the user, so descriptions of what they did must use "I"
