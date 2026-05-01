@@ -50,7 +50,6 @@ Utility commands for general development tasks.
 
 - `/pr-status-report`: Generate a structured, prioritized report of all open PRs in the current GitHub repository, grouping them by what needs the current user's attention — reviews requested of them, their own PRs with failing CI or change requests, PRs awaiting review, and PRs they have already reviewed — and ending with a numbered action-items list.
 
-
 ---
 
 ## commcare-tech
