@@ -46,6 +46,10 @@ Utility commands for general development tasks.
 
 - `iterate-pr`: Fix CI failures and address review feedback on the current branch's PR in a single pass. Gathers feedback (LOGAF-categorized), fixes high/medium issues, prompts on low-priority items, checks CI, verifies locally, commits, pushes, and replies to all threads. Supports `--dry-run`.
 
+- `create-mobile-pr`: For mobile PRs in the dimagi/commcare-android repository, open a draft GitHub pull request with a JIRA-prefixed title and a template-generated description, appending QA notes to the active release section of RELEASES.md in a separate commit, and assign the current user without requesting reviewers.
+
+- `pr-status-report`: Generate a structured, prioritized report of all open PRs in the current GitHub repository, grouping them by what needs the current user's attention — reviews requested of them, their own PRs with failing CI or change requests, PRs awaiting review, and PRs they have already reviewed — and ending with a numbered action-items list.
+
 ---
 
 ## commcare-tech
