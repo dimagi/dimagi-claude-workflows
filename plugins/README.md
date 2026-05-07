@@ -65,6 +65,8 @@ CommCare Tech Division skills for interacting with JIRA.
 
 - `jira-cve`: Create a security ticket from a GitHub Dependabot alert URL. Fetches the alert details, maps severity to priority, and delegates to `jira-ticket` with the right fields pre-filled. Example: `/jira-cve https://github.com/dimagi/commcare-hq/security/dependabot/740`
 
+- `writing-commits-and-prs`: Team conventions for branches, commits, PR titles, descriptions, and reviewable diffs across Dimagi repos. Auto-applies (not user-invocable) when drafting a commit, naming a branch, writing a PR title, or composing/editing a PR description.
+
 ---
 
 ## connect-tech
