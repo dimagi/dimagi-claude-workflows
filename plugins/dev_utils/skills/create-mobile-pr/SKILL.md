@@ -1,6 +1,6 @@
 ---
 name: create-mobile-pr
-description: Use when the user asks to create, open, or submit a GitHub pull request, or when implementation is complete and the user wants to push and open a PR
+description: Use when creating a PR in a Dimagi mobile/CommCare repo — repos with JIRA-prefixed branches (e.g. CCCT-1929-..., CI-609-..., ENG-42-...), a `RELEASES.md` with a `### QA Notes` section, and the dimagi PR template (Safety story / Product Description / Technical Summary / QA Plan). Opens a draft PR with a JIRA-prefixed title, fills out the template, assigns `@me`, and appends QA notes to the current release in `RELEASES.md` rather than the PR body. Triggers on "create/open/make/submit a PR", "ship this", or when implementation is complete and the branch is ready to push. For repos without these conventions, use the generic `create-pr` skill instead.
 ---
 
 # Create GitHub Pull Request
