@@ -127,14 +127,6 @@ The PR is authored by the user, so any sentence describing what *they* did to ve
 
 This applies to both the **What gives confidence** and **Risks to review** lists, and to any other sentence in the PR description that refers to actions the PR author took. Statements about the *change itself* (e.g. "the change reuses the existing endpoint") stay in third person -- only switch to "I" when the subject is the PR author.
 
-#### QA Plan -- point to RELEASES.md
-
-The QA Plan section in the PR description should not duplicate the QA notes. Replace it with a short pointer, for example:
-
-> QA notes for this change have been added to the QA Notes section of [RELEASES.md](../RELEASES.md) under the current release.
-
-If a QA ticket exists, link it here as well.
-
 #### Other sections
 
 Fill out Product Description, Technical Summary, and Automated test coverage from the diff, commits, and any user-provided context. Incorporate the user's testing description (from step 3) into the Safety story's "What gives confidence" list rather than fabricating details.
@@ -199,7 +191,6 @@ After creation, output the PR URL so the user can see it.
 - Including the Labels and Review section from the PR template -- it must be omitted
 - Forgetting `--assignee "@me"`
 - Writing QA notes that require developer tooling (Android Studio, Logcat, adb, unit tests, internal storage inspection, etc.) -- QA only has a phone build
-- Duplicating QA notes in the PR description's QA Plan section instead of pointing to RELEASES.md
 - Writing the Safety story as advocacy for the PR -- it must list both confidence factors and unresolved risks neutrally
 - Inventing testing the user did not actually do -- ask them explicitly if it is unclear
 - Writing the Safety story in the third person ("the author did X", "the user tested Y") -- the PR is authored by the user, so descriptions of what they did must use "I"
