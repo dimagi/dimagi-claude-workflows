@@ -14,3 +14,13 @@ will do.
 This plugin gathers skills that support USS Tech workflows. Today it provides
 `jira-project-management` for working with USS tickets, epics, and Confluence
 design docs; more will be added over time.
+
+## Commands
+
+- `/uss-review` — Thorough code review with a USS impact specialist. Runs
+  the 5 standard reviewers from the `code-review` plugin in parallel with
+  a USS-specific 6th reviewer, then renders the standard code-review
+  synthesis followed by a USS section with audience-bucketed user-facing
+  changes.
+
+  **Requires the `code-review` plugin** to also be installed.
