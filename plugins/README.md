@@ -80,6 +80,10 @@ CommCare Connect Team skills for documentation, specs, and release notes.
 
 USS Tech Team skills for Jira project management and Confluence design docs.
 
+**Commands**
+
+- `/uss-review`: Thorough code review with a USS impact specialist. Runs code-review's 5 reviewers in parallel with a USS-specific 6th reviewer; renders the standard synthesis followed by a USS section with audience-bucketed user-facing changes. Requires the `code-review` plugin.
+
 **Skills**
 
 - `jira-project-management`: Manage USH Jira tickets, epics, sprints, and Confluence design docs. Implicit skill — triggers when you mention a USH ticket, ask about sprint status, request a design doc, etc.

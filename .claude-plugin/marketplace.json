@@ -43,8 +43,8 @@
     {
       "name": "uss-tech",
       "source": "./plugins/uss-tech",
-      "version": "0.1.0",
-      "description": "Skills for the USS Tech Team"
+      "version": "0.2.0",
+      "description": "Skills and commands for the USS Tech Team"
     },
     {
       "name": "superpowers",
