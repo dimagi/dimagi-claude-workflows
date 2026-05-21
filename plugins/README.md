@@ -81,6 +81,14 @@ CommCare Connect Team skills for documentation, specs, and release notes.
 
 - `docs-vs-code-review`: Audit Confluence documentation against actual source code to find inaccuracies and gaps. Fetches all pages under a root Confluence URL, clones the relevant repos, and produces a prioritized edit list. Example: `/docs-vs-code-review https://dimagi.atlassian.net/wiki/spaces/connectpublic/pages/3215458305`
 
+---
+
+## wiki
+
+Skills for keeping documentation and wikis up to date.
+
+**Skills**
+
 - `slack-to-confluence`: Update a Confluence wiki page from the resolution of a Slack thread. Reads the thread, proposes an edit (type, exact text, exact location, version message), asks for explicit approval, then writes via ADF surgical insert so no existing content is disturbed. Requires the Slack and Atlassian MCPs. Example: paste a Slack thread URL + Confluence page URL and ask to "update the wiki".
 
 ---
