@@ -35,5 +35,5 @@ Based on the changes above:
 1. If on `main`/`master`, create a new branch first (short, kebab-case, derived from the change).
 2. Create a single commit with an appropriate message.
 3. Push the branch (`git push -u origin HEAD` if it has no upstream).
-4. Create the PR with `gh pr create`. If a template was found above, fill out its sections according to the HTML comment guidance — replace the comments with real content, don't leave placeholders. If editing the PR later and `gh pr edit` fails with a GraphQL error, fall back to `gh api -X PATCH repos/:owner/:repo/pulls/<n>` rather than retrying GraphQL.
+4. Create the PR as a draft with `gh pr create --draft`. If a template was found above, fill out its sections according to the HTML comment guidance — replace the comments with real content, don't leave placeholders. If editing the PR later and `gh pr edit` fails with a GraphQL error, fall back to `gh api -X PATCH repos/:owner/:repo/pulls/<n>` rather than retrying GraphQL.
 5. Output the PR URL.
