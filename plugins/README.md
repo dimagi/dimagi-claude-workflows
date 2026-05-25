@@ -81,6 +81,8 @@ CommCare Connect Team skills for documentation, specs, and release notes.
 
 - `docs-vs-code-review`: Audit Confluence documentation against actual source code to find inaccuracies and gaps. Fetches all pages under a root Confluence URL, clones the relevant repos, and produces a prioritized edit list. Example: `/docs-vs-code-review https://dimagi.atlassian.net/wiki/spaces/connectpublic/pages/3215458305`
 
+- `jira-tickets-from-plan`: Reviews an AI plan, breaks it into logically independent tickets, and creates them in Jira. Example: `/jira-tickets-from-plan https://github.com/dimagi/commcare-android/blob/1fc89da7c1bdec74406b9689522f50595bd7fc76/docs/superpowers/plans/2026-05-11-ccct-2164-decouple-login-from-connect-launch.md`
+
 ---
 
 ## uss-tech
