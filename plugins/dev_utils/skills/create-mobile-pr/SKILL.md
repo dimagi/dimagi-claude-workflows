@@ -99,6 +99,14 @@ Append bullets to `### QA Notes` describing what QA should manually verify.
 
 Do **not** write steps that require Android Studio, Logcat, adb, unit/instrumentation tests, internal storage inspection, or any developer-only tooling. QA notes read as user-level actions and observable outcomes: "do X in the app, expect Y." If a regression cannot be observed without developer tools, say so and rely on automated coverage instead of writing an unrunnable QA step.
 
+**Be ruthlessly concise.** QA notes are a checklist of the most important things to verify, not a tutorial.
+
+- Aim for the **fewest bullets possible** — often 1-3. If you are writing more than 5, you are almost certainly being too verbose.
+- **Do not write step-by-step instructions.** QA knows how to use the app. "Verify the login screen still loads" is enough; do not enumerate "open the app, tap login, enter credentials, tap submit."
+- **Omit anything obvious or implied.** If a flow has an obvious happy path, do not spell it out. Call out only the non-obvious risks, edge cases, or behavior changes a tester would not think to check.
+- **One bullet per distinct thing to verify.** Do not split a single check across multiple bullets.
+- Prefer "verify X still works after Y" or "confirm Z behaves as expected" framing over numbered procedures.
+
 **Skip this step** when there is nothing for QA to manually verify (e.g. pure refactor with automated coverage, dev-tooling change). If unsure, ask the user.
 
 No ticket numbers in QA bullets.
@@ -117,6 +125,14 @@ Read `.github/PULL_REQUEST_TEMPLATE.md` and fill out each section per the instru
 
 **Be concise.** Every section should be the shortest version that still gives a reviewer what they need. No padding, no restating the diff in prose, no advocacy.
 
+**Omit sections that have nothing valuable to add.** If a section would only contain filler, boilerplate, or a restatement of the obvious, drop the section entirely — heading and body. Examples:
+
+- No new or modified tests → omit the **Automated test coverage** section entirely.
+- No user-facing product change (pure refactor, internal cleanup) → omit the **Product Description** section entirely.
+- Nothing non-obvious to call out beyond the diff itself → omit the **Technical Summary** section entirely.
+
+Keep the **Safety story** and the ticket link heading in every PR. Other template sections are optional when they would add no signal.
+
 #### Safety story — neutral, first-person, two short lists
 
 The Safety story is a balanced risk assessment, not a defense of the PR. Two short lists, items only if actually true:
@@ -126,9 +142,20 @@ The Safety story is a balanced risk assessment, not a defense of the PR. Two sho
 
 **Voice:** write the Safety story in the **first person** when describing what the PR author did ("I manually exercised the happy path", not "the author" / "the user" / "the developer"). Statements about the change itself stay in third person.
 
-#### Other sections
+#### Technical Summary — 1-3 sentences, high level only
 
-Fill Product Description, Technical Summary, and Automated test coverage from the diff, commits, and user-provided context. Keep each short and concrete. Incorporate the user's testing into the Safety story's confidence list rather than fabricating details elsewhere.
+The Technical Summary is a **high-level orientation** for the reviewer, not a description of the diff. The reviewer can already see the diff.
+
+- **Hard cap: 1-3 sentences.** No bullet lists. No code blocks. No file-by-file walkthrough.
+- **Do not restate facts that are obvious from reading the code change.** If the only thing you can say is "renames `foo` to `bar` in three files," omit the section entirely (see "Omit sections" guidance above).
+- Focus on the **why** and the **shape** of the change: which subsystem is touched, what approach was chosen, and any non-obvious design decision a reviewer should know before reading the diff.
+- If the change is a small, self-explanatory fix or rename, prefer omitting the section over writing filler.
+
+#### Product Description and Automated test coverage
+
+Fill Product Description and Automated test coverage from the diff, commits, and user-provided context. Keep each short and concrete. Incorporate the user's testing into the Safety story's confidence list rather than fabricating details elsewhere.
+
+Per the "Omit sections" guidance above, drop either section entirely when it would have no signal — e.g. omit Automated test coverage when no tests were added or modified, and omit Product Description for pure refactors with no user-facing change.
 
 **Omit the Labels and Review section from the PR description.** Do not include its heading or body.
 
@@ -246,6 +273,10 @@ After the comment is posted, output the PR URL so the user can open it.
 - Inventing testing the user did not actually do — ask them explicitly if it is unclear
 - Writing the Safety story in the third person ("the author did X", "the user tested Y") — the PR is authored by the user, so descriptions of what they did must use "I"
 - Padding PR description sections instead of keeping them concise
+- Writing a Technical Summary longer than 1-3 sentences, or that restates facts already obvious from the diff (file-by-file walkthrough, renamed identifiers, etc.)
+- Keeping a section (Technical Summary, Product Description, Automated test coverage) when it would have no signal — drop the entire section, heading included, instead of filling it with boilerplate
+- Writing QA notes as step-by-step user instructions ("open the app, tap login, enter credentials, ...") instead of a short checklist of what to verify
+- Writing more QA bullets than necessary, or splitting one logical check across multiple bullets, or restating obvious happy-path behavior QA would test anyway
 - Forgetting to post the Suggested Review Order comment after creating the PR
 - Including generated files (lock files, compiled output, vendored deps) in the Suggested Review Order
 - Listing files in the Suggested Review Order without any rationale, or with rationale longer than a short clause
