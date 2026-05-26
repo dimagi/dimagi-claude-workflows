@@ -115,6 +115,8 @@ Show the user a draft of the QA bullet(s) — the release section heading they'l
 
 ### 5. Generate PR Description from the Template
 
+**Do not show the PR description to the user for approval before opening the PR.** The PR is opened as a draft, so the user will review and edit the description on GitHub. Asking them to review a long markdown block in the terminal duplicates that review and wastes their time. The only thing that requires explicit approval before the PR is created is `RELEASES.md` changes (step 4), because those get committed to the repo. The PR title and description do not.
+
 Read `.github/PULL_REQUEST_TEMPLATE.md` and fill out each section per the instructions in its HTML comments. Replace the HTML comments with content — do not leave them in the final description.
 
 **Prepend a ticket link heading at the very top** (before the first template section):
@@ -253,6 +255,7 @@ After the comment is posted, output the PR URL so the user can open it.
 
 ## Common Mistakes
 
+- Showing the PR title or description to the user for approval before opening the draft PR — the PR is a draft and the user reviews it on GitHub, so terminal-side approval is duplicate work. Only `RELEASES.md` drafts require explicit approval (because they get committed)
 - Forgetting to extract the ticket number and using the raw branch slug as the title
 - Using sentence case in the title — every word in the description portion must start with a capital letter
 - Title over 72 characters
