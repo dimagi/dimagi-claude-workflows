@@ -99,6 +99,14 @@ Append bullets to `### QA Notes` describing what QA should manually verify.
 
 Do **not** write steps that require Android Studio, Logcat, adb, unit/instrumentation tests, internal storage inspection, or any developer-only tooling. QA notes read as user-level actions and observable outcomes: "do X in the app, expect Y." If a regression cannot be observed without developer tools, say so and rely on automated coverage instead of writing an unrunnable QA step.
 
+**Be ruthlessly concise.** QA notes are a checklist of the most important things to verify, not a tutorial.
+
+- Aim for the **fewest bullets possible** — often 1-3. If you are writing more than 5, you are almost certainly being too verbose.
+- **Do not write step-by-step instructions.** QA knows how to use the app. "Verify the login screen still loads" is enough; do not enumerate "open the app, tap login, enter credentials, tap submit."
+- **Omit anything obvious or implied.** If a flow has an obvious happy path, do not spell it out. Call out only the non-obvious risks, edge cases, or behavior changes a tester would not think to check.
+- **One bullet per distinct thing to verify.** Do not split a single check across multiple bullets.
+- Prefer "verify X still works after Y" or "confirm Z behaves as expected" framing over numbered procedures.
+
 **Skip this step** when there is nothing for QA to manually verify (e.g. pure refactor with automated coverage, dev-tooling change). If unsure, ask the user.
 
 No ticket numbers in QA bullets.
@@ -106,6 +114,8 @@ No ticket numbers in QA bullets.
 Show the user a draft of the QA bullet(s) — the release section heading they'll go under (e.g. `## CommCare 2.56`) and the exact bullet text, verbatim — and wait for their response. Do **not** run `git add` or `git commit` until the user has approved the draft. Once approved, stage and commit the change on the current branch with a short message such as `Add QA notes for TICKET-NUMBER`. Use a separate commit so it is easy to review.
 
 ### 5. Generate PR Description from the Template
+
+**Do not show the PR description to the user for approval before opening the PR.** The PR is opened as a draft, so the user will review and edit the description on GitHub. Asking them to review a long markdown block in the terminal duplicates that review and wastes their time. The only thing that requires explicit approval before the PR is created is `RELEASES.md` changes (step 4), because those get committed to the repo. The PR title and description do not.
 
 Read `.github/PULL_REQUEST_TEMPLATE.md` and fill out each section per the instructions in its HTML comments. Replace the HTML comments with content — do not leave them in the final description.
 
@@ -117,6 +127,14 @@ Read `.github/PULL_REQUEST_TEMPLATE.md` and fill out each section per the instru
 
 **Be concise.** Every section should be the shortest version that still gives a reviewer what they need. No padding, no restating the diff in prose, no advocacy.
 
+**Omit sections that have nothing valuable to add.** If a section would only contain filler, boilerplate, or a restatement of the obvious, drop the section entirely — heading and body. Examples:
+
+- No new or modified tests → omit the **Automated test coverage** section entirely.
+- No user-facing product change (pure refactor, internal cleanup) → omit the **Product Description** section entirely.
+- Nothing non-obvious to call out beyond the diff itself → omit the **Technical Summary** section entirely.
+
+Keep the **Safety story** and the ticket link heading in every PR. Other template sections are optional when they would add no signal.
+
 #### Safety story — neutral, first-person, two short lists
 
 The Safety story is a balanced risk assessment, not a defense of the PR. Two short lists, items only if actually true:
@@ -126,9 +144,20 @@ The Safety story is a balanced risk assessment, not a defense of the PR. Two sho
 
 **Voice:** write the Safety story in the **first person** when describing what the PR author did ("I manually exercised the happy path", not "the author" / "the user" / "the developer"). Statements about the change itself stay in third person.
 
-#### Other sections
+#### Technical Summary — short, high level only
 
-Fill Product Description, Technical Summary, and Automated test coverage from the diff, commits, and user-provided context. Keep each short and concrete. Incorporate the user's testing into the Safety story's confidence list rather than fabricating details elsewhere.
+The Technical Summary is a **high-level orientation** for the reviewer, not a description of the diff. The reviewer can already see the diff.
+
+- **Keep it short.** Aim for 1-3 sentences. A short bulleted list (roughly 2-4 tight bullets) is fine when it concisely groups distinct changes that would be harder to follow in prose — but bullets are not an excuse for length. No code blocks. No file-by-file walkthrough.
+- **Do not restate facts that are obvious from reading the code change.** If the only thing you can say is "renames `foo` to `bar` in three files," omit the section entirely (see "Omit sections" guidance above).
+- Focus on the **why** and the **shape** of the change: which subsystem is touched, what approach was chosen, and any non-obvious design decision a reviewer should know before reading the diff.
+- If the change is a small, self-explanatory fix or rename, prefer omitting the section over writing filler.
+
+#### Product Description and Automated test coverage
+
+Fill Product Description and Automated test coverage from the diff, commits, and user-provided context. Keep each short and concrete. Incorporate the user's testing into the Safety story's confidence list rather than fabricating details elsewhere.
+
+Per the "Omit sections" guidance above, drop either section entirely when it would have no signal — e.g. omit Automated test coverage when no tests were added or modified, and omit Product Description for pure refactors with no user-facing change.
 
 **Omit the Labels and Review section from the PR description.** Do not include its heading or body.
 
@@ -226,6 +255,7 @@ After the comment is posted, output the PR URL so the user can open it.
 
 ## Common Mistakes
 
+- Showing the PR title or description to the user for approval before opening the draft PR — the PR is a draft and the user reviews it on GitHub, so terminal-side approval is duplicate work. Only `RELEASES.md` drafts require explicit approval (because they get committed)
 - Forgetting to extract the ticket number and using the raw branch slug as the title
 - Using sentence case in the title — every word in the description portion must start with a capital letter
 - Title over 72 characters
@@ -246,6 +276,10 @@ After the comment is posted, output the PR URL so the user can open it.
 - Inventing testing the user did not actually do — ask them explicitly if it is unclear
 - Writing the Safety story in the third person ("the author did X", "the user tested Y") — the PR is authored by the user, so descriptions of what they did must use "I"
 - Padding PR description sections instead of keeping them concise
+- Writing a Technical Summary that runs long (more than a few sentences or a short bulleted list), or that restates facts already obvious from the diff (file-by-file walkthrough, renamed identifiers, etc.)
+- Keeping a section (Technical Summary, Product Description, Automated test coverage) when it would have no signal — drop the entire section, heading included, instead of filling it with boilerplate
+- Writing QA notes as step-by-step user instructions ("open the app, tap login, enter credentials, ...") instead of a short checklist of what to verify
+- Writing more QA bullets than necessary, or splitting one logical check across multiple bullets, or restating obvious happy-path behavior QA would test anyway
 - Forgetting to post the Suggested Review Order comment after creating the PR
 - Including generated files (lock files, compiled output, vendored deps) in the Suggested Review Order
 - Listing files in the Suggested Review Order without any rationale, or with rationale longer than a short clause
