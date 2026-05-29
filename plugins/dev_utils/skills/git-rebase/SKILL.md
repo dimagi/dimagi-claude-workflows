@@ -275,6 +275,33 @@ GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <base>
 
 **Common pitfall:** committing the entire current file state under a fixup-A message just because A is the file's earliest commit. The fixup then carries content (symbols, imports, functions) that doesn't exist at A and will conflict, often noisily, when the rebase replays it.
 
+### Shortcut: mechanical transformations via `git rebase --exec`
+
+When the slice is a **mechanical, idempotent transformation** (`sed` rename, `ruff format`, `prettier --write`, codemod), you don't need to hand-edit per-slice — `git rebase --exec` does the slicing automatically:
+
+```bash
+git rebase --exec '<transformation>; if ! git diff --quiet <file>; then git add <file> && git commit --amend --no-edit; fi' <base>
+```
+
+After each `pick`, the exec runs the transformation, and `--amend` folds any resulting change into the just-picked commit. Because at each pick the only `<file>` content "new" relative to the previous pick is what *that* commit contributed, the transformation naturally slices itself across the chain. Commits that don't touch `<file>` (or touch it without producing a diff after the transformation) skip the amend silently.
+
+**Concrete example** — folding a global rename `django_test_client` → `authed_client` into the three commits that introduced those references:
+
+```bash
+git rebase --exec 'sed -i "s/django_test_client/authed_client/g" apps/refreshes/tests/test_views.py; if ! git diff --quiet apps/refreshes/tests/test_views.py; then git add apps/refreshes/tests/test_views.py && git commit --amend --no-edit; fi' <earliest-introducing-commit>^
+```
+
+After the rebase, each of the three commits' diff shows `authed_client` as if it had been written that way originally. No follow-up "fix: rename …" commit is needed; no hand-editing per slice.
+
+**Use this when:** the transformation is monotonic and you want it folded into whichever commits introduced the affected lines. Typical fits: global identifier renames, formatter runs after the fact, codemods.
+
+**Don't use this when:**
+- The right slice differs from the mechanical one (e.g. some occurrences should be renamed, others kept — the transformation would over-apply).
+- The transformation is not idempotent — re-running it should be a no-op, otherwise the amend will re-trigger on already-transformed commits and noise up history.
+- The transformation depends on context outside the touched file (e.g. needs imports that this commit hasn't introduced yet) — that's a per-slice judgment call, not a mechanical apply.
+
+**Downstream chain caveat:** rewriting commits in this branch changes their SHAs, so any branch stacked on top must be re-rebased afterward (`git rebase --onto <new-tip> <old-tip> <downstream-branch>`). Snapshot the old tips into tags (`git tag old/<branch> <sha>`) before the rewrite so the upstreams remain referenceable.
+
 ## Diagnosing Autosquash Conflicts
 
 When autosquash stops with a conflict, the conflict marker almost always reveals which mistake you made. Read the `>>>>>>>` block — the "theirs" side — and compare it against the file state at the current `pick`:
