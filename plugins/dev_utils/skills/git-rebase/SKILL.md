@@ -1,6 +1,6 @@
 ---
 name: git-rebase
-description: Use when squashing fixup commits into earlier commits, doing interactive rebase cleanup on a feature branch, recovering from a failed autosquash rebase, inserting a reformatting commit before existing code changes, or moving/splitting file changes between commits. Covers the standard fixup workflow, dropped-commit recovery, pitfalls of custom GIT_SEQUENCE_EDITOR scripts, the replay-and-reformat pattern, and the checkout-and-reconstruct pattern for rearranging commit contents.
+description: Use when squashing fixup commits into earlier commits, cleaning up a feature branch with interactive rebase, recovering a dropped or failed autosquash, inserting a reformatting commit before code changes, moving file changes between commits, splitting one working-tree edit across several historical commits, or diagnosing autosquash conflicts.
 ---
 
 # git-rebase
@@ -8,6 +8,8 @@ description: Use when squashing fixup commits into earlier commits, doing intera
 ## Overview
 
 The standard fixup workflow is: create a `fixup!` commit in the branch, then `GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <base>`. Manually editing the todo file or writing a custom sequence editor script is almost never necessary and introduces failure modes.
+
+**Core principle — reconstruct, don't merge.** Every pattern below for rearranging commit contents rests on one idea: rather than replaying patches through three-way merge (which conflicts the moment surrounding context has shifted), take each file's *complete, correct state* — or a clean per-target slice of it — and commit that directly. No merge means no conflicts. When a procedure says "why this works," this is why.
 
 ## Safety
 
@@ -23,6 +25,23 @@ git reset --hard HEAD@{N}
 ```
 
 **Never rebase while parallel agents have staged changes.** Staged changes are shared working-tree state. If another agent commits while you're mid-rebase, the commits become entangled. Finish or abort all rebase operations before handing off to parallel agents.
+
+## Before You Start: Audit Per-File Targets
+
+**One fixup commit can squash into exactly one target commit.** If your working-tree change to a file needs to land in multiple historical commits, you need multiple fixup commits — each containing only the slice that belongs in its target.
+
+This is the single most common cause of mid-rebase conflicts. Catch it upfront:
+
+```bash
+# For each file you've modified, see which branch commits already touched it
+git status --short | awk '{print $2}' | while read f; do
+  echo "=== $f ==="
+  git log <base>..HEAD --oneline -- "$f"
+done
+```
+
+If a file appears in only one commit: a single fixup is fine.
+If a file appears in N commits: you'll need to split the diff across N fixups. See [Splitting One Working-Tree Change Across Multiple Fixup Targets](#splitting-one-working-tree-change-across-multiple-fixup-targets) below.
 
 ## Core Workflow
 
@@ -59,6 +78,8 @@ git show <new-sha> --stat      # confirm expected files are in the right commit
 ```
 
 "Rebase succeeded" ≠ "rebase did what I intended." Always inspect the commit.
+
+**On long branches with many fixups, prefer incremental autosquash.** Commit one fixup, autosquash, verify, then create the next. Batching seven fixups and running one autosquash means conflicts surface in arbitrary mid-rebase order with no cheap way to course-correct — if fixup #1 turns out to span two commits, you discover it three commits into the rebase instead of before starting.
 
 ## Dropped Fixup Recovery
 
@@ -130,13 +151,20 @@ with open(todo_path, 'w') as f:
 
 **The single-pass trap:** Processing the todo top-to-bottom fails when the target commit appears *before* the `fixup!` line (i.e., always — the target is older). A single-pass script will check `if fixup:` for the target line when no fixup has been seen yet, store the fixup, and never emit it.
 
+## Choosing a Reconstruction Pattern
+
+The next three sections rearrange commit contents. They all apply the "reconstruct, don't merge" principle above; pick by what you start from:
+
+| You have… | …and want to | Pattern |
+|-----------|--------------|---------|
+| A branch mixing formatting and logic changes | A pure reformatting commit first, then code-only commits | **Replay-and-reformat** |
+| Existing commits whose files belong in *different* commits | Recombine file states across those commits | **Checkout-and-reconstruct** (Moving File Changes) |
+| *One* uncommitted edit | Slice it across *multiple* historical commits | **Per-slice fixups** (Splitting) |
+| One edit that is a mechanical, idempotent transform (rename, formatter) | Auto-slice it across the commits it touches | **`git rebase --exec`** shortcut |
+
 ## Inserting a Reformatting Commit Before Code Changes
 
-When a branch mixes formatting changes (e.g., from `ruff format`, `black`, `prettier`) with logic changes, you may want to split them: a pure reformatting commit first, then code-only commits.
-
-**Do not** cherry-pick or rebase the code commits onto a reformatted base. Every hunk will conflict because the surrounding context has changed (quotes, line wrapping, indentation). With pervasive formatting changes this produces dozens of unresolvable conflicts.
-
-**Instead, use the replay-and-reformat pattern:**
+**Replay-and-reformat.** When a branch mixes formatting changes (e.g., from `ruff format`, `black`, `prettier`) with logic changes, split them into a pure reformatting commit followed by code-only commits. Do **not** cherry-pick or rebase the code commits onto a reformatted base — every hunk conflicts because the surrounding context changed (quotes, line wrapping, indentation), producing dozens of unresolvable conflicts. Reconstruct instead:
 
 ```bash
 # 1. Note current HEAD for safety
@@ -171,13 +199,11 @@ git checkout <original-branch>
 git branch -D temp-branch
 ```
 
-**Why this works:** Each commit's *complete file state* is taken from the original branch (where it was correct) and reformatted. This avoids three-way merge entirely — there are no conflicts because you're never merging, just reconstructing.
-
-**Key insight:** The formatter is idempotent. Running it on already-formatted code is a no-op, so it's safe to run unconditionally in the loop.
+**Why this works:** each commit's complete file state comes from the original branch (where it was correct) and is reformatted — reconstruct, don't merge. The formatter being idempotent is what makes it safe to run unconditionally in the loop: re-running it on already-formatted code is a no-op.
 
 ## Moving File Changes Between Commits
 
-When a commit contains changes to files that belong in different commits (e.g., a production code fix got committed together with test updates that belong in the next commit), reconstruct the history by checking out specific file states from the old commits.
+**Checkout-and-reconstruct.** When a commit contains changes to files that belong in different commits (e.g., a production code fix committed together with test updates that belong in the next commit), reconstruct the history by checking out specific file states from the old commits.
 
 **1. Check out the commit before the one to split**
 
@@ -200,7 +226,7 @@ git checkout <next-commit> -- path/to/file_C file_D    # files from next commit
 git commit -m "Second commit message"
 ```
 
-The key insight: `git checkout <sha> -- <file>` grabs a file's exact state from any commit and stages it. This lets you recombine file changes across commits without patches, three-way merges, or interactive rebase.
+`git checkout <sha> -- <file>` grabs a file's exact state from any commit and stages it — the mechanism behind reconstruct-don't-merge, here recombining file changes across commits without patches or interactive rebase.
 
 **4. Cherry-pick remaining commits**
 
@@ -216,6 +242,84 @@ git checkout <branch>
 git diff <branch>_backup..<branch> --stat   # should be empty
 ```
 
+## Splitting One Working-Tree Change Across Multiple Fixup Targets
+
+**Per-slice fixups.** Unlike the section above (which recombines existing commits), this covers the common case where you have **one uncommitted edit to a file** that must land in **multiple historical commits** — one fixup per target, each carrying only its slice.
+
+Example: you've edited `output.py` to (a) add a `HASH_LENGTH` constant (belongs in the commit that introduced hashing), (b) harden the filename sanitizer (belongs in the sanitization commit), and (c) replace the tmp-file write with `O_NOFOLLOW`/`O_EXCL` (belongs in the atomic-write commit).
+
+```bash
+# 1. Save the final state and reset the file to HEAD
+cp src/output.py /tmp/output.final
+git checkout HEAD -- src/output.py
+
+# 2. Apply ONLY the slice for target A (the hashing commit).
+#    Hand-edit src/output.py to introduce HASH_LENGTH and its usages.
+$EDITOR src/output.py
+git add src/output.py
+git commit -m "fixup! <subject of hashing commit>"
+
+# 3. Apply slice B (the sanitizer commit). Re-edit to add the
+#    control-char / bidi / NAME_MAX cap changes.
+$EDITOR src/output.py
+git add src/output.py
+git commit -m "fixup! <subject of sanitization commit>"
+
+# 4. Apply slice C (the atomic-write commit). Re-edit to add
+#    O_NOFOLLOW / O_EXCL / unique tmp suffix.
+$EDITOR src/output.py
+git add src/output.py
+git commit -m "fixup! <subject of atomic-write commit>"
+
+# 5. Verify the cumulative result matches the saved final state
+diff /tmp/output.final src/output.py  # should be empty
+
+# 6. Autosquash
+GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <base>
+```
+
+**Why this works:** each fixup carries only the slice valid against its target's state, so the rebase applies each on top of a file that already has everything before it — reconstruct, don't merge, at the per-slice level.
+
+**Common pitfall:** committing the entire current file state under a fixup-A message just because A is the file's earliest commit. The fixup then carries content (symbols, imports, functions) that doesn't exist at A and will conflict, often noisily, when the rebase replays it.
+
+### Shortcut: mechanical transformations via `git rebase --exec`
+
+When the slice is a **mechanical, idempotent transformation** (`sed` rename, `ruff format`, `prettier --write`, codemod), you don't need to hand-edit per-slice — `git rebase --exec` does the slicing automatically:
+
+```bash
+git rebase --exec '<transformation>; if ! git diff --quiet <file>; then git add <file> && git commit --amend --no-edit; fi' <base>
+```
+
+After each `pick`, the exec runs the transformation, and `--amend` folds any resulting change into the just-picked commit. Because at each pick the only `<file>` content "new" relative to the previous pick is what *that* commit contributed, the transformation naturally slices itself across the chain. Commits that don't touch `<file>` (or touch it without producing a diff after the transformation) skip the amend silently.
+
+**Concrete example** — folding a global rename `django_test_client` → `authed_client` into the three commits that introduced those references:
+
+```bash
+git rebase --exec 'sed -i "s/django_test_client/authed_client/g" apps/refreshes/tests/test_views.py; if ! git diff --quiet apps/refreshes/tests/test_views.py; then git add apps/refreshes/tests/test_views.py && git commit --amend --no-edit; fi' <earliest-introducing-commit>^
+```
+
+After the rebase, each of the three commits' diff shows `authed_client` as if it had been written that way originally. No follow-up "fix: rename …" commit is needed; no hand-editing per slice.
+
+**Use this when:** the transformation is monotonic and you want it folded into whichever commits introduced the affected lines. Typical fits: global identifier renames, formatter runs after the fact, codemods.
+
+**Don't use this when:**
+- The right slice differs from the mechanical one (e.g. some occurrences should be renamed, others kept — the transformation would over-apply).
+- The transformation is not idempotent — re-running it should be a no-op, otherwise the amend will re-trigger on already-transformed commits and noise up history.
+- The transformation depends on context outside the touched file (e.g. needs imports that this commit hasn't introduced yet) — that's a per-slice judgment call, not a mechanical apply.
+
+**Downstream chain caveat:** rewriting commits in this branch changes their SHAs, so any branch stacked on top must be re-rebased afterward (`git rebase --onto <new-tip> <old-tip> <downstream-branch>`). Snapshot the old tips into tags (`git tag old/<branch> <sha>`) before the rewrite so the upstreams remain referenceable.
+
+## Diagnosing Autosquash Conflicts
+
+When autosquash stops with a conflict, the conflict marker almost always reveals which mistake you made. Read the `>>>>>>>` block — the "theirs" side — and compare it against the file state at the current `pick`:
+
+- **Your fixup adds a symbol (constant, function) that doesn't exist in the surrounding file yet, or references an import (`os`, `Path`, etc.) the file doesn't have yet.** The fixup is targeting a commit earlier than where that symbol or import is naturally introduced. *Fix:* keep HEAD, then carve the offending lines into a separate fixup against the later commit.
+- **Your fixup deletes or wholesale-replaces a function that a later branch commit also modifies.** The later commit will conflict against an empty or changed target when its turn comes. *Fix:* accept HEAD when the later commit conflicts; it shrinks to whatever changes still apply, or empties out.
+- **Your fixup touches lines that another fixup against a later commit also touches.** Two fixups are racing for the same lines. *Fix:* order matters — the later-targeted fixup should be a no-op against the already-modified lines, or its slice needs to be redrafted.
+- **Conflict markers appear in a file you didn't intend to touch.** A merge-recursive 3-way pulled in collateral changes. *Fix:* resolve to HEAD, verify with `git diff HEAD -- <file>` after, and run `git rebase --skip` only if the resulting commit is truly empty.
+
+**General rule:** if you can't immediately explain *which target commit each conflicting line belongs to*, abort with `git rebase --abort`, re-audit per-file targets, and split the offending fixup.
+
 ## Common Mistakes
 
 | Mistake                                                          | Fix                                                                                                              |
@@ -227,3 +331,6 @@ git diff <branch>_backup..<branch> --stat   # should be empty
 | Assuming "rebase succeeded" means it did the right thing         | Verify with `git show`                                                                                           |
 | Cherry-picking code commits onto a reformatted base              | Use the replay-and-reformat pattern (see above) — cherry-pick produces dozens of unsolvable formatting conflicts |
 | Using interactive rebase (`-i`) to split/rearrange commits       | Claude Code can't use `-i`; use the checkout-and-reconstruct pattern instead                                     |
+| Lumping all of a file's edits into one fixup when the file appears in multiple branch commits | Audit per-file targets up front; split the diff into one fixup per target — see "Splitting One Working-Tree Change Across Multiple Fixup Targets" |
+| Batching many fixups before a single autosquash on a long branch | Commit one fixup, autosquash, verify, repeat — conflicts surface at the source instead of mid-rebase             |
+| Treating an autosquash conflict as a merge problem to resolve in place | The conflict is usually telling you a fixup spans the wrong number of target commits; abort, split, retry          |
