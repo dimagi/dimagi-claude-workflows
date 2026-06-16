@@ -9,13 +9,15 @@ description: Run a full dependency audit for a project — covers Python (pip-to
 
 End-to-end audit of a project's direct dependencies against PyPI, npm, and `endoflife.date`. Produces `docs/dependency-audit-YYYY-MM-DD.md`, applies category A+B bumps to the lockfiles, and emits a ticket list for category C+D items.
 
-Covers Python (pip-tools `*.in` → `*.txt` workflow) and JavaScript (npm/yarn `package.json`) if present. If a project only has one ecosystem, skip the steps for the other.
+Covers Python — either pip-tools (`*.in` → `*.txt` workflow) or uv (`pyproject.toml` → `uv.lock`) — and JavaScript (npm/yarn `package.json`) if present. Detect which Python toolchain the project uses and run that one; do not mix the two. If a project only has one ecosystem, skip the steps for the other.
 
 ## Step 0: Discover project structure
 
 Before starting, orient yourself:
 
-1. **Python:** Find `.in` files: `find . -name "*.in" -path "*/requirements*" | grep -v node_modules`. Find the corresponding lockfiles (`*.txt`).
+1. **Python:** First determine the toolchain.
+   - **uv:** Look for `uv.lock` alongside a `pyproject.toml`: `find . -name "uv.lock" -not -path "*/node_modules/*"`. If found, the direct-dependency surface is `[project.dependencies]` and any `[dependency-groups]` / `[project.optional-dependencies]` in `pyproject.toml`.
+   - **pip-tools:** Otherwise find `.in` files: `find . -name "*.in" -path "*/requirements*" | grep -v node_modules`, and their corresponding lockfiles (`*.txt`).
 2. **JavaScript:** Check for `package.json` (and `package-lock.json` or `yarn.lock`): `find . -name "package.json" -not -path "*/node_modules/*" | head -5`.
 3. **Test command:** Check `pyproject.toml`, `setup.cfg`, or `pytest.ini` for Python tests. Check `package.json` `scripts` for JS tests. Look for required env vars in `.env_template` or `conftest.py`.
 4. **Major framework:** Read the Python lockfile to determine the current Django (or other framework) version — this sets the "framework floor" for Step 6.
@@ -24,11 +26,13 @@ Before starting, orient yourself:
 
 ### Python
 
-1. **Snapshot current pins** from all lockfiles discovered in Step 0.
+1. **Snapshot current pins** from the lockfile(s) discovered in Step 0 (`*.txt` for pip-tools, `uv.lock` for uv).
 
-2. **Compute available upgrades** via `pip-compile --upgrade --dry-run` on each `.in` file.
+2. **Compute available upgrades:**
+   - **pip-tools:** `pip-compile --upgrade --dry-run` on each `.in` file.
+   - **uv:** `uv lock --upgrade --dry-run` to preview the resolved upgrades against the current `uv.lock`.
 
-3. **For each direct dep** in the `.in` files, fetch latest version from PyPI:
+3. **For each direct dep** (from the `.in` files, or from `pyproject.toml` for uv), fetch latest version from PyPI:
    ```bash
    python -c "import json,urllib.request; print(json.load(urllib.request.urlopen('https://pypi.org/pypi/<pkg>/json'))['info']['version'])"
    ```
@@ -58,14 +62,18 @@ Before starting, orient yourself:
 ### Report and tickets
 
 11. **Write report** to `docs/dependency-audit-<today>.md` with:
-    - **Process section:** classification criteria (A/B/C/D definitions), tools used (pip-compile, PyPI API, npm audit, npm outdated, endoflife.date, git grep, pip-audit), and source files audited.
+    - **Process section:** classification criteria (A/B/C/D definitions), tools used (pip-compile or uv lock — whichever the project uses, PyPI API, npm audit, npm outdated, endoflife.date, git grep, pip-audit), and source files audited.
     - Summary (dep counts per category, split by ecosystem if both present)
     - EoL findings table
     - Per-package table (Python and JS sections if both present): current version, latest version, category, action, changelog link
     - "Bumps to apply" list (A + B)
     - "Tickets to file" list (C + D)
 
-12. **Apply Python A+B bumps**: `pip-compile --upgrade-package <pkg>` per package. After each bump, run the test suite and `pre-commit run -a`. If anything breaks, demote to C and revert.
+12. **Apply Python A+B bumps**, one package at a time using the project's toolchain:
+    - **pip-tools:** `pip-compile --upgrade-package <pkg>`.
+    - **uv:** `uv lock --upgrade-package <pkg>` (bump the constraint in `pyproject.toml` first if the target exceeds the current spec).
+
+    After each bump, run the test suite and `pre-commit run -a`. If anything breaks, demote to C and revert.
 
     Commit structure:
     - One bulk commit for all A-class bumps
@@ -95,6 +103,7 @@ Used for both Python and JS deps:
 ## References
 
 - pip-tools docs: https://pip-tools.readthedocs.io
+- uv docs (lockfile & upgrades): https://docs.astral.sh/uv/concepts/projects/sync/
 - endoflife.date API: https://endoflife.date/api/<product>.json
 - OSV vulnerability DB (used by pip-audit): https://osv.dev
 - npm audit docs: https://docs.npmjs.com/cli/commands/npm-audit
