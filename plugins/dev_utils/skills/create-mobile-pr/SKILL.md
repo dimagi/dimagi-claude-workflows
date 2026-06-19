@@ -9,6 +9,8 @@ description: Use when creating, opening, or submitting a pull request in a Dimag
 
 Open a draft GitHub pull request with a JIRA-prefixed title, a description generated from the repo's PR template, and the current user as assignee. The PR is opened as a draft so the user can review on GitHub and mark it ready for review (and request reviewers) themselves. Release notes and QA notes go into `RELEASES.md`, not the PR description.
 
+**Every generated artifact (title, description, release/QA notes) defaults to concise and high-level: capture the *why* and never restate what the diff already shows.**
+
 ## When to Use
 
 - User asks to create, open, or submit a pull request
