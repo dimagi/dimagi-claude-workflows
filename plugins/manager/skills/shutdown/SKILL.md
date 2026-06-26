@@ -13,6 +13,41 @@ You are helping the user wrap up their workday with an evening shutdown.
 4. Read the goals file (`<manager_dir>/goals.md`) and today's journal entry at `<daily_dir>/YYYY-MM-DD.md` (if it exists) to have full context.
 5. Check if today's journal file already has an "Evening Shutdown" section. If it does, let the user know and ask if they want to redo it or skip. Don't silently append a duplicate.
 
+## GitHub Activity
+
+Before asking any questions, pull a quick summary of GitHub actions the user personally took since their last shutdown. This gives both of you concrete grounding for the "what did you accomplish" conversation and ensures nothing slips through the cracks.
+
+1. Determine the cutoff time: use 24 hours ago from now (`date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ` on Linux, or `date -u -v-24H +%Y-%m-%dT%H:%M:%SZ` on macOS).
+
+2. Fetch the user's GitHub events:
+   ```bash
+   gh api "/users/$(gh api user --jq '.login')/events?per_page=100"
+   ```
+
+3. Filter to events whose `created_at` is after the cutoff, keeping only:
+   - `PullRequestReviewEvent` — the user submitted a code review
+   - `PullRequestEvent` with `payload.action == "opened"` — the user created a PR
+   - `PullRequestEvent` with `payload.action == "merged"` — the user merged a PR
+
+   Ignore all other event types (pushes, comments, label changes, etc.) and ignore any actions triggered by other users even if the user is a reviewer on those PRs.
+
+4. For each qualifying event, get the PR title and URL:
+   ```bash
+   gh pr view <number> -R <repo> --json title,url
+   ```
+   The repo name is in `event.repo.name` (e.g. `dimagi/commcare-hq`). The PR number is in `event.payload.number`.
+
+5. Present a brief grouped summary inline before asking questions. For example:
+   
+   > **Your GitHub activity (past 24 hours):**
+   > - Merged: Unify `@serial_task` and `@concurrent_task` (#37802) — dimagi/commcare-hq
+   > - Merged: Let uv manage Python in CI workflows (#37816) — dimagi/commcare-hq
+   > - Reviewed (approved): Remove app_execution app (#37822) — dimagi/commcare-hq
+   
+   If there's nothing to show, skip this block silently — don't mention it.
+
+Keep this as context for the journal entry (see templates below).
+
 ## Weekly Close-Out
 
 If today is the **review day**, this is the weekly close-out. Follow these steps:
@@ -42,6 +77,9 @@ If today is the **review day**, this is the weekly close-out. Follow these steps
 
 ```markdown
 ## Evening Shutdown (Weekly Close-Out)
+
+**GitHub activity:**
+[bullet list from the GitHub activity section, or omit if none]
 
 **Finished today:**
 [their response]
@@ -79,6 +117,9 @@ If today is **not the review day**, follow these steps:
 
 ```markdown
 ## Evening Shutdown
+
+**GitHub activity:**
+[bullet list from the GitHub activity section, or omit if none]
 
 **Accomplished:**
 [their response]
