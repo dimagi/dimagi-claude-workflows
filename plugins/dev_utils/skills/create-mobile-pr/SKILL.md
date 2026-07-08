@@ -9,6 +9,8 @@ Open a **draft** PR with a JIRA-prefixed title, a description built from the rep
 
 Every artifact below has a **recipe** (what it contains) and a **budget** (how long it may be). Fill the recipe with true statements up to the budget, then stop. Write to that shape — do not treat the budget as a target to reach. An artifact that would be empty is omitted entirely, heading and all.
 
+**The diff test — apply to every sentence of the PR body.** Before writing a sentence, ask: *could the reviewer learn this by reading the diff?* If yes, delete it. Names of new helpers, params, or values; which file the code lives in; "follows the existing convention"; what a function does mechanically — all visible in the diff, all cut. The PR body exists only for what the code cannot tell the reviewer: why, and what to watch for.
+
 See `example.md` in this directory for a full worked example of good, terse output.
 
 ## Process
@@ -68,9 +70,8 @@ Fill a section only when its recipe has something true to say; otherwise delete 
 - **Safety story** — a neutral risk read in two lists, items only if true. Author actions in **first person** ("I exercised the happy path"); statements about the change in third person.
   - *What gives confidence:* the author's testing (step 3, their words), narrow scope, existing coverage of the touched paths, flag-gating.
   - *Risks to review:* migrations, behavior changes for existing users, untested paths, third-party integrations, perf-sensitive or error-handling changes, limited author testing. Note the mitigation if there is one; otherwise leave it for the reviewer.
-- **Technical Summary** — orientation before the diff, not a description of it.
-  **Recipe:** which subsystem is touched, the approach taken, one non-obvious decision.
-  **Budget:** 1–3 sentences, or 2–4 tight bullets. No code, no file-by-file walkthrough.
+- **Technical Summary** — *only* what survives the diff test: why this approach over the obvious alternative, and any non-obvious decision, exclusion, or ordering dependency a reviewer should know before reading. If the diff already speaks for itself, omit the whole section.
+  **Budget:** 1–3 sentences.
 - **Product Description** — the user-facing behavior change.
   **Budget:** 1–2 sentences.
 - **Automated test coverage** — what tests were added or changed and what they lock down.

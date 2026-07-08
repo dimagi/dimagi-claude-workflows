@@ -50,6 +50,18 @@ The auth interceptor now treats an "invalid token" response as a signal to re-fe
 
 Note what is **absent**: no Product Description (no new user-facing capability — a bug fix, covered by the release note), no Automated test coverage section (no tests added), no Labels/Review section, no file-by-file walkthrough. Each omitted section is dropped whole, not filled with filler.
 
+## Calibration: applying the diff test to a Technical Summary
+
+A different change — adding one Firebase analytics event for the Manage Profile screens. First draft:
+
+> ❌ Adds a single `personal_id_manage_profile_action` Firebase event for the Manage Profile screens, carrying a `manage_profile_action` parameter that distinguishes the actions (`photo_updated`, `name_updated`, `changes_discarded`) instead of one event per action. It is emitted through a new `FirebaseAnalyticsUtil.reportPersonalIdProfileAction` helper following the existing event/param/value convention. Screen opens and email verification are deliberately excluded — they are already captured by the auto `SCREEN_VIEW` and `OTP_REQUESTED` events.
+
+Run the diff test on each clause. The event name, the param name, the action values, the helper name, "follows the existing convention" — a reviewer sees all of that in the diff. Cut. What remains is the two things the code can't say: the single-event-with-param *choice*, and *why* screen opens and email are excluded.
+
+> ✅ Uses one event with an action parameter rather than one event per action. Screen opens and email verification are excluded — the auto `SCREEN_VIEW` and `OTP_REQUESTED` events already cover them, so logging them here would double-count.
+
+Two sentences, zero restatement.
+
 ## Suggested Review Order comment
 
 ```markdown
