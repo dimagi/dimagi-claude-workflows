@@ -49,15 +49,15 @@ Wait for the answer. Record it honestly, including "did not test locally." Never
 
 Find the topmost `## CommCare X.YZ` section. Release Notes and QA Notes are **separate decisions, separate drafts-for-approval, separate commits**. **No JIRA ticket numbers anywhere in RELEASES.md.**
 
-**Release Notes** — include only if the change is observable by end users or a specific project. Place under `#### What's New`, `#### Important Bug Fixes`, or `#### Internal Release Notes`.
+**Release Notes** — go under the `### Release Notes` subsection, in one of `#### What's New`, `#### Important Bug Fixes`, or `#### Internal Release Notes`. Include only if the change is observable by end users or a specific project.
 **Recipe:** one bullet stating what changed *from the user's perspective*.
 **Budget:** one line per change. No implementation detail.
 
-**QA Notes** — what a tester with only a phone build must manually verify (app UI, settings, forms, Connect, PersonalID, their own test accounts, HQ admin views). A tester has no Android Studio, Logcat, adb, or tests; if a regression is invisible without those, say so and rely on automated coverage instead of writing an unrunnable step.
+**QA Notes** — go under the `### QA Notes` subsection. What a tester with only a phone build must manually verify (app UI, settings, forms, Connect, PersonalID, their own test accounts, HQ admin views). A tester has no Android Studio, Logcat, adb, or tests; if a regression is invisible without those, say so and rely on automated coverage instead of writing an unrunnable step.
 **Recipe:** one bullet per distinct check, phrased "verify X still works" / "confirm Y behaves as expected." Only non-obvious risks and behavior changes — the tester already knows the happy path.
 **Budget:** 1–3 bullets; hard cap 5.
 
-For each: show the exact bullet(s) and their heading, wait for approval, then commit alone (`Add release notes for TICKET` / `Add QA notes for TICKET`).
+For each: show the user the exact bullet text verbatim and the **release version heading it will go under** (e.g. `## CommCare 2.56`) so they can confirm it is landing in the right release — plus the subsection (`### QA Notes`, or `### Release Notes` → `#### Important Bug Fixes`). Wait for their approval, then commit alone (`Add release notes for TICKET` / `Add QA notes for TICKET`). Do not decide on the user's behalf to skip a note they might want — when in doubt whether a note is warranted, ask.
 
 ### 5. PR description
 
