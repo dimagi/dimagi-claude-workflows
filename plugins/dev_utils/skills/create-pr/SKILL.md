@@ -33,11 +33,19 @@ allowed-tools: Bash(git checkout:*), Bash(git switch:*), Bash(git add:*), Bash(g
 Based on the changes above:
 
 1. If on `main`/`master`, create a new branch first (short, kebab-case, derived from the change).
-2. Create a single commit with an appropriate message.
+2. Commit the changes as a series of logical commits (see "Committing changes" below), not one catch-all commit.
 3. Push the branch (`git push -u origin HEAD` if it has no upstream).
 4. Write the PR description following the "PR description content" guidance below.
 5. Create the PR as a draft with `gh pr create --draft`, passing the description via a heredoc. If editing the PR later and `gh pr edit` fails with a GraphQL error, fall back to `gh api -X PATCH repos/:owner/:repo/pulls/<n>` rather than retrying GraphQL.
 6. Output the PR URL.
+
+## Committing changes
+
+Split the work into logical commits — each commit should be one coherent, self-explanatory unit of work. A reviewer reading the commit list should see the shape of the change: a refactor sits apart from the feature it enables, an unrelated bug fix apart from both, config or dependency bumps apart from code. This makes each commit reviewable (and revertable) on its own, and it's why `git log` exists as a narrative rather than a single "misc changes" blob.
+
+To keep unrelated work apart, stage deliberately — `git add <specific files>`, or `git add -p` when one file holds changes belonging to different commits — rather than `git add -A`. Commit each group as you go.
+
+Use judgment about granularity: don't shatter a single atomic change into artificial pieces. If the branch genuinely is one focused change, one commit is correct. Keep messages minimal (see the global commit-style guidance) — a concise subject line, and a body only when the *why* isn't obvious.
 
 ## PR description content
 
