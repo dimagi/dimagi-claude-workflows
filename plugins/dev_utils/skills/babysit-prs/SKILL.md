@@ -124,12 +124,12 @@ After handling (or skipping) each PR, write its current `updated_at`, `head_sha`
 
 End with a summary table:
 
-| PR | Status | Action taken |
-| --- | --- | --- |
-| [ocs#3866](…) | 2 new comments | Addressed via iterate-pr, pushed `a1b2c3` |
-| [ocs#3865](…) | CI failing (legit) | Fixed test via iterate-pr, pushed `def456` |
-| [scout#337](…) | behind base | Rebased on main, pushed |
-| [taskbadger#410](…) | flaky CI | Re-ran failed jobs |
-| [formplayer#1575](…) | quiet | skipped |
+| PR | Title | Status | Action taken |
+| --- | --- | --- | --- |
+| [ocs#3866](…) | Add retry to webhook delivery | 2 new comments | Addressed via iterate-pr, pushed `a1b2c3` |
+| [ocs#3865](…) | Fix session timeout handling | CI failing (legit) | Fixed test via iterate-pr, pushed `def456` |
+| [scout#337](…) | Bump scout deps | behind base | Rebased on main, pushed |
+| [taskbadger#410](…) | Parallelize task runner | flaky CI | Re-ran failed jobs |
+| [formplayer#1575](…) | Upgrade Gradle | quiet | skipped |
 
 If every PR was quiet, the summary is the single line: `All <n> open PRs quiet; nothing to do.`
