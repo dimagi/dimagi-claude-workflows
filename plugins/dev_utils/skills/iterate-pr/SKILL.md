@@ -141,15 +141,20 @@ If local verification fails, fix before proceeding — do not push known-broken 
 
 ### 5. Commit and Push
 
-```bash
-git add <changed files>
-git commit -m "fix: address PR feedback and CI failures
+Commit the fixes as a series of logical commits, not one catch-all "address feedback and CI" commit. Group by concern: a CI fix is its own commit, and each distinct piece of review feedback (or each cluster of closely-related comments) is its own commit. This keeps each commit reviewable on its own, and it lets you cite the *exact* SHA that resolved a given thread when you reply in step 6 — a reviewer can click straight to the fix.
 
-- <bullet per change: what was changed and why>"
+Stage deliberately so unrelated fixes stay apart — `git add <files for this concern>`, or `git add -p` when one file holds fixes for different threads — rather than `git add -A`.
+
+```bash
+git add <files for this concern>
+git commit -m "fix: <what this specific concern was>"
+# repeat for each logical group, then:
 git push
 ```
 
-Store the resulting commit SHA for replies.
+Keep messages minimal — a concise subject, a body only when the *why* isn't obvious. If every fix genuinely belongs to one concern, a single commit is fine.
+
+Record which commit SHA addresses which thread/CI failure — the replies in step 6 reference these per-thread.
 
 ### 6. Reply to All Threads
 
