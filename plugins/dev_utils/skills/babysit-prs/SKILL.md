@@ -8,7 +8,7 @@ model: opus
 
 # Babysit PRs
 
-Perform **one sweep** over my open pull requests. For each PR: address new review comments, check CI, branch freshness, lint/format and generated-artifact drift, and description sync, then fix and push. Record what was handled so the next sweep skips it. (Automated code review is handled by CI, so this skill does not run a review pass of its own — it only responds to human review comments.)
+Perform **one sweep** over my open pull requests. For each PR: address new review comments, check CI, branch freshness, lint/format and generated-artifact drift, and description sync, then fix and push. Record what was handled so the next sweep skips it. (This skill does not run a review pass of its own — it only responds to review comments already on the PR. Comments from bots and automated reviewers count the same as human ones: evaluate every comment on merit.)
 
 This skill does a single iteration on purpose. Run it continuously with the loop runner:
 
@@ -65,7 +65,7 @@ gh api 'repos/<owner>/<repo>/pulls/<number>/comments?sort=created&direction=desc
 
 Classify each active PR into one or more of:
 
-- **New review comments**: review comments newer than `last_comment_at` from anyone other than me.
+- **New review comments**: review comments newer than `last_comment_at` from anyone other than me — including bots and automated reviewers. Evaluate each on merit.
 - **CI failing or pending-after-push**: `conclusions` contains `"FAILURE"`, or does not yet contain a terminal value, or `headRefOid` differs from stored `head_sha`.
 - **Behind base**: `mergeStateStatus` is `BEHIND` or `DIRTY` (needs update/rebase; `DIRTY` = conflicts → flag only).
 
