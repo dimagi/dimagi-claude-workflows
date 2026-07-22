@@ -133,3 +133,11 @@ End with a summary table:
 | [formplayer#1575](…) | Upgrade Gradle | quiet | skipped |
 
 If every PR was quiet, the summary is the single line: `All <n> open PRs quiet; nothing to do.`
+
+Finally, print when this sweep finished so I can see when it last ran:
+
+```bash
+date '+Last run: %Y-%m-%d %H:%M:%S %Z'
+```
+
+Output that line at the very end of the run, after the summary.
