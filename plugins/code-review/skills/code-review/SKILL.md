@@ -5,7 +5,7 @@ description: This skill should be used when the user asks to review code, check 
 
 # Code Review Skill
 
-Orchestrate a thorough code review by spawning **5 parallel specialist reviewers**, each deeply focused on one dimension, then synthesise their findings into a coherent, prioritised review.
+Orchestrate a thorough code review by spawning **6 parallel specialist reviewers**, each deeply focused on one dimension, then synthesise their findings into a coherent, prioritised review.
 
 ---
 
@@ -17,6 +17,7 @@ Before spawning reviewers, establish:
 - **Language and framework** — infer from context; confirm if ambiguous
 - **Purpose of the code** — what is it trying to do?
 - **Review depth** — quick pass vs. deep dive? (default: thorough)
+- **Commit range** — when reviewing a branch or PR, determine the base ref and branch (e.g. `master..feature-branch`); the readability reviewer needs it
 
 If the user just pastes code or says "review this", infer context and proceed immediately. Only ask if something critical is missing.
 
@@ -33,10 +34,12 @@ Create a temp working directory:
 
 **Before spawning agents**, resolve `${CLAUDE_PLUGIN_ROOT}` to its absolute path (it's available in your environment) and substitute it into the agent prompts below. Subagents don't have access to this variable.
 
-Spawn **all 5 agents simultaneously** (in parallel, not sequentially). Each agent:
+Spawn **all 6 agents simultaneously** (in parallel, not sequentially). Each agent:
 - Reads the same code (provide paths or content)
 - Focuses on exactly one dimension
 - Writes findings to its own JSON file in the working directory
+
+**Exception:** the readability reviewer reviews commit structure, so it only applies when reviewing a branch or PR with commit history. Skip it (spawn 5 agents) when reviewing pasted code, uncommitted changes, or files with no relevant commit range.
 
 Agents to spawn (see `${CLAUDE_PLUGIN_ROOT}/agents/` for full instructions for each):
 
@@ -47,6 +50,7 @@ Agents to spawn (see `${CLAUDE_PLUGIN_ROOT}/agents/` for full instructions for e
 | `${CLAUDE_PLUGIN_ROOT}/agents/smells-reviewer.md` | `smells.json` | Code smells, hacks, workarounds, anti-patterns |
 | `${CLAUDE_PLUGIN_ROOT}/agents/security-reviewer.md` | `security.json` | Vulnerabilities, input validation, auth, secrets, exposure |
 | `${CLAUDE_PLUGIN_ROOT}/agents/maintainability-reviewer.md` | `maintainability.json` | Testability, error handling, dead code, documentation |
+| `${CLAUDE_PLUGIN_ROOT}/agents/readability-reviewer.md` | `readability.json` | Commit structure: discrete commits, mechanical/semantic separation, linear narrative, messages, atomicity |
 
 **Prompt to give each agent** (replace all bracketed values and `${CLAUDE_PLUGIN_ROOT}` with absolute paths before sending):
 
@@ -66,11 +70,25 @@ Then review the following code:
 Focus only on your assigned dimension. Be thorough within your domain.
 ```
 
+**For the readability reviewer**, replace the code-location and language lines with the repository path and commit range, and omit the language-notes reference (it reviews commit structure, not code content):
+
+```
+Read your reviewer instructions from [/absolute/path/to/agents/readability-reviewer.md].
+
+Then review the following branch:
+- Repository path: [absolute path to repo root]
+- Commit range: [base ref]..[branch]
+- Purpose: [brief description of what the branch does]
+- Output path: /tmp/code-review-{timestamp}/readability.json
+
+Focus only on your assigned dimension. Be thorough within your domain.
+```
+
 ---
 
 ## Step 3: Wait and Collect Results
 
-Once all agents complete, read all 5 JSON files from the working directory. Each contains an array of findings in a standard format (see agent files for schema).
+Once all agents complete, read all the JSON files from the working directory. Each contains an array of findings in a standard format (see agent files for schema).
 
 ---
 
