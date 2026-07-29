@@ -40,7 +40,9 @@ Utility commands for general development tasks.
 
 - `/resolve-ci-failures` *(deprecated — use `iterate-pr` skill instead)*: Show CI failures for a PR, diagnose the root cause, apply fixes, re-run the failing tests to verify, then commit and push.
 
-- `/pr-walkthrough [<pr_link>]`: Generate a comprehensive reading guide for a pull request — includes a narrative reading order, architecture impact analysis, review comment summary, prior state context, and potential concerns ranked by risk.
+- `/pr-walkthrough [<pr_link>]` *(deprecated — use `explain-diff-html` skill instead)*: Generate a comprehensive reading guide for a pull request — includes a narrative reading order, architecture impact analysis, review comment summary, prior state context, and potential concerns ranked by risk.
+
+- `/explain-diff-html [<pr_link>]`: Generates a rich html document explaining code changes.
 
 **Skills**
 
