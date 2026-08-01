@@ -17,7 +17,7 @@ Before spawning reviewers, establish:
 - **Language and framework** — infer from context; confirm if ambiguous
 - **Purpose of the code** — what is it trying to do?
 - **Review depth** — quick pass vs. deep dive? (default: thorough)
-- **Commit range** — when reviewing a branch or PR, determine the base ref and branch (e.g. `master..feature-branch`); the readability reviewer needs it
+- **Commit range** — when reviewing a branch or PR, determine the base ref and branch (e.g. `master..feature-branch`); the branch reviewer needs it
 
 If the user just pastes code or says "review this", infer context and proceed immediately. Only ask if something critical is missing.
 
@@ -39,7 +39,7 @@ Spawn **all 6 agents simultaneously** (in parallel, not sequentially). Each agen
 - Focuses on exactly one dimension
 - Writes findings to its own JSON file in the working directory
 
-**Exception:** the readability reviewer reviews commit structure, so it only applies when reviewing a branch or PR with commit history. Skip it (spawn 5 agents) when reviewing pasted code, uncommitted changes, or files with no relevant commit range.
+**Exception:** the branch reviewer reviews commit structure, so it only applies when reviewing a branch or PR with commit history. Skip it (spawn 5 agents) when reviewing pasted code, uncommitted changes, or files with no relevant commit range.
 
 Agents to spawn (see `${CLAUDE_PLUGIN_ROOT}/agents/` for full instructions for each):
 
@@ -50,7 +50,7 @@ Agents to spawn (see `${CLAUDE_PLUGIN_ROOT}/agents/` for full instructions for e
 | `${CLAUDE_PLUGIN_ROOT}/agents/smells-reviewer.md` | `smells.json` | Code smells, hacks, workarounds, anti-patterns |
 | `${CLAUDE_PLUGIN_ROOT}/agents/security-reviewer.md` | `security.json` | Vulnerabilities, input validation, auth, secrets, exposure |
 | `${CLAUDE_PLUGIN_ROOT}/agents/maintainability-reviewer.md` | `maintainability.json` | Testability, error handling, dead code, documentation |
-| `${CLAUDE_PLUGIN_ROOT}/agents/readability-reviewer.md` | `readability.json` | Commit structure: discrete commits, mechanical/semantic separation, linear narrative, messages, atomicity |
+| `${CLAUDE_PLUGIN_ROOT}/agents/branch-reviewer.md` | `branch.json` | Commit structure: discrete commits, mechanical/semantic separation, linear narrative, messages, atomicity |
 
 **Prompt to give each agent** (replace all bracketed values and `${CLAUDE_PLUGIN_ROOT}` with absolute paths before sending):
 
@@ -70,16 +70,16 @@ Then review the following code:
 Focus only on your assigned dimension. Be thorough within your domain.
 ```
 
-**For the readability reviewer**, replace the code-location and language lines with the repository path and commit range, and omit the language-notes reference (it reviews commit structure, not code content):
+**For the branch reviewer**, replace the code-location and language lines with the repository path and commit range, and omit the language-notes reference (the reviewer reviews commit structure, not code content):
 
 ```
-Read your reviewer instructions from [/absolute/path/to/agents/readability-reviewer.md].
+Read your reviewer instructions from [/absolute/path/to/agents/branch-reviewer.md].
 
 Then review the following branch:
 - Repository path: [absolute path to repo root]
 - Commit range: [base ref]..[branch]
 - Purpose: [brief description of what the branch does]
-- Output path: /tmp/code-review-{timestamp}/readability.json
+- Output path: /tmp/code-review-{timestamp}/branch.json
 
 Focus only on your assigned dimension. Be thorough within your domain.
 ```
