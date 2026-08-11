@@ -160,6 +160,7 @@ Whether to include a description depends on how much detail the user provided:
   - **Steps to Reproduce:** If provided
   - Links, error messages, or context
 - Keep descriptions concise. Don't pad with boilerplate.
+- All links should be encoded as hyperlinks (do not add plain text https://...).
 
 ## Status
 
