@@ -18,11 +18,13 @@ This directory contains Claude Code plugins for this repository.
 
 ## code-review
 
-Thorough code review via 5 parallel specialist agents — design, quality, code smells, security, and maintainability — synthesised into a single prioritised review.
+Two ways to review code: hand it off to parallel specialist agents, or work through it yourself with Claude alongside.
 
 **Skills**
 
-- `code-review`: Review code, a PR diff, a file, or a directory. Spawns parallel reviewer agents and produces a structured, severity-ranked report.
+- `code-review`: Review code, a PR diff, a file, or a directory. Spawns 6 parallel reviewer agents — design, quality, code smells, security, maintainability, and commit structure — and produces a structured, severity-ranked report. Hands-off.
+
+- `pair-review`: Review a GitHub PR interactively, commit by commit, in a dedicated `review` worktree. You read the code and write your own comments; Claude explains what each commit and line does on demand and tracks progress by reading your pending GitHub review. Read-only — it never writes to GitHub. Example: `/pair-review https://github.com/dimagi/commcare-hq/pull/37998`
 
 ---
 
