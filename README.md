@@ -10,14 +10,32 @@ Claude Code is Anthropic's CLI for AI-assisted software engineering. This reposi
 - **Workflow patterns** — opinionated development loops that work well with Claude
 - **Curated external resources** — third-party plugins worth knowing about
 
+## Installation
+
+Add this marketplace:
+
+```
+/plugin marketplace add dimagi/dimagi-claude-workflows
+```
+
+Then browse and install:
+
+```
+/plugins
+```
+
 ## Plugins in This Repo
 
-See [plugins/README.md](plugins/README.md) for full documentation, including installation instructions.
+Each plugin's README documents its commands and skills.
 
 | Plugin | What it does |
 |--------|-------------|
-| [code-review](plugins/code-review/) | 5 parallel specialist agents produce a prioritised code review |
-| [dev-utils](plugins/dev_utils/) | Commands for PRs, plan review, CI/CD + iterate-pr skill |
+| [code-review](plugins/code-review/) | Parallel specialist agents produce a prioritised code review, or pair-review a PR commit by commit |
+| [dev-utils](plugins/dev_utils/) | Skills and commands for PRs, CI, plan review, git history, and dependency audits |
+| [commcare-tech](plugins/commcare-tech/) | CommCare Tech Division — SAAS Jira workflows, sprint rituals, writing conventions |
+| [connect-tech](plugins/connect-tech/) | CommCare Connect — Jira tickets and specs, release notes, docs audits |
+| [uss-tech](plugins/uss-tech/) | USS Tech — Jira project management and USS-aware code review |
+| [manager](plugins/manager/) | Standup, shutdown, 1:1 prep, and professional goal tracking |
 
 ## External Plugins
 
