@@ -30,30 +30,37 @@ Two ways to review code: hand it off to parallel specialist agents, or work thro
 
 ## dev-utils
 
-Utility commands for general development tasks.
+Utility commands and skills for general development tasks. See [dev_utils/README.md](dev_utils/README.md) for the full list.
 
 **Commands**
 
-- `/create-pr`: Commit staged/unstaged changes, push to a new branch if on main, and open a pull request.
-
 - `/review-plan`: Interactively review a plan across architecture, code quality, tests, and performance before writing any code. Works through issues one section at a time with opinionated recommendations and asks for your input before assuming a direction.
 
-- `/resolve-pr-comments` *(deprecated — use `iterate-pr` skill instead)*: Fetch all unresolved review threads on the current branch's PR, evaluate each one, apply fixes where warranted, reply, and optionally resolve threads.
-
-- `/resolve-ci-failures` *(deprecated — use `iterate-pr` skill instead)*: Show CI failures for a PR, diagnose the root cause, apply fixes, re-run the failing tests to verify, then commit and push.
-
-- `/pr-walkthrough [<pr_link>]` *(deprecated — use `explain-diff-html` skill instead)*: Generate a comprehensive reading guide for a pull request — includes a narrative reading order, architecture impact analysis, review comment summary, prior state context, and potential concerns ranked by risk.
-
-- `/explain-diff-html [<pr_link>]`: Generates a rich html document explaining code changes.
+- `/pr-walkthrough <pr-link-or-number>`: Generate a comprehensive reading guide for a pull request — includes a narrative reading order, architecture impact analysis, review comment summary, prior state context, and potential concerns ranked by risk.
 
 **Skills**
 
-- `iterate-pr`: Fix CI failures and address review feedback on the current branch's PR in a single pass. Gathers feedback (LOGAF-categorized), fixes high/medium issues, prompts on low-priority items, checks CI, verifies locally, commits, pushes, and replies to all threads. Supports `--dry-run`.
-- `add-mobile-string`: Add a new Android string resource (with translations across all supported locales) to the CommCare Android project, given a resource name and English text. 
+- `create-pr`: Commit staged/unstaged changes, push to a new branch if on main, and open a pull request using the repo's PR template.
 
 - `create-mobile-pr`: For mobile PRs in the dimagi/commcare-android repository, open a draft GitHub pull request with a JIRA-prefixed title and a template-generated description, appending QA notes to the active release section of RELEASES.md in a separate commit, and assign the current user without requesting reviewers.
 
+- `iterate-pr`: Fix CI failures and address review feedback on the current branch's PR in a single pass. Gathers feedback (LOGAF-categorized), fixes high/medium issues, prompts on low-priority items, checks CI, verifies locally, commits, pushes, and replies to all threads. Supports `--dry-run`.
+
+- `babysit-prs`: One sweep over all your open PRs — new review comments, CI, branch freshness, lint and generated-artifact drift, description sync — with a sub-agent per PR and state tracking so reruns skip handled work. Designed to be driven by `/loop`. Pass a PR number to work a single PR instead.
+
 - `pr-status-report`: Generate a structured, prioritized report of all open PRs in the current GitHub repository, grouping them by what needs the current user's attention — reviews requested of them, their own PRs with failing CI or change requests, PRs awaiting review, and PRs they have already reviewed — and ending with a numbered action-items list.
+
+- `explain-diff-html`: Generate a rich, self-contained HTML explanation of a diff, branch, or PR — background, intuition, code walkthrough, and an interactive quiz.
+
+- `grill-me`: Interrogate a plan or design one question at a time until every open decision is resolved, recording the outcomes in a design doc.
+
+- `git-rebase`: Fixup squashing, interactive rebase cleanup, moving changes between commits, splitting an edit across history, and recovering from a failed autosquash.
+
+- `audit-dependencies`: Full dependency audit for Python (pip-tools or uv) and JavaScript (npm/yarn). Writes a dated report, applies the safe bumps, and emits a Jira-ready ticket list for risky and end-of-life items.
+
+- `add-mobile-string`: Add a new Android string resource (with translations across all supported locales) to the CommCare Android project, given a resource name and English text.
+
+- `vertical-ordering`: Place callers above callees. Auto-applies (not user-invocable) when writing or reorganizing functions.
 
 ---
 

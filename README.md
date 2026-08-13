@@ -17,7 +17,7 @@ See [plugins/README.md](plugins/README.md) for full documentation, including ins
 | Plugin | What it does |
 |--------|-------------|
 | [code-review](plugins/code-review/) | 5 parallel specialist agents produce a prioritised code review |
-| [dev-utils](plugins/dev_utils/) | Commands for PRs, plan review, CI/CD + iterate-pr skill |
+| [dev-utils](plugins/dev_utils/) | Skills and commands for PRs, CI, plan review, git history, and dependency audits |
 
 ## External Plugins
 
