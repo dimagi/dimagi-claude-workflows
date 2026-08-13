@@ -7,13 +7,6 @@ tidying git history.
 Nothing here is Dimagi-specific except `create-mobile-pr` and
 `add-mobile-string`, which target the CommCare Android repo.
 
-## Installation
-
-```
-/plugin marketplace add dimagi/dimagi-claude-workflows
-/plugin install dev-utils
-```
-
 Most skills shell out to `gh`, so have the GitHub CLI installed and
 authenticated.
 
