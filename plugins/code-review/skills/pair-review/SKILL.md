@@ -94,7 +94,16 @@ your scratchpad.
 
 ## Step 4: Kickoff
 
-Two things, briefly:
+First, review the full PR diff with all commits applied to see what the final state looks
+like. Use `git merge-base <head_sha> origin/<baseRefName-or-default-branch>`, and cross-
+check the resulting diffstat against the PR API's additions/deletions/changed_files. When
+the diff is very large, read the substantive files first rather than streaming the whole
+diff; the goal is to understand it, not to have seen every line of it. Keep the learnings
+in mind when reviewing individual commits, especially to note issues with earlier commits
+that are fixed in subsequent commits. When such issues are noticed, flag them once; don't
+re-raise the same resolved-later note on each subsequent commit unless asked.
+
+Then two things, briefly:
 
 1. **Three sentences** on what the PR does overall. Not a report, not headings.
 2. **The commit map**, with comment counts, marking where you're starting:
