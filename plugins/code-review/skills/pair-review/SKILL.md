@@ -94,7 +94,16 @@ your scratchpad.
 
 ## Step 4: Kickoff
 
-Two things, briefly:
+First, review the full PR diff with all commits applied to see what the final state looks
+like. Use `git merge-base <head_sha> origin/<baseRefName-or-default-branch>`, and cross-
+check the resulting diffstat against the PR API's additions/deletions/changed_files. When
+the diff is very large, read the substantive files first rather than streaming the whole
+diff; the goal is to understand it, not to have seen every line of it. Keep the learnings
+in mind when reviewing individual commits, especially to note issues with earlier commits
+that are fixed in subsequent commits. When such issues are noticed, flag them once; don't
+re-raise the same resolved-later note on each subsequent commit unless asked.
+
+Then two things, briefly:
 
 1. **Three sentences** on what the PR does overall. Not a report, not headings.
 2. **The commit map**, with comment counts, marking where you're starting:
@@ -175,3 +184,12 @@ while reading one commit at a time, and it's one of the more useful things you c
 
 If they ask you to help word something, write the comment text and name the file and line
 it belongs on, so they can paste it. They post it themselves.
+
+## Step 7: Prompt to review comments for correctness
+
+Once the user indicates they're done reviewing — whether that's finishing the last commit
+or saying they're wrapping up — offer to review all of the user's PR comments for
+relevance and correctness before the user completes the review. Confirm each comment's
+line anchor/suggestion actually applies as intended, and verify any external/factual
+claim a comment makes rather than assuming it's right. Do nothing if this offer is not
+accepted.
