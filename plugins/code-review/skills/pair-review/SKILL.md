@@ -184,3 +184,12 @@ while reading one commit at a time, and it's one of the more useful things you c
 
 If they ask you to help word something, write the comment text and name the file and line
 it belongs on, so they can paste it. They post it themselves.
+
+## Step 7: Prompt to review comments for correctness
+
+Once the user indicates they're done reviewing — whether that's finishing the last commit
+or saying they're wrapping up — offer to review all of the user's PR comments for
+relevance and correctness before the user completes the review. Confirm each comment's
+line anchor/suggestion actually applies as intended, and verify any external/factual
+claim a comment makes rather than assuming it's right. Do nothing if this offer is not
+accepted.
