@@ -50,7 +50,7 @@ A teammate scanning a list of PR titles six months from now should be able to te
 - **Set expectations for the diff when something needs flagging** — surprises the reviewer should know about. For example, "the change is smaller than it looks because XYZ," or anything unexpected you had to do to make it work. Skip when the diff speaks for itself; many PRs don't need this.
 - **On a large PR with well-organized commits, sketching the arc of the work can help** — the shape, not a per-commit description. Most PRs don't need this. If a per-commit description feels necessary, that's a sign to rework the commits or sharpen the messages instead; the arc sketch is a complement to good commit hygiene, not a substitute.
 - **Convey why we can be confident the change works** — proportionate to how non-obvious it is that the PR works. A typo fix needs nothing; a subtle concurrency change needs a test plan, manual verification, screenshots, or before/after evidence the reviewer can't easily dismiss.
-- Use the repo's PR template if one exists. Default to **draft PR** with a `DON'T REVIEW YET` label where available.
+- Use the repo's PR template if one exists. Default to **draft PR** unless told otherwise.
 
 ### Editing an existing PR description
 
