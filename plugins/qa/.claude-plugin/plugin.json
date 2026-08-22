@@ -1,0 +1,18 @@
+{
+  "name": "qa",
+  "version": "0.1",
+  "description": "QA skills for test planning and impact review",
+  "author": {
+    "name": "Nidhi Saxena",
+    "email": "nsaxena@dimagi.com",
+    "url": "https://github.com/dimagi"
+  },
+  "homepage": "https://github.com/dimagi/dimagi-claude-workflows",
+  "repository": "https://github.com/dimagi/dimagi-claude-workflows",
+  "license": "MIT",
+  "keywords": [
+    "qa",
+    "test planning",
+    "impact review"
+  ]
+}
