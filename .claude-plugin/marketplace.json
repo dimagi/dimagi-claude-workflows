@@ -47,6 +47,12 @@
       "description": "Skills and commands for the USS Tech Team"
     },
     {
+      "name": "qa",
+      "source": "./plugins/qa",
+      "version": "0.1",
+      "description": "QA skills for test planning and impact review"
+    },
+    {
       "name": "superpowers",
       "description": "Plan, Build, Review workflow with brainstorming, subagent driven development, systematic debugging, and TDD",
       "category": "development",
