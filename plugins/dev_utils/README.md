@@ -75,3 +75,9 @@ authenticated.
 
 - `add-mobile-string` — Add a string resource and its translations to every
   locale `strings.xml`, discovering the locale set at runtime.
+
+- `crash-metrics` — Append a dated row of Firebase Crashlytics figures (30/90-day
+  crash-free users, crashes, crash users, ANRs, ANR users) to the CommCare Mobile
+  Metrics sheet, for CommCare and CommCare LTS. Scrapes the Crashlytics console in
+  Chrome, since the REST API exposes neither totals nor crash-free users. Requires
+  `CRASH_METRICS_SHEET_ID` to be set.
