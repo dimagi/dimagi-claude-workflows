@@ -127,19 +127,18 @@ Set via `parent` parameter: `parent: "SAAS-18371"`
 
 ## Sprint Assignment
 
-Determine the sprint based on the nature of the work. 91% of dev-created tickets are assigned to a sprint.
+**Default to the backlog — do NOT assign a sprint unless the user explicitly asks for one.**
 
-1. **Search for active sprints** using JQL: `project = SAAS AND sprint in openSprints()` with the `searchJiraIssuesUsingJql` tool. Fetch at least 2 results to find both sprints. The sprint data is in the `customfield_10010` field. If the first result only shows one sprint, run a second query excluding that sprint ID to find the other.
+1. If the user does not mention a sprint, leave the ticket in the backlog. Do not look up sprints, do not ask which sprint to use.
 
-2. **Identify sprints by name:** Sprint names follow the pattern `CommCare [Product|Platform] [Name]`. Look for "Product" or "Platform" in the sprint name to classify them. Do NOT rely on specific sprint names — they change every sprint cycle.
-
-3. **Classify the work using natural language:**
-   - **Platform/Infra** — infrastructure, DevOps, Ansible, performance, scaling, security, database, migrations, Celery, Kafka, ElasticSearch, CouchDB, Postgres, deploys, monitoring, dependencies, CI/CD, server, AWS, Docker, Redis, RabbitMQ, nginx, SSL, backups, networking, DNS, pillow errors, connection spikes, OOM, memory spikes, downsizing machines, IAM, S3 → assign to the sprint with **"Platform"** in its name
-   - **Product** — features, UI, UX, bug fixes in user-facing areas, app builder, reports, exports, case management, forms, mobile, web apps, user management, messaging, SMS, formplayer, formbuilder, data cleaning, data exports, case importer, enterprise console, feature flags, save to case, form submissions, FF deletion, add-ons, mobile app, Android → assign to the sprint with **"Product"** in its name
-
-4. If the user says "backlog" anywhere in their description, do NOT assign a sprint (leave it in the backlog).
-
-5. If you can't determine which sprint, **ask the user**: "Product sprint or Platform sprint? (or backlog)"
+2. **Only if the user explicitly asks for a sprint** (e.g., "current sprint", "this sprint", "add to the Platform sprint", "sprint it"), resolve it:
+   - Search for active sprints using JQL: `project = SAAS AND sprint in openSprints()` with the `searchJiraIssuesUsingJql` tool. Fetch at least 2 results to find both sprints. The sprint data is in the `customfield_10010` field. If the first result only shows one sprint, run a second query excluding that sprint ID to find the other.
+   - **Identify sprints by name:** Sprint names follow the pattern `CommCare [Product|Platform] [Name]`. Look for "Product" or "Platform" in the sprint name to classify them. Do NOT rely on specific sprint names — they change every sprint cycle.
+   - If the user named a specific sprint (Product or Platform), use that one.
+   - If the user asked for a sprint without saying which, classify the work using natural language:
+     - **Platform/Infra** — infrastructure, DevOps, Ansible, performance, scaling, security, database, migrations, Celery, Kafka, ElasticSearch, CouchDB, Postgres, deploys, monitoring, dependencies, CI/CD, server, AWS, Docker, Redis, RabbitMQ, nginx, SSL, backups, networking, DNS, pillow errors, connection spikes, OOM, memory spikes, downsizing machines, IAM, S3 → the sprint with **"Platform"** in its name
+     - **Product** — features, UI, UX, bug fixes in user-facing areas, app builder, reports, exports, case management, forms, mobile, web apps, user management, messaging, SMS, formplayer, formbuilder, data cleaning, data exports, case importer, enterprise console, feature flags, save to case, form submissions, FF deletion, add-ons, mobile app, Android → the sprint with **"Product"** in its name
+   - If you still can't determine which sprint, **ask the user**: "Product sprint or Platform sprint?"
 
 Set sprint via `additional_fields`: `"customfield_10010": <sprint_id_number>` (plain integer, NOT an object).
 
@@ -177,16 +176,16 @@ If the ticket has no sprint, do NOT call `getTransitionsForJiraIssue` or `transi
 ## Steps
 
 1. Parse `$ARGUMENTS` to extract: summary, description details, issue type, effort, priority, assignee, epic, and sprint intent.
-2. **Resolve assignee and look up sprints** — these can run in parallel:
+2. **Resolve assignee:**
    - If a name is mentioned, look them up with `lookupJiraAccountId`.
    - Otherwise, get current user via `atlassianUserInfo` (for self-assignment).
-   - Search for active sprints.
+   - Only search for active sprints if the user explicitly asked for a sprint.
 3. Craft a clean **summary**...
 4. After creating the ticket, respond with a brief confirmation that lets the user verify everything at a glance:
 
 ```
 Created [SAAS-XXXXX](https://dimagi.atlassian.net/browse/SAAS-XXXXX): Summary here
-Sprint: CommCare Product W | Effort: Hours | Assigned to: Graham
+Sprint: Backlog | Effort: Hours | Assigned to: Graham
 ```
 
 Include the ticket URL (clickable in the terminal), the sprint it was added to (or "Backlog" if none), effort range, and assignee. Only include epic/priority/status lines if they were explicitly set. Keep it compact — no more than 3 lines.
