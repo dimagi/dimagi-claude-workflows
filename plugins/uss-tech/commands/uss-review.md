@@ -1,12 +1,12 @@
 ---
-description: Thorough code review including a USS Tech impact specialist — runs code-review's 5 standard reviewers in parallel with a 6th USS-specific reviewer, then renders a two-block synthesis (standard + USS section).
+description: Thorough code review including a USS Tech impact specialist — runs code-review's 6 standard reviewers in parallel with a 7th USS-specific reviewer, then renders a two-block synthesis (standard + USS section).
 ---
 
 # USS Review
 
-Orchestrate a thorough code review by spawning **6 parallel specialist reviewers** — code-review's standard 5 plus the USS impact specialist — then synthesise findings into a two-block output: the standard code-review synthesis, followed by a USS section with audience-bucketed user-facing changes.
+Orchestrate a thorough code review by spawning **7 parallel specialist reviewers** — code-review's standard 6 plus the USS impact specialist — then synthesise findings into a two-block output: the standard code-review synthesis, followed by a USS section with audience-bucketed user-facing changes.
 
-This command depends on the `code-review` plugin being installed (it reuses code-review's 5 agent files via sibling-path lookup).
+This command depends on the `code-review` plugin being installed (it reuses code-review's 6 agent files via sibling-path lookup).
 
 ---
 
@@ -41,7 +41,7 @@ If the user just pastes code or says "uss-review this", infer context and procee
 
 ---
 
-## Step 2: Spawn 6 parallel reviewer agents
+## Step 2: Spawn 7 parallel reviewer agents
 
 Create a temp working directory:
 
@@ -49,7 +49,7 @@ Create a temp working directory:
 /tmp/uss-review-{timestamp}/
 ```
 
-Spawn **all 6 agents simultaneously** (in parallel, not sequentially). Each agent:
+Spawn **all 7 agents simultaneously** (in parallel, not sequentially). Each agent:
 - Reads the same code (provide paths or content)
 - Focuses on exactly one dimension
 - Writes findings to its own JSON file in the working directory
@@ -61,6 +61,7 @@ Spawn **all 6 agents simultaneously** (in parallel, not sequentially). Each agen
 | `${CLAUDE_PLUGIN_ROOT}/../code-review/agents/smells-reviewer.md` | `smells.json` | Code smells, hacks, workarounds, anti-patterns |
 | `${CLAUDE_PLUGIN_ROOT}/../code-review/agents/security-reviewer.md` | `security.json` | Vulnerabilities, input validation, auth, secrets, exposure |
 | `${CLAUDE_PLUGIN_ROOT}/../code-review/agents/maintainability-reviewer.md` | `maintainability.json` | Testability, error handling, dead code, documentation |
+| `${CLAUDE_PLUGIN_ROOT}/../code-review/agents/documentation-reviewer.md` | `documentation.json` | Comments, docstrings, READMEs: true, necessary, simple, findable |
 | `${CLAUDE_PLUGIN_ROOT}/agents/uss-reviewer.md` | `uss.json` | USS Tech audience inventory, gate correctness, blast radius |
 
 **Before spawning agents**, resolve `${CLAUDE_PLUGIN_ROOT}` to its absolute path (it is available in your environment) and substitute it into the agent paths and prompts below. Subagents do not have access to this variable.
@@ -91,13 +92,13 @@ The USS reviewer does **not** need to consult `language-notes.md` — its focus 
 
 ## Step 3: Wait and collect results
 
-Once all 6 agents complete, read all 6 JSON files from the working directory.
+Once all 7 agents complete, read all 7 JSON files from the working directory.
 
 ---
 
 ## Step 4: Synthesise findings
 
-Process the standard 5 results the same way code-review does today:
+Process the standard 6 results the same way code-review does today:
 
 **Deduplicate**: Multiple agents may flag the same issue from different angles. Merge into a single finding.
 
@@ -107,7 +108,7 @@ Process the standard 5 results the same way code-review does today:
 
 **Assess the overall picture**: Is this code fundamentally healthy with some rough edges, or is there a deeper structural problem?
 
-The USS reviewer's findings are kept **separate** from the standard 5 — they are not merged into the same triage table. The USS section renders independently.
+The USS reviewer's findings are kept **separate** from the standard 6 — they are not merged into the same triage table. The USS section renders independently.
 
 ---
 

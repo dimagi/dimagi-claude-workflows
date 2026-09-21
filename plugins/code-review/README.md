@@ -5,12 +5,12 @@ through it yourself with Claude alongside.
 
 ## Skills
 
-- `code-review` — Review code, a PR diff, a file, or a directory. Spawns six
+- `code-review` — Review code, a PR diff, a file, or a directory. Spawns seven
   parallel specialist reviewers — design, quality, code smells, security,
-  maintainability, and commit structure — then deduplicates, calibrates
-  severity, and synthesises one prioritised report. Hands-off. (The commit
-  structure reviewer is skipped when there's no commit range to review, leaving
-  five.)
+  maintainability, documentation, and commit structure — then deduplicates,
+  calibrates severity, and synthesises one prioritised report. Hands-off. (The
+  commit structure reviewer is skipped when there's no commit range to review,
+  leaving six.)
 
 - `pair-review` — Review a GitHub PR interactively, commit by commit, in a
   dedicated `review` worktree. You read the code and write your own comments;
@@ -26,7 +26,7 @@ through it yourself with Claude alongside.
 
 The specialist reviewers live in `agents/` and are spawned by the `code-review`
 skill rather than invoked directly: `design-reviewer`, `quality-reviewer`,
-`smells-reviewer`, `security-reviewer`, `maintainability-reviewer`, and
-`branch-reviewer`. Each writes its findings as JSON for the orchestrator to
-merge. Other plugins can reuse them — `uss-tech`'s `/uss-review` runs these
-five alongside a USS-specific sixth reviewer.
+`smells-reviewer`, `security-reviewer`, `maintainability-reviewer`,
+`documentation-reviewer`, and `branch-reviewer`. Each writes its findings as
+JSON for the orchestrator to merge. Other plugins can reuse them — `uss-tech`'s
+`/uss-review` runs six of these alongside a USS-specific seventh reviewer.
