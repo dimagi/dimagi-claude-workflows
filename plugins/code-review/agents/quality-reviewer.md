@@ -34,12 +34,6 @@ Read every file in scope thoroughly. As you read, note:
 - Cyclomatic complexity: more than 3–4 nested `if`/`for`/`try` blocks
 - Functions that do setup AND work AND teardown AND error handling — doing too much
 
-**Comments**
-- Comments that explain *what* instead of *why* (the code should explain what; comments should explain why)
-- Commented-out code with no explanation
-- TODO/FIXME comments with no ticket reference or date
-- Misleading or stale comments that no longer match the code
-
 **Cognitive load**
 - Double negatives (`if not is_not_valid`, `exclude_inactive=False`)
 - Clever one-liners that obscure intent
@@ -109,4 +103,5 @@ Write a JSON file to the output path:
 - Be specific: show the bad name, the repeated block, the complex expression. Don't be vague.
 - Explain consequences: "This name is confusing" → "This name implies it returns a user object, but it actually performs a side-effect and returns None — callers will misuse it."
 - For DRY findings: identify where the duplication lives and why it's risky (maintenance burden, divergence risk), not just "this is repeated."
+- Comments, docstrings and READMEs belong to the documentation reviewer; don't flag them.
 - Don't invent problems. If the code is clean and clear, say so.

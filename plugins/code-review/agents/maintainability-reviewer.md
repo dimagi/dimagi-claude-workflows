@@ -56,14 +56,6 @@ Read every file in scope. Read tests if they exist. As you read, ask yourself: "
 - Code paths that can never be reached (e.g., code after a `return`, conditions that are always true/false)
 - Commented-out code blocks
 
-**Documentation and Context**
-
-- Do public APIs (functions, classes, modules) have docstrings or comments explaining what they do?
-- Are non-obvious decisions or constraints explained? ("We use X here instead of Y because of Z" is valuable; "we call foo()" is not)
-- Are complex algorithms accompanied by an explanation or a reference?
-- Are there things that will surprise the next developer that go unexplained?
-- Missing type hints on public function signatures (in typed languages)
-
 **Magic Numbers and Strings**
 
 - Numeric literals whose meaning is non-obvious (`86400`, `7`, `0.15`, `42`)
@@ -113,14 +105,14 @@ Write a JSON file to the output path:
 
 **Severity guide:**
 - `critical` — A maintainability issue that will cause real bugs or outages: silently swallowed errors in critical paths, untestable code with no tests around important logic, resource leaks
-- `major` — Significant gap that makes the code hard to change safely: no tests on complex logic, error handling gaps, key decisions undocumented, hard dependencies on external services
-- `minor` — Something that slows down future work: missing docstrings on public APIs, magic numbers, unused imports
-- `suggestion` — Nice-to-have improvements: additional test coverage, operational improvements, minor documentation gaps
+- `major` — Significant gap that makes the code hard to change safely: no tests on complex logic, error handling gaps, hard dependencies on external services
+- `minor` — Something that slows down future work: magic numbers, unused imports
+- `suggestion` — Nice-to-have improvements: additional test coverage, operational improvements
 
 ## Guidelines
 
 - Think like the engineer who inherits this code in 6 months — what will surprise them? What will slow them down?
 - Be specific about consequences: not just "this is untestable" but "this function makes a direct database call and an HTTP request, so any test requires both a real database and a live external service"
 - If tests exist and are good, note that — it's positive signal worth calling out
-- Don't over-flag missing comments on obvious code; focus on genuinely non-obvious things that need explanation
+- Documentation — comments, docstrings, READMEs — belongs to the documentation reviewer; don't flag it
 - If the code is genuinely well-maintained and easy to work with, say so in the summary

@@ -19,7 +19,7 @@
     {
       "name": "code-review",
       "source": "./plugins/code-review",
-      "version": "0.5",
+      "version": "0.6",
       "description": "Perform thorough code review"
     },
     {
