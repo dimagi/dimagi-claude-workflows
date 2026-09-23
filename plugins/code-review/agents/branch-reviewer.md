@@ -97,13 +97,12 @@ that follows.
 - The subject must accurately summarise the *entire* diff, in the imperative
   mood ("Add X", not "Added X" or "Adding X"). A subject that is hard to
   write concisely is usually a symptom of a Rule 1 violation — say which
-- A subject that misdescribes its diff is worse than a vague one: the
-  reviewer approves what the message says, not what the code does
-- Non-obvious changes need a body explaining *why*: the motivation, why the
-  approach is safe, what alternatives were rejected. The diff shows what
-  changed; only the message can say why
-- Do not demand bodies on self-explanatory commits — "Fix typo in README"
-  needs no essay
+- Non-obvious changes that are not already covered by code comments need a
+  body explaining *why*: the motivation, why the approach is safe, what
+  alternatives were rejected.
+- If the commit message needs a body, it must be accurate and concise. If the
+  commit is self-explanatory or the subject is sufficient, the body should be
+  omitted.
 
 **Rule 6 — Every commit works in isolation**
 Each commit should build and pass tests on its own, so `git bisect` gives
