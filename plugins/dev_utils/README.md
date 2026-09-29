@@ -60,6 +60,11 @@ authenticated.
 - `grill-me` — Interrogates your plan or design one question at a time until
   every open decision is resolved, recording the outcomes in a design doc.
 
+- `/step-by-step` — Builds an implementation one function at a time, and
+  after each one asks you to explain the code back in your own words before
+  moving on. Starts with an outline of units for you to approve. Stays on until
+  you say to stop. You have to invoke it yourself; Claude won't trigger it.
+
 - `git-rebase` — Fixup squashing, interactive rebase cleanup, moving changes
   between commits, splitting an edit across history, and recovering from a
   failed autosquash.
