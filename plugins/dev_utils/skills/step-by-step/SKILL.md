@@ -35,10 +35,13 @@ build them:
 
 A unit is one function or method, or one small change that stands on its own
 (a model field plus its migration, a URL route, a template block). The tests
-for a unit are their own separate step right after it. If a function would run
-past about 40 lines, split it into helpers and list each helper as its own
-unit. That keeps each step small enough to understand fully, and it makes the
-code easier to test.
+for a unit are their own separate step right after it.
+
+Aim for units of about 25 lines or less, small enough to explain back after
+one read. If a function would run longer, split it into helpers when that
+makes the code better, and list each helper as its own unit. If the function
+should stay whole, keep it whole and review it in parts: show and check one
+section at a time.
 
 Wait for the user to approve or change the outline. Don't write code yet.
 
