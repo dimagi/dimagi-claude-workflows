@@ -1,6 +1,6 @@
 ---
 name: step-by-step
-description: Build an implementation one function at a time, pausing after each so the user can explain the code back in their own words before anything else is written. Use when the user invokes /step-by-step or asks to go "one function at a time", "slow down so I can follow", or "let me understand each piece before you move on".
+description: Build an implementation one small unit at a time (usually a function), pausing after each so the user can explain the code back in their own words before anything else is written. Use when the user invokes /step-by-step or asks to go "one function at a time", "slow down so I can follow", or "let me understand each piece before you move on".
 disable-model-invocation: true
 ---
 
