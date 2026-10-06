@@ -103,7 +103,7 @@ New Celery tasks, periodic jobs, and calls to external services (CommCare HQ, Co
 
 ### Templates and frontend
 
-New layouts, pages, components and JavaScript.
+New layouts, pages and components, links to existing designs (e.g. Claude Design, Figma) etc.
 
 ### Settings and feature flags
 
