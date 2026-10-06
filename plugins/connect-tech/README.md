@@ -24,6 +24,13 @@ servers need to be connected.
 - `groom-sprint-tickets` — Groom the tickets in a named sprint. Slash-command
   only; never auto-invoked. Example: `/groom-sprint-tickets Sprint 42`
 
+## Specs
+
+- `tech-spec` — Create a tech spec from scratch, or review an existing one
+  (file path, PR link, Jira ticket, or pasted text). Checks it against a fixed
+  question bank, fills the gaps, and rewrites it to the standard outline in
+  plain language. Example: `/tech-spec path/to/spec.md`
+
 ## Release notes
 
 - `connect-web-release-notes` — Release notes for the latest
