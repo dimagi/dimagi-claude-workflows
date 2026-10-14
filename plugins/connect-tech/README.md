@@ -48,3 +48,11 @@ servers need to be connected.
   repos are inferred from the space. Produces a focused edit list, not a full
   audit. Example:
   `/docs-vs-code-review https://dimagi.atlassian.net/wiki/spaces/connectpublic/pages/3215458305`
+
+## Demos
+
+- `connect-ui-demo` — Verify a commcare-connect UI flow with a scripted
+  headless run, then record a share-ready demo video (captions, cursor,
+  intro/outro, device frame). Needs Node 20+, Python 3, ffmpeg and the repo's
+  `.venv`; run `preflight.sh` in the skill folder to check. Only runs when you
+  ask for a demo or name the skill.
