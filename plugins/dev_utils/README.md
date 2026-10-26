@@ -4,8 +4,8 @@ Utility commands and skills for general development — mostly the work that
 surrounds writing code: opening PRs, keeping them healthy, reviewing plans, and
 tidying git history.
 
-Nothing here is Dimagi-specific except `create-mobile-pr` and
-`add-mobile-string`, which target the CommCare Android repo.
+Nothing here is Dimagi-specific except `create-mobile-pr`, `add-mobile-string`
+and `record-mobile-demo`, which target the CommCare Android repo.
 
 Most skills shell out to `gh`, so have the GitHub CLI installed and
 authenticated.
@@ -80,3 +80,8 @@ authenticated.
 
 - `add-mobile-string` — Add a string resource and its translations to every
   locale `strings.xml`, discovering the locale set at runtime.
+
+- `record-mobile-demo` — Record a captioned demo video (or GIF) of a mobile change for a
+  PR. Cuts it from a QA Maestro flow, or rehearses an adb flow on a device or emulator and
+  replays it while scrcpy records. Needs `adb`, `ffmpeg` and preferably `scrcpy`; the Maestro
+  path also needs Maestro 1.39.13 and a staging account env file (see the skill's Setup).
