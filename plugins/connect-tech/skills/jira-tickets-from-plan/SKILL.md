@@ -36,14 +36,23 @@ Before creating any tickets, ask the user:
 2. **Component** — always ask explicitly: *"Which component should these tickets be tagged with (e.g. Mobile, Web / Server)?"* Never assume; the project may have several components.
 3. **Other custom fields** — ask whether the user wants to set any additional fields (labels, sprint, priority, etc.). Default to none.
 
-### Step 4: Confirm Tickets
+### Step 4: Find Documentation to Update
 
-Present the complete list of tickets to the user (summary + brief overview + acceptance criteria for each). Confirm before creating, or iterate with additional input.
+The [Connect Documentation Process](https://dimagi.atlassian.net/wiki/spaces/connect/pages/3092250699/Connect+Documentation+Process) requires every user-facing ticket to list the documentation that needs updating, with links where they exist. Work this out for each ticket:
+
+- **If Atlassian MCP tools are available:** search Confluence in the `connectpublic` and `connect` spaces for terms from the ticket — feature names, page names, button and column labels, statuses. Read the top results and keep only pages that describe behaviour the ticket changes. If the ticket introduces a new term, include the [Connect Glossary](https://dimagi.atlassian.net/wiki/spaces/connectpublic/pages/3146907685/Connect+Glossary). If no page covers a new feature, say a new page is needed. Search results are noisy, so treat what you find as candidates for the user to confirm, not as the final list.
+- **If they are not available:** ask the user which documentation each ticket needs to update. Accept free text — not every item is a link — and accept "None".
+
+Tickets with no user-facing change get "None".
+
+### Step 5: Confirm Tickets
+
+Present the complete list of tickets to the user (summary + brief overview + acceptance criteria + documentation to update for each). Confirm before creating, or iterate with additional input.
 
 Summary formatting requirements:
 - **Title case** for every summary. Capitalize all major words; lowercase short articles, conjunctions, and prepositions (`a`, `an`, `the`, `and`, `or`, `to`, `of`, `for`, `in`, `on`, `at`, `by`, `with`, `from`).
 
-### Step 5: Create Each Ticket
+### Step 6: Create Each Ticket
 
 Use `mcp__claude_ai_Atlassian__createJiraIssue` for each ticket with:
 
@@ -54,7 +63,7 @@ Use `mcp__claude_ai_Atlassian__createJiraIssue` for each ticket with:
 - **Parent**: Same as the parent of the ticket mentioned in the plan (no parent if the plan ticket itself is top-level)
 - **Component**: Per Step 3. If the create call doesn't accept `components` directly, set it immediately afterward via `mcp__claude_ai_Atlassian__editJiraIssue` with `{"components": [{"name": "<name>"}]}`.
 
-### Step 6: Wrap Up
+### Step 7: Wrap Up
 
 After all tickets are created, do these in order:
 
@@ -88,12 +97,19 @@ See plan: [<section name>](<github permalink with line range>)
 
 - [Key outcome that signals this ticket is done]
 - [Another outcome]
+
+**Documentation to Update:**
+
+- [<Confluence page title>](<page URL>) — [what changes on it]
+- [Free-text item, e.g. "New page needed for <feature>"]
 ```
+
+If no documentation needs updating, write `**Documentation to Update:** None` on one line.
 
 Formatting rules (each one matters — Jira renders content differently from GitHub):
 
 - **No headers.** The overview text is the first paragraph. There is no `## Overview` and no `## Implementation` section.
 - **Link to the plan at the end of the overview.** Use a GitHub permalink with a `#L<start>-L<end>` line-range anchor pointing to the relevant phase/section in the plan. Never copy the implementation details inline — the plan is the source of truth.
-- **`**Acceptance Criteria:**` is plain bolded inline text**, not a header. Jira renders it as bold text above the bullet list.
-- **Acceptance criteria are plain bullets** (`-` or `*`), NOT markdown checklists (`- [ ]`). Jira does not render markdown checklists.
+- **`**Acceptance Criteria:**` and `**Documentation to Update:**` are plain bolded inline text**, not headers. Jira renders them as bold text above the bullet list.
+- **Acceptance criteria and documentation items are plain bullets** (`-` or `*`), NOT markdown checklists (`- [ ]`). Jira does not render markdown checklists.
 - Use `contentFormat: "markdown"` on every create/edit call.
