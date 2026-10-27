@@ -19,7 +19,8 @@ servers need to be connected.
   Example: `/jira-spec-doc CCC-284`
 
 - `jira-tickets-from-plan` — Take an AI-written plan, break it into logically
-  independent tickets, and create them in Jira.
+  independent tickets, and create them in Jira. Each ticket lists the Confluence
+  docs it needs to update, found by searching Confluence or by asking you.
 
 - `groom-sprint-tickets` — Groom the tickets in a named sprint. Slash-command
   only; never auto-invoked. Example: `/groom-sprint-tickets Sprint 42`
@@ -48,3 +49,6 @@ servers need to be connected.
   repos are inferred from the space. Produces a focused edit list, not a full
   audit. Example:
   `/docs-vs-code-review https://dimagi.atlassian.net/wiki/spaces/connectpublic/pages/3215458305`
+  Run it on a branch without a URL to find the docs that branch makes out of
+  date, compared against the documentation links on its Jira ticket. Useful before opening
+  a PR.
