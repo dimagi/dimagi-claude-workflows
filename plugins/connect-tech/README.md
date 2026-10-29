@@ -24,6 +24,12 @@ servers need to be connected.
 - `groom-sprint-tickets` — Groom the tickets in a named sprint. Slash-command
   only; never auto-invoked. Example: `/groom-sprint-tickets Sprint 42`
 
+- `post-hoc-points` — For your recently resolved tickets, suggest the story
+  points each one actually took (from its PRs, review rounds and Jira history)
+  and, once you confirm each number, post it as a `Post-hoc:` comment so it can
+  be compared with the estimate. Never touches the estimate field. Defaults to
+  CCCT; name other projects to sweep those.
+
 ## Specs
 
 - `tech-spec` — Create a tech spec from scratch, or review an existing one
