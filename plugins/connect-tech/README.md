@@ -1,7 +1,7 @@
 # connect-tech
 
-Skills for the CommCare Connect team — Jira tickets and specs, release notes,
-and keeping Confluence docs honest.
+Skills and agents for the CommCare Connect team — Jira tickets and specs,
+release notes, and keeping Confluence docs honest.
 
 Most of these talk to Jira, Confluence, or Slack, so the corresponding MCP
 servers need to be connected.
@@ -23,6 +23,12 @@ servers need to be connected.
 
 - `groom-sprint-tickets` — Groom the tickets in a named sprint. Slash-command
   only; never auto-invoked. Example: `/groom-sprint-tickets Sprint 42`
+
+- `post-hoc-points` — For your recently resolved tickets, suggest the story
+  points each one actually took (from its PRs, review rounds and Jira history)
+  and, once you confirm each number, post it as a `Post-hoc:` comment so it can
+  be compared with the estimate. Never touches the estimate field. Defaults to
+  CCCT; name other projects to sweep those.
 
 ## Specs
 
@@ -48,3 +54,10 @@ servers need to be connected.
   repos are inferred from the space. Produces a focused edit list, not a full
   audit. Example:
   `/docs-vs-code-review https://dimagi.atlassian.net/wiki/spaces/connectpublic/pages/3215458305`
+
+## Agents
+
+- `code-simplifier` — Simplifies recently modified Django code (Python,
+  templates, front-end JS) for clarity and consistency while preserving
+  behaviour. Reads the project's `CLAUDE.md`/`AGENTS.md` for conventions and
+  focuses on the current diff.
