@@ -13,7 +13,7 @@
     {
       "name": "dev-utils",
       "source": "./plugins/dev_utils",
-      "version": "1.9.0",
+      "version": "1.9.1",
       "description": "Utility commands and skills for general development"
     },
     {
@@ -31,7 +31,7 @@
     {
       "name": "connect-tech",
       "source": "./plugins/connect-tech",
-      "version": "0.6",
+      "version": "0.7.0",
       "description": "Skills for the CommCare Connect Team"
     },
     {
