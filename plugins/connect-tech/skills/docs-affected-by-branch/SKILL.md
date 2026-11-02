@@ -10,8 +10,7 @@ argument-hint: "[Jira ticket key or URL, or \"none\"]"
 # Docs Affected by Branch
 
 Find the Confluence pages the current branch makes out of date and list the edits each one
-needs. The code is the local checkout — don't clone anything. The mobile repo is out of scope
-unless the branch changes it.
+needs. The code is the local checkout — don't clone anything.
 
 Read `${CLAUDE_PLUGIN_ROOT}/references/connect-docs.md` first. Steps 4 and 5 use it.
 
