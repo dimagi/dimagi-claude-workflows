@@ -13,9 +13,18 @@ Find the Confluence pages the current branch makes out of date and list the edit
 needs. The code is the local checkout — don't clone anything. The mobile repo is out of scope
 unless the branch changes it.
 
-Read `${CLAUDE_PLUGIN_ROOT}/references/connect-docs.md` first. Steps 3 and 4 use it.
+Read `${CLAUDE_PLUGIN_ROOT}/references/connect-docs.md` first. Steps 4 and 5 use it.
 
-## Step 1: Get the ticket
+## Step 1: Check Atlassian access
+
+Check whether the Atlassian MCP tools for Jira and Confluence are available. The later steps
+say what to do in each case.
+
+If they are not available, tell the user before going further: you can't read Jira or
+Confluence, so you will ask them for the ticket's documentation links and for the pages that
+cover the change, and the report will list what changed for each page instead of exact edits.
+
+## Step 2: Get the ticket
 
 Run `gh pr view --json body,baseRefName` to see whether the branch has a PR. Then take the
 ticket from the first of these that applies:
@@ -25,14 +34,17 @@ ticket from the first of these that applies:
 3. **Otherwise** — ask the user for the Jira ticket key or URL. There may not be one, so accept
    "none".
 
-If there is a ticket, fetch it and collect the Confluence pages it links: its **Documentation to
-Update** list, or any Confluence links in its description. These are the pages the ticket
-expects to change.
+If there is a ticket, collect the Confluence pages it links: its **Documentation to Update**
+list, or any Confluence links in its description. These are the pages the ticket expects to
+change.
+
+- **With Atlassian access:** fetch the ticket and read the links from it.
+- **Without it:** ask the user to paste the ticket's documentation links. Accept "none".
 
 If the PR exists and its description has a **Documentation** section, collect the pages listed
 there too.
 
-## Step 2: Read the change
+## Step 3: Read the change
 
 Diff the branch against its base, where `<base>` is the PR's `baseRefName`, or `main` when there
 is no PR. Fetch first so the base is current:
@@ -48,17 +60,19 @@ and the names of new or changed features. Ignore refactors, tests and internal c
 changes no behaviour.
 
 If nothing user-facing changed, say so in one line, use `None` as the Documentation list, and go
-to Step 5.
+to Step 6.
 
-## Step 3: Find candidate pages
+## Step 4: Find candidate pages
 
-Follow **Finding affected pages** in the reference, using the terms from Step 2. Add every page
+Follow **Finding affected pages** in the reference, using the terms from Step 3. Add every page
 the ticket or the PR's Documentation section links, even if search didn't return it.
 
-## Step 4: Report
+## Step 5: Report
 
-Check each candidate page against the diff only, not against the whole codebase. List the edits
-in the **Edit format** from the reference.
+- **With Atlassian access:** check each candidate page against the diff only, not against the
+  whole codebase. List the edits in the **Edit format** from the reference.
+- **Without it:** you can't read the pages, so for each one list the user-facing changes from
+  Step 3 it most likely needs to reflect.
 
 End with a list for the PR's **Documentation** section:
 
@@ -67,7 +81,7 @@ End with a list for the PR's **Documentation** section:
 - Pages the diff affects that neither the ticket nor the PR linked
 - "New page needed: …" where applicable
 
-## Step 5: Update the PR
+## Step 6: Update the PR
 
 - **If the branch has no PR:** stop. The user pastes the list into the description when they
   open the PR.
