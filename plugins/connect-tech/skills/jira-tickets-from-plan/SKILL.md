@@ -38,10 +38,7 @@ Before creating any tickets, ask the user:
 
 ### Step 4: Find Documentation to Update
 
-The [Connect Documentation Process](https://dimagi.atlassian.net/wiki/spaces/connect/pages/3092250699/Connect+Documentation+Process) requires every user-facing ticket to list the documentation that needs updating, with links where they exist. Work this out for each ticket:
-
-- **If Atlassian MCP tools are available:** search Confluence in the `connectpublic` and `connect` spaces for terms from the ticket — feature names, page names, button and column labels, statuses. Read the top results and keep only pages that describe behaviour the ticket changes. If the ticket introduces a new term, include the [Connect Glossary](https://dimagi.atlassian.net/wiki/spaces/connectpublic/pages/3146907685/Connect+Glossary). If no page covers a new feature, say a new page is needed. Search results are noisy, so treat what you find as candidates for the user to confirm, not as the final list.
-- **If they are not available:** ask the user which documentation each ticket needs to update. Accept free text — not every item is a link — and accept "None".
+The [Connect Documentation Process](https://dimagi.atlassian.net/wiki/spaces/connect/pages/3092250699/Connect+Documentation+Process) requires every user-facing ticket to list the documentation that needs updating, with links where they exist. For each ticket, follow **Finding affected pages** in `${CLAUDE_PLUGIN_ROOT}/references/connect-docs.md`, using terms from the ticket.
 
 Tickets with no user-facing change get "None".
 
