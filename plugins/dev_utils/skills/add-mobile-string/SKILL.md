@@ -30,6 +30,12 @@ The directory suffix after `values-` is the BCP 47 / Android locale code (e.g., 
 5. **Translate and add** to every other locale file discovered in step 1. Translate the English text into each language, matching the tone and style of surrounding strings in that file.
 6. **Every locale gets the string** — do not skip any locale, even ones that have fewer existing strings.
 
+## Product Names
+
+Never translate product and brand names: **CommCare**, **CommCare HQ**, **Connect**, **PersonalID**, **Dimagi**. Keep them in English, spelled exactly as in the English source, inside every translated string. "Connect" is the product, not the verb, so it is not "Conectar", "Connecter" or "Ligar".
+
+When the whole string is a product name (e.g. `<string name="connect_title">Connect</string>`), mark it `translatable="false"` in `values/strings.xml` and add it to no locale file.
+
 ## Format
 
 ```xml
@@ -45,3 +51,4 @@ The directory suffix after `values-` is the BCP 47 / Android locale code (e.g., 
 - Hard-coding a list of locales from memory instead of running the discovery command — the set of supported locales changes over time.
 - Placing the string at the end of the file instead of near related strings.
 - Forgetting to escape special XML characters in translations.
+- Translating a product name such as "Connect" or "CommCare" as an ordinary word.
