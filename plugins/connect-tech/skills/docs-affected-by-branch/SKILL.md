@@ -5,6 +5,18 @@ description: >
   asks which Confluence docs the change affects or makes out of date, or what belongs in the PR's
   Documentation section.
 argument-hint: "[Jira ticket key or URL, or \"none\"]"
+# Atlassian write tools. The server name differs between installs, so it is a wildcard.
+disallowed-tools:
+  - mcp__*__executeWrite
+  - mcp__*__executeDestructive
+  - mcp__*__createJiraIssue
+  - mcp__*__editJiraIssue
+  - mcp__*__transitionJiraIssue
+  - mcp__*__addOrEditJiraIssueComment
+  - mcp__*__createConfluenceContent
+  - mcp__*__updateConfluenceContent
+  - mcp__*__addTeamworkGraphContext
+  - mcp__*__addGraphContext
 ---
 
 # Docs Affected by Branch
