@@ -12,6 +12,8 @@ Your job is to find where the documentation is wrong or incomplete, then produce
 of specific edits to make. **Only report things that need to change** — skip anything that's
 already accurate. The output should read like a focused edit list, not a code audit.
 
+To find which docs a branch makes out of date instead, use `docs-affected-by-branch`.
+
 ## What you need from the user
 
 You only need:
@@ -46,6 +48,9 @@ As you read, note the specific claims each page makes — exact error messages, 
 ---
 
 ## Step 2: Clone and read the relevant code
+
+If you are already working in a local checkout of a repo, use it — don't clone it again. Clone
+only the repos you don't have locally.
 
 Using the repos inferred from the Confluence space (see table above), clone shallowly:
 
@@ -91,22 +96,8 @@ Structure the output as two sections:
 
 ### Section A — Inaccurate or Misleading Content
 
-Things where the docs say something wrong or incomplete compared to the code. Order by severity — break things first, then confusing things, then minor wording issues.
-
-Use this format for each item:
-
----
-**[High/Medium/Low] Page: [Page name] — [Short title of issue]**
-
-> [Quote the exact text that's wrong]
-
-Change to: [Exact replacement text, or clear description of what to add/remove]
-
-*(Code: `file.py` — one-line explanation of what the code actually does)*
-
----
-
-Keep it tight. The code reference is just enough to justify the change — a filename and one sentence, not a walkthrough. Don't explain what you checked and found to be correct.
+Things where the docs say something wrong or incomplete compared to the code. List them in the
+**Edit format** from `${CLAUDE_PLUGIN_ROOT}/references/connect-docs.md`.
 
 ### Section B — Documentation Quality Gaps
 
