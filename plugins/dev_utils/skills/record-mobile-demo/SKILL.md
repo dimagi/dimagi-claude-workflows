@@ -39,12 +39,27 @@ When a tool is missing, say which one and stop; don't install anything without a
 
 Pass `-s SERIAL` before the subcommand when more than one device is connected.
 
+## Run the device work in a subagent
+
+Agree with the user on what the demo shows here, in this session: the beats in step 1 below, or
+the steps that get a `label:` on the Maestro path. Then hand everything that touches the device,
+from getting it ready to reading the contact sheet, to a general-purpose subagent. Give it this
+skill's path, the agreed beats, the device serial and the output folder, and have it return only
+the paths and any problems, so screen dumps and retries stay out of this session. Do the device
+work here only when the user asks to follow it step by step.
+
 ## With a Maestro flow (preferred for Connect and PersonalID)
 
-QA's Maestro suites are the preferred source. Use
-[dimagi-qa-ccc](https://github.com/dimagi/dimagi-qa-ccc) (clone it locally) for
-Connect and PersonalID, and dimagi-qa-commcare-mobile for core CommCare. The flow is written as a
-normal QA test, and `label:` goes on each step the video should show. The video is made from it:
+QA's Maestro suites are the preferred source:
+[dimagi-qa-ccc](https://github.com/dimagi/dimagi-qa-ccc) for Connect and PersonalID, and
+dimagi-qa-commcare-mobile for core CommCare. Never clone a suite again for each demo:
+
+- If a clone already sits next to the current repo (such as `../dimagi-qa-ccc`), use it.
+- Otherwise keep one clone per suite at `~/.cache/record-mobile-demo/<repo>`. Clone it there the
+  first time, and on later runs update it with `git -C <path> pull --ff-only`.
+
+The flow is written as a normal QA test, and `label:` goes on each step the video should show. The
+video is made from it:
 
 ```bash
 $D maestro <flow.yaml> --env-file ~/.config/record-mobile-demo/staging-account.env --out <folder>/demo.mp4
@@ -54,10 +69,10 @@ $D maestro <flow.yaml> --env-file ~/.config/record-mobile-demo/staging-account.e
 
 - Maestro runs the whole flow while scrcpy records. Its `--debug-output` command log gives each
   step's start time and duration.
-- The video starts at the first completed labelled step, so setup subflows (sign-in,
+- The video starts at the first completed labeled step, so setup subflows (sign-in,
   recovery), which carry no labels, never show, and the flow needs no demo-only code.
 - Motion plays at real speed.
-- The video holds `--hold` 1.2 s after each labelled step, and `--payoff` 3 s after the last.
+- The video holds `--hold` 1.2 s after each labeled step, and `--payoff` 3 s after the last.
 - A single command longer than `--fast-after` 5 s plays at `--speed` 8x.
 - Each label is the caption from its step until the next label.
 - To change the holds without re-running, use
@@ -113,7 +128,9 @@ Use a plugged-in phone if the user asks for one. Otherwise use an emulator.
 - **Install the build:** for a build of the current branch, run
   `./gradlew installCommcareDebug` in `commcare-android` filtering the output.
 - **Getting into the app:** never type real credentials or a PIN/pattern. If the app needs a
-  login or the screen is locked, ask the user to do it by hand, then carry on.
+  login or the screen is locked, ask the user to do it by hand before recording starts, then
+  carry on. Lock screens and biometric prompts can record as a black screen, so keep them out of the
+  recorded steps.
 - **Emulator snapshot:** once the emulator is in the starting state, save it, so you can always
   get back there:
 
@@ -177,7 +194,7 @@ $D sleep 0 --pause 3 --log $F --caption "Progress now shows 4 of 5 visits"
 **Fixing a bad step:** if a step did the wrong thing, fix the device by hand-run commands
 without `--log`, and delete the bad line from the flow file.
 
-**Screenshots:** take `$D shot <png>` only to check something visual, such as a layout or colour
+**Screenshots:** take `$D shot <png>` only to check something visual, such as a layout or color
 change. The screen dump covers the rest.
 
 ## 4. Record
@@ -238,9 +255,7 @@ asks you to do it through the Chrome tools.
 
 ## Keeping it cheap
 
-- **Context:** if this session already carries a lot of context, do steps 3-5 in a
-  general-purpose subagent. Give it this skill's path, the beats, the device serial and the output
-  folder, and have it return only the paths and any problems.
+- **Context:** the device work runs in a subagent (see "Run the device work in a subagent").
 - **Screen dumps:** rely on the printed screen dump (about 1k tokens) and use `--quiet` on steps
   whose result you already know. Use `screen --all` only when the list is cut off.
 - **Images:** the video is never read. Look at one contact sheet, not separate frames.
