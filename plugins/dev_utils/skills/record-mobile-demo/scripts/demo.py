@@ -40,17 +40,18 @@ class Fail(Exception):
 
 
 def run(cmd, check=True, timeout=120, binary=False):
-    kw = {} if binary else {"text": True, "encoding": "utf-8", "errors": "replace"}
-    p = subprocess.run([str(c) for c in cmd], capture_output=True, timeout=timeout, **kw)
-    if check and p.returncode != 0:
-        err = p.stderr if not binary else p.stderr.decode("utf-8", "replace")
-        raise Fail(f"{' '.join(map(str, cmd))} failed: {(err or '').strip()[:600]}")
-    return p
+    text_options = {} if binary else {"text": True, "encoding": "utf-8", "errors": "replace"}
+    result = subprocess.run([str(part) for part in cmd], capture_output=True, timeout=timeout, **text_options)
+    if check and result.returncode != 0:
+        stderr = result.stderr if not binary else result.stderr.decode("utf-8", "replace")
+        raise Fail(f"{' '.join(map(str, cmd))} failed: {(stderr or '').strip()[:600]}")
+    return result
 
 
 def connected():
     lines = run(["adb", "devices"]).stdout.splitlines()[1:]
-    return [l.split()[0] for l in lines if l.strip().endswith("\tdevice") or l.strip().endswith(" device")]
+    return [line.split()[0] for line in lines
+            if line.strip().endswith("\tdevice") or line.strip().endswith(" device")]
 
 
 def sdk_root():
@@ -73,64 +74,64 @@ class Device:
     def __init__(self, serial=None):
         serial = serial or os.environ.get("ANDROID_SERIAL")
         if not serial:
-            devs = connected()
-            if not devs:
+            devices = connected()
+            if not devices:
                 raise Fail("No device connected. Plug one in with USB debugging on, or run: demo.py boot <avd>")
-            if len(devs) > 1:
-                raise Fail(f"Several devices connected ({', '.join(devs)}); pass -s SERIAL")
-            serial = devs[0]
+            if len(devices) > 1:
+                raise Fail(f"Several devices connected ({', '.join(devices)}); pass -s SERIAL")
+            serial = devices[0]
         self.serial = serial
         self._size = None
 
-    def adb(self, *args, **kw):
-        return run(["adb", "-s", self.serial, *args], **kw)
+    def adb(self, *args, **kwargs):
+        return run(["adb", "-s", self.serial, *args], **kwargs)
 
-    def sh(self, cmd, **kw):
-        return self.adb("shell", cmd, **kw).stdout
+    def sh(self, cmd, **kwargs):
+        return self.adb("shell", cmd, **kwargs).stdout
 
     def size(self):
         if not self._size:
-            w, h = map(int, re.findall(r"(\d+)x(\d+)", self.sh("wm size"))[-1])
-            self._size = (w, h)
+            width, height = map(int, re.findall(r"(\d+)x(\d+)", self.sh("wm size"))[-1])
+            self._size = (width, height)
         return self._size
 
     def dump(self):
-        last = ""
+        last_output = ""
         for _ in range(5):
-            out = self.adb("exec-out", "uiautomator", "dump", "/dev/tty", check=False).stdout
-            start, end = out.find("<hierarchy"), out.rfind("</hierarchy>")
+            output = self.adb("exec-out", "uiautomator", "dump", "/dev/tty", check=False).stdout
+            start, end = output.find("<hierarchy"), output.rfind("</hierarchy>")
             if start >= 0 and end > start:
-                return ET.fromstring(out[start:end + len("</hierarchy>")])
-            last = out.strip()
+                return ET.fromstring(output[start:end + len("</hierarchy>")])
+            last_output = output.strip()
             time.sleep(0.6)
-        raise Fail(f"uiautomator dump failed: {last[:300]}")
+        raise Fail(f"uiautomator dump failed: {last_output[:300]}")
 
     def activity(self):
-        out = self.sh("dumpsys activity activities | grep -m1 -E 'ResumedActivity'", check=False)
-        m = re.search(r"\s(\S+/[^\s}]+)", out)
-        name = m.group(1) if m else "?"
+        output = self.sh("dumpsys activity activities | grep -m1 -E 'ResumedActivity'", check=False)
+        match = re.search(r"\s(\S+/[^\s}]+)", output)
+        name = match.group(1) if match else "?"
         return name + (" (LOCKED)" if self.locked() else "")
 
     def locked(self):
-        out = self.sh("dumpsys window | grep -m1 mCurrentFocus", check=False)
-        return "NotificationShade" in out or "Keyguard" in out
+        output = self.sh("dumpsys window | grep -m1 mCurrentFocus", check=False)
+        return "NotificationShade" in output or "Keyguard" in output
 
     def locate(self, sel, timeout=10, scroll=False):
         if "xy" in sel:
             return tuple(sel["xy"])
         deadline, scrolls = time.time() + timeout, 0
         while True:
-            ns = nodes(self.dump())
-            hits = find(ns, sel)
-            if len(hits) > sel.get("index", 0):
-                return hits[sel.get("index", 0)]["center"]
+            screen_nodes = nodes(self.dump())
+            matches = find(screen_nodes, sel)
+            if len(matches) > sel.get("index", 0):
+                return matches[sel.get("index", 0)]["center"]
             if scroll and scrolls < 6:
                 self.swipe("up")
                 scrolls += 1
                 time.sleep(0.6)
                 continue
             if time.time() > deadline:
-                raise Fail(f"Nothing matches {sel}. On screen ({self.activity()}):\n{render(ns, limit=40)}")
+                raise Fail(f"Nothing matches {sel}. On screen ({self.activity()}):\n{render(screen_nodes, limit=40)}")
             time.sleep(0.4)
 
     def wait_gone(self, sel, timeout=15):
@@ -147,9 +148,11 @@ class Device:
         if coords:
             x1, y1, x2, y2 = coords
         else:
-            w, h = self.size()
-            dx, dy = {"up": (0, -h * 0.4), "down": (0, h * 0.4), "left": (-w * 0.6, 0), "right": (w * 0.6, 0)}[direction]
-            x1, y1, x2, y2 = int(w / 2 - dx / 2), int(h / 2 - dy / 2), int(w / 2 + dx / 2), int(h / 2 + dy / 2)
+            width, height = self.size()
+            dx, dy = {"up": (0, -height * 0.4), "down": (0, height * 0.4),
+                      "left": (-width * 0.6, 0), "right": (width * 0.6, 0)}[direction]
+            x1, y1 = int(width / 2 - dx / 2), int(height / 2 - dy / 2)
+            x2, y2 = int(width / 2 + dx / 2), int(height / 2 + dy / 2)
         self.sh(f"input swipe {x1} {y1} {x2} {y2} {ms}")
 
     def type(self, text, chunk=None, delay=0.0):
@@ -157,38 +160,43 @@ class Device:
             raise Fail("adb can only type ASCII text")
         pieces = [text[i:i + chunk] for i in range(0, len(text), chunk)] if chunk else [text]
         for piece in pieces:
-            self.sh("input text " + "".join("%s" if c == " " else ("\\" + c if c in SHELL_SPECIAL else c) for c in piece))
+            escaped = "".join("%s" if char == " " else ("\\" + char if char in SHELL_SPECIAL else char)
+                              for char in piece)
+            self.sh("input text " + escaped)
             time.sleep(delay)
 
     def key(self, name):
         self.sh("input keyevent " + KEYS.get(name.lower(), name))
 
     def launch(self, target, stop=False):
-        pkg = target.split("/")[0]
+        package = target.split("/")[0]
         if stop:
-            self.sh(f"am force-stop {pkg}")
+            self.sh(f"am force-stop {package}")
         if "/" in target:
             self.sh(f"am start -n {target}")
         else:
-            self.sh(f"monkey -p {pkg} -c android.intent.category.LAUNCHER 1")
+            self.sh(f"monkey -p {package} -c android.intent.category.LAUNCHER 1")
 
 
 def nodes(root):
-    out = []
-    for n in root.iter("node"):
-        b = re.findall(r"-?\d+", n.get("bounds", ""))
-        if len(b) != 4:
+    found = []
+    for node in root.iter("node"):
+        bounds = re.findall(r"-?\d+", node.get("bounds", ""))
+        if len(bounds) != 4:
             continue
-        x1, y1, x2, y2 = map(int, b)
+        x1, y1, x2, y2 = map(int, bounds)
         if x2 <= x1 or y2 <= y1:
             continue
-        a = n.attrib
-        flag = lambda k: a.get(k) == "true"
-        out.append({
-            "text": a.get("text", ""),
-            "desc": a.get("content-desc", ""),
-            "id": a.get("resource-id", ""),
-            "cls": a.get("class", "").rsplit(".", 1)[-1],
+        attrs = node.attrib
+
+        def flag(name):
+            return attrs.get(name) == "true"
+
+        found.append({
+            "text": attrs.get("text", ""),
+            "desc": attrs.get("content-desc", ""),
+            "id": attrs.get("resource-id", ""),
+            "cls": attrs.get("class", "").rsplit(".", 1)[-1],
             "center": ((x1 + x2) // 2, (y1 + y2) // 2),
             "click": flag("clickable") or flag("long-clickable"),
             "scroll": flag("scrollable"),
@@ -196,52 +204,52 @@ def nodes(root):
             "checked": flag("checked"),
             "focused": flag("focused"),
             "selected": flag("selected"),
-            "enabled": a.get("enabled") != "false",
+            "enabled": attrs.get("enabled") != "false",
         })
-    return out
+    return found
 
 
-def short_id(rid):
-    return rid.split(":id/", 1)[-1]
+def short_id(resource_id):
+    return resource_id.split(":id/", 1)[-1]
 
 
-def find(ns, sel):
-    def score(n):
+def find(screen_nodes, sel):
+    def score(node):
         if "id" in sel:
-            return 3 if sel["id"] in (n["id"], short_id(n["id"])) else 0
-        want = (sel.get("text") if "text" in sel else sel.get("desc", "")).strip().lower()
-        fields = [n["text"], n["desc"]] if "text" in sel else [n["desc"]]
+            return 3 if sel["id"] in (node["id"], short_id(node["id"])) else 0
+        wanted = (sel.get("text") if "text" in sel else sel.get("desc", "")).strip().lower()
+        fields = [node["text"], node["desc"]] if "text" in sel else [node["desc"]]
         best = 0
-        for f in fields:
-            f = f.strip().lower()
-            if not f:
+        for field in fields:
+            field = field.strip().lower()
+            if not field:
                 continue
-            best = max(best, 3 if f == want else 1 if want in f else 0)
+            best = max(best, 3 if field == wanted else 1 if wanted in field else 0)
         return best
 
-    scored = [(score(n), n) for n in ns]
-    top = max((s for s, _ in scored), default=0)
-    return [n for s, n in scored if top and s == top]
+    scored = [(score(node), node) for node in screen_nodes]
+    top = max((points for points, _ in scored), default=0)
+    return [node for points, node in scored if top and points == top]
 
 
-def render(ns, limit=None):
+def render(screen_nodes, limit=None):
     lines = []
-    for n in ns:
-        sid = short_id(n["id"]) if n["id"] else ""
-        interactive = n["click"] or n["scroll"] or n["checkable"]
-        if not (n["text"] or n["desc"] or (interactive and sid)):
+    for node in screen_nodes:
+        sid = short_id(node["id"]) if node["id"] else ""
+        interactive = node["click"] or node["scroll"] or node["checkable"]
+        if not (node["text"] or node["desc"] or (interactive and sid)):
             continue
-        parts = [n["cls"]]
-        if n["text"]:
-            parts.append(json.dumps(n["text"][:70], ensure_ascii=False))
-        if n["desc"] and n["desc"] != n["text"]:
-            parts.append("desc=" + json.dumps(n["desc"][:70], ensure_ascii=False))
+        parts = [node["cls"]]
+        if node["text"]:
+            parts.append(json.dumps(node["text"][:70], ensure_ascii=False))
+        if node["desc"] and node["desc"] != node["text"]:
+            parts.append("desc=" + json.dumps(node["desc"][:70], ensure_ascii=False))
         if sid:
             parts.append("id=" + sid)
-        parts.append("@%d,%d" % n["center"])
-        for name, on in (("click", n["click"]), ("scroll", n["scroll"]), ("checked", n["checked"]),
-                         ("unchecked", n["checkable"] and not n["checked"]), ("focused", n["focused"]),
-                         ("selected", n["selected"]), ("disabled", not n["enabled"])):
+        parts.append("@%d,%d" % node["center"])
+        for name, on in (("click", node["click"]), ("scroll", node["scroll"]), ("checked", node["checked"]),
+                         ("unchecked", node["checkable"] and not node["checked"]), ("focused", node["focused"]),
+                         ("selected", node["selected"]), ("disabled", not node["enabled"])):
             if on:
                 parts.append(name)
         lines.append(" ".join(parts))
@@ -251,26 +259,26 @@ def render(ns, limit=None):
 
 
 def execute(dev, step, natural=False):
-    a = step["action"]
-    if a == "tap":
+    action = step["action"]
+    if action == "tap":
         dev.tap(dev.locate(step["sel"], timeout=step.get("timeout", 10), scroll=step.get("scroll", False)))
-    elif a == "type":
+    elif action == "type":
         dev.type(step["text"], *((3, 0.08) if natural else (None, 0)))
-    elif a == "key":
+    elif action == "key":
         dev.key(step["key"])
-    elif a == "swipe":
+    elif action == "swipe":
         dev.swipe(step.get("dir"), step.get("coords"))
-    elif a == "wait":
+    elif action == "wait":
         if step.get("gone"):
             dev.wait_gone(step["sel"], timeout=step.get("timeout", 15))
         else:
             dev.locate(step["sel"], timeout=step.get("timeout", 15))
-    elif a == "launch":
+    elif action == "launch":
         dev.launch(step["target"], step.get("stop", False))
-    elif a == "sleep":
+    elif action == "sleep":
         time.sleep(step["secs"])
     else:
-        raise Fail(f"Unknown action {a}")
+        raise Fail(f"Unknown action {action}")
 
 
 class Recorder:
@@ -287,7 +295,8 @@ class Recorder:
                    f"--record={self.raw}", "--record-format=mkv", f"--max-size={self.max_size}",
                    f"--max-fps={self.fps}", "--video-bit-rate=8M"]
         else:
-            cmd = ["adb", "-s", self.dev.serial, "shell", "screenrecord", "--bit-rate", "8000000", "/sdcard/record-mobile-demo.mp4"]
+            cmd = ["adb", "-s", self.dev.serial, "shell", "screenrecord", "--bit-rate", "8000000",
+                   "/sdcard/record-mobile-demo.mp4"]
         self.proc = subprocess.Popen(cmd, stdout=self.log, stderr=subprocess.STDOUT, creationflags=flags,
                                      start_new_session=not WINDOWS)
         log_path = Path(self.log.name)
@@ -322,58 +331,60 @@ class Recorder:
 
 
 def probe(path):
-    out = run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height:format=duration",
-               "-of", "json", path]).stdout
-    data = json.loads(out)
-    s = data["streams"][0]
-    return int(s["width"]), int(s["height"]), float(data["format"].get("duration", 0))
+    output = run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
+                  "stream=width,height:format=duration", "-of", "json", path]).stdout
+    data = json.loads(output)
+    stream = data["streams"][0]
+    return int(stream["width"]), int(stream["height"]), float(data["format"].get("duration", 0))
 
 
-def ff_quote(s):
-    return "'" + s.replace("\\", "/").replace("'", "'\\''").replace(":", "\\:") + "'"
+def ff_quote(value):
+    return "'" + value.replace("\\", "/").replace("'", "'\\''").replace(":", "\\:") + "'"
 
 
 def captions_from_timeline(timeline):
-    caps = [s for s in timeline.get("steps", []) if s.get("caption")]
-    return [(max(0.0, s["shown"]), caps[i + 1]["shown"] if i + 1 < len(caps) else None, s["caption"])
-            for i, s in enumerate(caps)]
+    captioned = [step for step in timeline.get("steps", []) if step.get("caption")]
+    return [(max(0.0, step["shown"]), captioned[i + 1]["shown"] if i + 1 < len(captioned) else None, step["caption"])
+            for i, step in enumerate(captioned)]
 
 
 def polish(raw, out, captions, segments=None, height=1280, crf=28, gif=False, tail=1.0):
     """captions are (start, end or None, text) on the output timeline; segments re-time the raw video."""
     raw, out = Path(raw).resolve(), Path(out).resolve()
-    iw, ih, dur = probe(raw)
-    oh = min(height, ih) // 2 * 2
-    ow = round(iw * oh / ih / 2) * 2
+    raw_width, raw_height, _ = probe(raw)
+    out_height = min(height, raw_height) // 2 * 2
+    out_width = round(raw_width * out_height / raw_height / 2) * 2
     if segments:
-        k = len(segments)
-        chains = [f"[0:v]fps=30,scale={ow}:{oh}:flags=lanczos,split={k}" + "".join(f"[i{i}]" for i in range(k))]
-        for i, s in enumerate(segments):
-            if s[0] == "play":
-                _, a, b, sp = s
-                chains.append(f"[i{i}]trim=start={a:.3f}:end={b:.3f},setpts=(PTS-STARTPTS)/{sp}[p{i}]")
+        count = len(segments)
+        chains = [f"[0:v]fps=30,scale={out_width}:{out_height}:flags=lanczos,split={count}"
+                  + "".join(f"[i{i}]" for i in range(count))]
+        for i, segment in enumerate(segments):
+            if segment[0] == "play":
+                _, seg_start, seg_end, speed = segment
+                chains.append(f"[i{i}]trim=start={seg_start:.3f}:end={seg_end:.3f},setpts=(PTS-STARTPTS)/{speed}[p{i}]")
             else:
-                _, t, hold = s
-                chains.append(f"[i{i}]trim=start={max(0.0, t - 0.1):.3f}:end={max(0.1, t):.3f},setpts=PTS-STARTPTS,"
+                _, at, hold = segment
+                chains.append(f"[i{i}]trim=start={max(0.0, at - 0.1):.3f}:end={max(0.1, at):.3f},setpts=PTS-STARTPTS,"
                               f"tpad=stop_mode=clone:stop_duration={hold}[p{i}]")
-        graph = ";".join(chains) + ";" + "".join(f"[p{i}]" for i in range(k)) + f"concat=n={k}:v=1:a=0,fps=30"
+        graph = (";".join(chains) + ";" + "".join(f"[p{i}]" for i in range(count))
+                 + f"concat=n={count}:v=1:a=0,fps=30")
     else:
-        graph = f"[0:v]scale={ow}:{oh}:flags=lanczos,tpad=stop_mode=clone:stop_duration={tail}"
+        graph = f"[0:v]scale={out_width}:{out_height}:flags=lanczos,tpad=stop_mode=clone:stop_duration={tail}"
     filters = []
-    font = next((f for f in FONTS if Path(f).exists()), None)
+    font = next((path for path in FONTS if Path(path).exists()), None)
     work = Path(tempfile.mkdtemp(prefix="record-mobile-demo-"))
     if captions and font:
-        size = max(18, round(min(ow, oh) / 24))
-        wrap = max(16, int(ow * 0.9 / (size * 0.5)))
-        lines = max(len(textwrap.wrap(c[2], wrap)) for c in captions)
-        bar = (round(size * (1.5 * lines + 1.2)) + 1) // 2 * 2
-        filters.append(f"pad={ow}:{oh + bar}:0:0:color=0x1b1b1f")
+        font_size = max(18, round(min(out_width, out_height) / 24))
+        wrap_width = max(16, int(out_width * 0.9 / (font_size * 0.5)))
+        max_lines = max(len(textwrap.wrap(text, wrap_width)) for _, _, text in captions)
+        bar_height = (round(font_size * (1.5 * max_lines + 1.2)) + 1) // 2 * 2
+        filters.append(f"pad={out_width}:{out_height + bar_height}:0:0:color=0x1b1b1f")
         for i, (start, end, text) in enumerate(captions):
-            (work / f"cap{i}.txt").write_text("\n".join(textwrap.wrap(text, wrap)), encoding="utf-8", newline="\n")
+            (work / f"cap{i}.txt").write_text("\n".join(textwrap.wrap(text, wrap_width)), encoding="utf-8", newline="\n")
             when = f"between(t,{start:.2f},{end:.2f})" if end else f"gte(t,{start:.2f})"
             filters.append(
-                f"drawtext=fontfile={ff_quote(font)}:textfile=cap{i}.txt:fontsize={size}:fontcolor=white"
-                f":line_spacing={size // 5}:x=(w-text_w)/2:y={oh}+({bar}-text_h)/2:enable='{when}'")
+                f"drawtext=fontfile={ff_quote(font)}:textfile=cap{i}.txt:fontsize={font_size}:fontcolor=white"
+                f":line_spacing={font_size // 5}:x=(w-text_w)/2:y={out_height}+({bar_height}-text_h)/2:enable='{when}'")
     elif captions:
         print("No font found; captions skipped", file=sys.stderr)
     (work / "filter.txt").write_text(graph + "".join("," + f for f in filters) + "[out]", encoding="utf-8")
@@ -384,62 +395,64 @@ def polish(raw, out, captions, segments=None, height=1280, crf=28, gif=False, ta
                    cwd=work, check=True)
     results = [out]
     if gif:
-        g = out.with_suffix(".gif")
+        gif_path = out.with_suffix(".gif")
         run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", out, "-vf",
-             "fps=12,scale=360:-1:flags=lanczos,split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4",
-             g])
-        results.append(g)
+             "fps=12,scale=360:-1:flags=lanczos,split[a][b];[a]palettegen=stats_mode=diff[p];"
+             "[b][p]paletteuse=dither=bayer:bayer_scale=4",
+             gif_path])
+        results.append(gif_path)
     shutil.rmtree(work, ignore_errors=True)
-    for r in results:
-        mb = r.stat().st_size / 1e6
-        warn = "  (over GitHub's 10 MB limit: re-run polish with a higher --crf or lower --height)" if mb > 10 else ""
-        print(f"{r}  {mb:.1f} MB{warn}")
-    fw, fh, fd = probe(out)
-    print(f"duration {fd:.1f}s, {fw}x{fh}")
+    for result in results:
+        megabytes = result.stat().st_size / 1e6
+        warning = ("  (over GitHub's 10 MB limit: re-run polish with a higher --crf or lower --height)"
+                   if megabytes > 10 else "")
+        print(f"{result}  {megabytes:.1f} MB{warning}")
+    final_width, final_height, final_duration = probe(out)
+    print(f"duration {final_duration:.1f}s, {final_width}x{final_height}")
 
 
 def load_flow(path):
-    steps = [json.loads(l) for l in Path(path).read_text(encoding="utf-8").splitlines() if l.strip()]
+    steps = [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines() if line.strip()]
     if not steps:
         raise Fail(f"{path} has no steps")
     return steps
 
 
 def selector(args):
-    for k in ("text", "id", "desc"):
-        if getattr(args, k, None) is not None:
-            sel = {k: getattr(args, k)}
+    for kind in ("text", "id", "desc"):
+        if getattr(args, kind, None) is not None:
+            sel = {kind: getattr(args, kind)}
             break
     else:
         if not getattr(args, "xy", None):
             raise Fail("Give --text, --id, --desc or --xy")
-        sel = {"xy": [int(v) for v in args.xy.split(",")]}
+        sel = {"xy": [int(value) for value in args.xy.split(",")]}
     if getattr(args, "index", 0):
         sel["index"] = args.index
     return sel
 
 
 def step_from(args):
-    a = args.cmd
-    if a == "tap":
+    action = args.cmd
+    if action == "tap":
         step = {"action": "tap", "sel": selector(args)}
         if args.scroll:
             step["scroll"] = True
-    elif a == "wait":
+    elif action == "wait":
         step = {"action": "wait", "sel": selector(args), "timeout": args.timeout}
         if args.gone:
             step["gone"] = True
-    elif a == "type":
+    elif action == "type":
         step = {"action": "type", "text": args.value}
-    elif a == "key":
+    elif action == "key":
         step = {"action": "key", "key": args.value}
-    elif a == "swipe":
+    elif action == "swipe":
         step = {"action": "swipe"}
         if args.value in ("up", "down", "left", "right"):
             step["dir"] = args.value
         else:
-            step["coords"] = [int(v) for v in args.value.split(",")]
-    elif a == "launch":
+            step["coords"] = [int(value) for value in args.value.split(",")]
+    elif action == "launch":
         step = {"action": "launch", "target": args.value, "stop": args.stop}
     else:
         step = {"action": "sleep", "secs": float(args.value)}
@@ -457,8 +470,8 @@ def cmd_action(args):
     step = step_from(args)
     execute(dev, step)
     if args.log:
-        with open(args.log, "a", encoding="utf-8") as f:
-            f.write(json.dumps(step, ensure_ascii=False) + "\n")
+        with open(args.log, "a", encoding="utf-8") as flow_file:
+            flow_file.write(json.dumps(step, ensure_ascii=False) + "\n")
     print("ok" + (f" (logged to {args.log})" if args.log else ""))
     if not args.quiet and step["action"] != "sleep":
         time.sleep(args.settle)
@@ -476,21 +489,21 @@ def cmd_shot(args):
     dev = Device(args.serial)
     out = Path(args.out).resolve()
     png = dev.adb("exec-out", "screencap", "-p", binary=True).stdout
-    tmp = out.with_suffix(".full.png")
-    tmp.write_bytes(png)
-    run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", tmp, "-vf", f"scale={args.width}:-2", out])
-    tmp.unlink()
+    full_size = out.with_suffix(".full.png")
+    full_size.write_bytes(png)
+    run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", full_size, "-vf", f"scale={args.width}:-2", out])
+    full_size.unlink()
     print(out)
 
 
 def cmd_devices(args):
-    devs = connected()
-    print("connected:", ", ".join(devs) if devs else "none")
+    devices = connected()
+    print("connected:", ", ".join(devices) if devices else "none")
     try:
         avds = run([emulator_bin(), "-list-avds"]).stdout.split()
-        print("emulators:", ", ".join(a for a in avds if a) or "none")
-    except Fail as e:
-        print(e)
+        print("emulators:", ", ".join(avd for avd in avds if avd) or "none")
+    except Fail as error:
+        print(error)
 
 
 def cmd_boot(args):
@@ -500,13 +513,13 @@ def cmd_boot(args):
         cmd += ["-snapshot", args.snapshot]
     log = open(Path(tempfile.gettempdir()) / f"emulator-{args.avd}.log", "w")
     flags = (subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP) if WINDOWS else 0
-    subprocess.Popen([str(c) for c in cmd], stdout=log, stderr=subprocess.STDOUT, creationflags=flags,
+    subprocess.Popen([str(part) for part in cmd], stdout=log, stderr=subprocess.STDOUT, creationflags=flags,
                      start_new_session=not WINDOWS)
     deadline = time.time() + args.timeout
     while time.time() < deadline:
-        new = [d for d in connected() if d not in before and d.startswith("emulator-")]
-        if new:
-            dev = Device(new[0])
+        new_devices = [serial for serial in connected() if serial not in before and serial.startswith("emulator-")]
+        if new_devices:
+            dev = Device(new_devices[0])
             if dev.sh("getprop sys.boot_completed", check=False).strip() == "1":
                 print(f"booted {args.avd} as {dev.serial}")
                 return
@@ -518,9 +531,9 @@ def cmd_snapshot(args):
     dev = Device(args.serial)
     if not dev.serial.startswith("emulator-"):
         raise Fail("Snapshots only work on an emulator")
-    out = dev.adb("emu", "avd", "snapshot", args.op, args.name).stdout.strip()
-    if "KO" in out:
-        raise Fail(out)
+    output = dev.adb("emu", "avd", "snapshot", args.op, args.name).stdout.strip()
+    if "KO" in output:
+        raise Fail(output)
     print(f"snapshot {args.op} {args.name}: ok")
 
 
@@ -550,7 +563,7 @@ def cmd_prep(args):
             f"{demo} network -e mobile show -e datatype none -e level 4",
             f"{demo} notifications -e visible false",
         ]
-    dev.sh(" ; ".join(c + " >/dev/null" for c in cmds), check=False)
+    dev.sh(" ; ".join(cmd + " >/dev/null" for cmd in cmds), check=False)
     print(f"{dev.serial}: touches shown, screen kept on" + ("" if args.no_demo_bar else ", demo status bar on"))
     time.sleep(0.5)
     if dev.locked():
@@ -574,8 +587,8 @@ def cmd_reset(args):
 def cmd_play(args):
     dev = Device(args.serial)
     steps = load_flow(args.flow)
-    setup = [s for s in steps if s.get("setup")]
-    steps = [s for s in steps if not s.get("setup")]
+    setup = [step for step in steps if step.get("setup")]
+    steps = [step for step in steps if not step.get("setup")]
     for step in setup:
         execute(dev, step)
         print(f"setup {step['action']}")
@@ -583,11 +596,11 @@ def cmd_play(args):
         time.sleep(args.settle)
     out = Path(args.out).resolve()
     out.parent.mkdir(parents=True, exist_ok=True)
-    rec = None if args.no_record else Recorder(dev, out.with_suffix(".raw.mkv" if shutil.which("scrcpy") else ".raw.mp4"))
+    recorder = None if args.no_record else Recorder(dev, out.with_suffix(".raw.mkv" if shutil.which("scrcpy") else ".raw.mp4"))
     if args.no_record:
         t0 = time.time()
     else:
-        t0 = rec.start()
+        t0 = recorder.start()
     timeline = []
     try:
         time.sleep(args.lead)
@@ -601,17 +614,17 @@ def cmd_play(args):
             print(f"{i + 1}/{len(steps)} {step['action']} {step.get('caption') or ''}".rstrip())
         time.sleep(args.tail)
     finally:
-        if rec:
-            rec.stop()
+        if recorder:
+            recorder.stop()
     if args.no_record:
         print(f"dry run ok, {time.time() - t0:.1f}s")
         return
-    data = {"raw": str(rec.raw), "steps": timeline}
-    tl = out.with_suffix(".timeline.json")
-    tl.write_text(json.dumps(data, indent=1, ensure_ascii=False), encoding="utf-8")
-    print(f"raw {rec.raw}\ntimeline {tl}")
+    data = {"raw": str(recorder.raw), "steps": timeline}
+    timeline_path = out.with_suffix(".timeline.json")
+    timeline_path.write_text(json.dumps(data, indent=1, ensure_ascii=False), encoding="utf-8")
+    print(f"raw {recorder.raw}\ntimeline {timeline_path}")
     if not args.raw_only:
-        polish(rec.raw, out, captions_from_timeline(data), None, args.height, args.crf, args.gif)
+        polish(recorder.raw, out, captions_from_timeline(data), None, args.height, args.crf, args.gif)
 
 
 def cmd_polish(args):
@@ -632,72 +645,74 @@ def maestro_bin():
     if found:
         return found
     for pattern in (".maestro/bin/maestro*", ".maestro*/maestro/bin/maestro*"):
-        for cand in sorted(Path.home().glob(pattern), reverse=True):
-            if cand.suffix.lower() == (".bat" if WINDOWS else ""):
-                return str(cand)
+        for candidate in sorted(Path.home().glob(pattern), reverse=True):
+            if candidate.suffix.lower() == (".bat" if WINDOWS else ""):
+                return str(candidate)
     raise Fail("maestro CLI not found; install it and put its bin folder on PATH")
 
 
 def maestro_steps(debug_dir, t0):
     steps = []
-    for f in Path(debug_dir).rglob("commands-*.json"):
-        for e in json.loads(f.read_text(encoding="utf-8")):
-            name, body = next(iter(e["command"].items()))
-            meta = e.get("metadata") or {}
+    for commands_file in Path(debug_dir).rglob("commands-*.json"):
+        for entry in json.loads(commands_file.read_text(encoding="utf-8")):
+            name, body = next(iter(entry["command"].items()))
+            meta = entry.get("metadata") or {}
             if "timestamp" not in meta:
                 continue
             start = meta["timestamp"] / 1000 - t0
             steps.append({"name": name, "label": body.get("label") if isinstance(body, dict) else None,
                           "status": meta.get("status"), "start": round(start, 3),
                           "end": round(start + (meta.get("duration") or 0) / 1000, 3)})
-    return sorted(steps, key=lambda s: s["start"])
+    return sorted(steps, key=lambda step: step["start"])
 
 
 def retime(steps, video_dur, hold=1.2, payoff=3.0, fast_after=5.0, speed=8):
     """Plan the re-timed video: start at the first label, hold after each label, speed up long commands."""
-    labelled = [s for s in steps if s["label"] and s["status"] == "COMPLETED"]
-    if not labelled:
+    labeled = [step for step in steps if step["label"] and step["status"] == "COMPLETED"]
+    if not labeled:
         raise Fail("No completed step has a label; add label: to the steps the video should show")
-    begin = max(0.0, labelled[0]["start"])
-    end = min(video_dur, labelled[-1]["end"] + 0.3)
-    fast = []
-    for s in steps:
-        if s["name"].startswith(COMPOUND) or s["end"] - s["start"] < fast_after:
+    begin = max(0.0, labeled[0]["start"])
+    end = min(video_dur, labeled[-1]["end"] + 0.3)
+    fast_spans = []
+    for step in steps:
+        if step["name"].startswith(COMPOUND) or step["end"] - step["start"] < fast_after:
             continue
-        a, b = max(begin, s["start"] + 1.5), min(end, s["end"] - 0.5)
-        if b - a > 1:
-            if fast and a <= fast[-1][1]:
-                fast[-1][1] = max(fast[-1][1], b)
+        span_start, span_end = max(begin, step["start"] + 1.5), min(end, step["end"] - 0.5)
+        if span_end - span_start > 1:
+            if fast_spans and span_start <= fast_spans[-1][1]:
+                fast_spans[-1][1] = max(fast_spans[-1][1], span_end)
             else:
-                fast.append([a, b])
+                fast_spans.append([span_start, span_end])
     holds = {}
-    for s in labelled:
-        t = min(s["end"], end)
-        holds[t] = max(holds.get(t, 0), payoff if s is labelled[-1] else hold)
-    points = sorted({begin, end, *holds, *(p for iv in fast for p in iv)})
-    points = [p for p in points if begin <= p <= end]
+    for step in labeled:
+        hold_at = min(step["end"], end)
+        holds[hold_at] = max(holds.get(hold_at, 0), payoff if step is labeled[-1] else hold)
+    cut_points = sorted({begin, end, *holds, *(point for span in fast_spans for point in span)})
+    cut_points = [point for point in cut_points if begin <= point <= end]
     segments = []
-    for a, b in zip(points, points[1:]):
-        if b - a > 0.02:
-            sp = speed if any(x <= a + 1e-6 and b <= y + 1e-6 for x, y in fast) else 1
-            segments.append(("play", a, b, sp))
-        if b in holds:
-            segments.append(("hold", b, holds[b]))
+    for seg_start, seg_end in zip(cut_points, cut_points[1:]):
+        if seg_end - seg_start > 0.02:
+            in_fast_span = any(span_start <= seg_start + 1e-6 and seg_end <= span_end + 1e-6
+                               for span_start, span_end in fast_spans)
+            segments.append(("play", seg_start, seg_end, speed if in_fast_span else 1))
+        if seg_end in holds:
+            segments.append(("hold", seg_end, holds[seg_end]))
 
-    def out_time(t):
-        acc = 0.0
-        for s in segments:
-            if s[0] == "play":
-                if t <= s[2]:
-                    return acc + max(0.0, t - s[1]) / s[3]
-                acc += (s[2] - s[1]) / s[3]
+    def out_time(raw_time):
+        elapsed = 0.0
+        for segment in segments:
+            if segment[0] == "play":
+                _, seg_start, seg_end, seg_speed = segment
+                if raw_time <= seg_end:
+                    return elapsed + max(0.0, raw_time - seg_start) / seg_speed
+                elapsed += (seg_end - seg_start) / seg_speed
             else:
-                acc += s[2]
-        return acc
+                elapsed += segment[2]
+        return elapsed
 
-    starts = [out_time(s["start"] + 1e-4) for s in labelled]
-    captions = [(starts[i], starts[i + 1] if i + 1 < len(starts) else None, s["label"])
-                for i, s in enumerate(labelled)]
+    starts = [out_time(step["start"] + 1e-4) for step in labeled]
+    captions = [(starts[i], starts[i + 1] if i + 1 < len(starts) else None, step["label"])
+                for i, step in enumerate(labeled)]
     return segments, captions
 
 
@@ -706,153 +721,154 @@ def cmd_maestro(args):
     base = [maestro_bin(), "--device", dev.serial, "test", "--no-ansi"]
     pairs = list(args.env)
     if args.env_file:
-        pairs = [l.strip() for l in Path(args.env_file).expanduser().read_text(encoding="utf-8").splitlines()
-                 if "=" in l and not l.lstrip().startswith("#")] + pairs
-    env = [x for e in pairs for x in ("-e", e)]
+        pairs = [line.strip() for line in Path(args.env_file).expanduser().read_text(encoding="utf-8").splitlines()
+                 if "=" in line and not line.lstrip().startswith("#")] + pairs
+    env = [flag for pair in pairs for flag in ("-e", pair)]
     if args.setup:
         print(f"setup: {args.setup}")
-        p = subprocess.run(base + [args.setup] + env, capture_output=True, text=True, encoding="utf-8", errors="replace")
-        if p.returncode:
-            raise Fail("setup flow failed:\n" + "\n".join((p.stdout + p.stderr).splitlines()[-20:]))
+        result = subprocess.run(base + [args.setup] + env, capture_output=True, text=True,
+                                encoding="utf-8", errors="replace")
+        if result.returncode:
+            raise Fail("setup flow failed:\n" + "\n".join((result.stdout + result.stderr).splitlines()[-20:]))
     out = Path(args.out).resolve()
     out.parent.mkdir(parents=True, exist_ok=True)
     debug = out.with_suffix(".maestro")
     shutil.rmtree(debug, ignore_errors=True)
-    rec = Recorder(dev, out.with_suffix(".raw.mkv"))
-    t0 = rec.start()
+    recorder = Recorder(dev, out.with_suffix(".raw.mkv"))
+    t0 = recorder.start()
     try:
         time.sleep(0.5)
-        p = subprocess.run(base + [args.flow, "--debug-output", str(debug)] + env,
-                           capture_output=True, text=True, encoding="utf-8", errors="replace")
+        result = subprocess.run(base + [args.flow, "--debug-output", str(debug)] + env,
+                                capture_output=True, text=True, encoding="utf-8", errors="replace")
         time.sleep(0.5)
     finally:
-        rec.stop()
-    log = [l for l in (p.stdout + p.stderr).splitlines() if l.strip()]
+        recorder.stop()
+    log = [line for line in (result.stdout + result.stderr).splitlines() if line.strip()]
     print("\n".join(log[-30:]))
     steps = maestro_steps(debug, t0)
-    data = {"kind": "maestro", "raw": str(rec.raw), "flow": str(Path(args.flow).resolve()), "steps": steps}
-    tl = out.with_suffix(".timeline.json")
-    tl.write_text(json.dumps(data, indent=1, ensure_ascii=False), encoding="utf-8")
-    print(f"raw {rec.raw}\ntimeline {tl}")
-    if p.returncode:
+    data = {"kind": "maestro", "raw": str(recorder.raw), "flow": str(Path(args.flow).resolve()), "steps": steps}
+    timeline_path = out.with_suffix(".timeline.json")
+    timeline_path.write_text(json.dumps(data, indent=1, ensure_ascii=False), encoding="utf-8")
+    print(f"raw {recorder.raw}\ntimeline {timeline_path}")
+    if result.returncode:
         raise Fail("the flow failed, so no demo was made; the raw recording shows what happened")
-    segments, captions = retime(steps, probe(rec.raw)[2], args.hold, args.payoff, args.fast_after, args.speed)
-    polish(rec.raw, out, captions, segments, args.height, args.crf, args.gif)
+    segments, captions = retime(steps, probe(recorder.raw)[2], args.hold, args.payoff, args.fast_after, args.speed)
+    polish(recorder.raw, out, captions, segments, args.height, args.crf, args.gif)
 
 
 def cmd_contact(args):
     video, out = Path(args.video).resolve(), Path(args.out).resolve()
-    _, _, dur = probe(video)
-    n = args.frames
-    cols = min(n, 4)
-    rows = -(-n // cols)
-    step = max(dur / n, 0.1)
+    _, _, duration = probe(video)
+    frames = args.frames
+    cols = min(frames, 4)
+    rows = -(-frames // cols)
+    interval = max(duration / frames, 0.1)
     run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", video, "-vf",
-         f"fps=1/{step:.3f},scale=320:-2,tile={cols}x{rows}:padding=6:color=white", "-frames:v", "1", out])
-    print(f"{out}  ({n} frames, one every {step:.1f}s, left to right)")
+         f"fps=1/{interval:.3f},scale=320:-2,tile={cols}x{rows}:padding=6:color=white", "-frames:v", "1", out])
+    print(f"{out}  ({frames} frames, one every {interval:.1f}s, left to right)")
 
 
 def main():
-    p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("-s", "--serial")
-    sub = p.add_subparsers(dest="cmd", required=True)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("-s", "--serial")
+    sub = parser.add_subparsers(dest="cmd", required=True)
 
     sub.add_parser("devices").set_defaults(fn=cmd_devices)
-    b = sub.add_parser("boot")
-    b.add_argument("avd")
-    b.add_argument("--snapshot")
-    b.add_argument("--timeout", type=int, default=240)
-    b.set_defaults(fn=cmd_boot)
-    sn = sub.add_parser("snapshot")
-    sn.add_argument("op", choices=["save", "load", "delete"])
-    sn.add_argument("name")
-    sn.set_defaults(fn=cmd_snapshot)
-    pr = sub.add_parser("prep")
-    pr.add_argument("--no-demo-bar", action="store_true")
-    pr.set_defaults(fn=cmd_prep)
+    boot = sub.add_parser("boot")
+    boot.add_argument("avd")
+    boot.add_argument("--snapshot")
+    boot.add_argument("--timeout", type=int, default=240)
+    boot.set_defaults(fn=cmd_boot)
+    snapshot = sub.add_parser("snapshot")
+    snapshot.add_argument("op", choices=["save", "load", "delete"])
+    snapshot.add_argument("name")
+    snapshot.set_defaults(fn=cmd_snapshot)
+    prep = sub.add_parser("prep")
+    prep.add_argument("--no-demo-bar", action="store_true")
+    prep.set_defaults(fn=cmd_prep)
     sub.add_parser("reset").set_defaults(fn=cmd_reset)
-    sc = sub.add_parser("screen")
-    sc.add_argument("--all", action="store_true")
-    sc.set_defaults(fn=cmd_screen)
-    sh = sub.add_parser("shot")
-    sh.add_argument("out")
-    sh.add_argument("--width", type=int, default=540)
-    sh.set_defaults(fn=cmd_shot)
+    screen = sub.add_parser("screen")
+    screen.add_argument("--all", action="store_true")
+    screen.set_defaults(fn=cmd_screen)
+    shot = sub.add_parser("shot")
+    shot.add_argument("out")
+    shot.add_argument("--width", type=int, default=540)
+    shot.set_defaults(fn=cmd_shot)
 
     def action(name, value=False, sel=False):
-        a = sub.add_parser(name)
+        action_parser = sub.add_parser(name)
         if value:
-            a.add_argument("value")
+            action_parser.add_argument("value")
         if sel:
-            a.add_argument("--text")
-            a.add_argument("--id")
-            a.add_argument("--desc")
-            a.add_argument("--xy")
-            a.add_argument("--index", type=int, default=0)
-        a.add_argument("--log", help="append the step to this flow file when it succeeds")
-        a.add_argument("--caption")
-        a.add_argument("--pause", type=float, help="seconds to linger before this step on replay")
-        a.add_argument("--setup", action="store_true", help="on replay, run this step before recording starts")
-        a.add_argument("--settle", type=float, default=1.0)
-        a.add_argument("--quiet", action="store_true")
-        a.add_argument("--all", action="store_true")
-        a.set_defaults(fn=cmd_action)
-        return a
+            action_parser.add_argument("--text")
+            action_parser.add_argument("--id")
+            action_parser.add_argument("--desc")
+            action_parser.add_argument("--xy")
+            action_parser.add_argument("--index", type=int, default=0)
+        action_parser.add_argument("--log", help="append the step to this flow file when it succeeds")
+        action_parser.add_argument("--caption")
+        action_parser.add_argument("--pause", type=float, help="seconds to linger before this step on replay")
+        action_parser.add_argument("--setup", action="store_true", help="on replay, run this step before recording starts")
+        action_parser.add_argument("--settle", type=float, default=1.0)
+        action_parser.add_argument("--quiet", action="store_true")
+        action_parser.add_argument("--all", action="store_true")
+        action_parser.set_defaults(fn=cmd_action)
+        return action_parser
 
     action("tap", sel=True).add_argument("--scroll", action="store_true")
-    w = action("wait", sel=True)
-    w.add_argument("--gone", action="store_true")
-    w.add_argument("--timeout", type=float, default=15)
+    wait = action("wait", sel=True)
+    wait.add_argument("--gone", action="store_true")
+    wait.add_argument("--timeout", type=float, default=15)
     action("type", value=True)
     action("key", value=True)
     action("swipe", value=True)
     action("launch", value=True).add_argument("--stop", action="store_true")
     action("sleep", value=True)
 
-    pl = sub.add_parser("play")
-    pl.add_argument("flow")
-    pl.add_argument("--out", required=True)
-    pl.add_argument("--pace", type=float, default=1.2)
-    pl.add_argument("--lead", type=float, default=1.0)
-    pl.add_argument("--tail", type=float, default=2.0)
-    pl.add_argument("--settle", type=float, default=2.5, help="seconds to wait after setup steps")
-    pl.add_argument("--no-record", action="store_true")
-    pl.add_argument("--raw-only", action="store_true")
-    pol = sub.add_parser("polish")
-    pol.add_argument("timeline")
-    pol.add_argument("--raw")
-    pol.add_argument("--out", required=True)
-    ma = sub.add_parser("maestro", help="record a Maestro flow and re-time it into a demo")
-    ma.add_argument("flow")
-    ma.add_argument("--out", required=True)
-    ma.add_argument("--setup", help="flow to run first, unrecorded")
-    ma.add_argument("-e", "--env", action="append", default=[], help="KEY=value passed to maestro")
-    ma.add_argument("--env-file", help="KEY=value lines passed to maestro, e.g. a test account kept out of chat")
-    for x in (ma, pol):
-        x.add_argument("--hold", type=float, default=1.2, help="seconds held after each labelled step")
-        x.add_argument("--payoff", type=float, default=3.0, help="seconds held after the last labelled step")
-        x.add_argument("--fast-after", type=float, default=5.0, help="speed up commands longer than this")
-        x.add_argument("--speed", type=float, default=8)
-    for x in (pl, pol, ma):
-        x.add_argument("--height", type=int, default=1280)
-        x.add_argument("--crf", type=int, default=28)
-        x.add_argument("--gif", action="store_true")
-    pl.set_defaults(fn=cmd_play)
-    pol.set_defaults(fn=cmd_polish)
-    ma.set_defaults(fn=cmd_maestro)
-    ct = sub.add_parser("contact")
-    ct.add_argument("video")
-    ct.add_argument("out")
-    ct.add_argument("--frames", type=int, default=8)
-    ct.set_defaults(fn=cmd_contact)
+    play = sub.add_parser("play")
+    play.add_argument("flow")
+    play.add_argument("--out", required=True)
+    play.add_argument("--pace", type=float, default=1.2)
+    play.add_argument("--lead", type=float, default=1.0)
+    play.add_argument("--tail", type=float, default=2.0)
+    play.add_argument("--settle", type=float, default=2.5, help="seconds to wait after setup steps")
+    play.add_argument("--no-record", action="store_true")
+    play.add_argument("--raw-only", action="store_true")
+    polish_parser = sub.add_parser("polish")
+    polish_parser.add_argument("timeline")
+    polish_parser.add_argument("--raw")
+    polish_parser.add_argument("--out", required=True)
+    maestro = sub.add_parser("maestro", help="record a Maestro flow and re-time it into a demo")
+    maestro.add_argument("flow")
+    maestro.add_argument("--out", required=True)
+    maestro.add_argument("--setup", help="flow to run first, unrecorded")
+    maestro.add_argument("-e", "--env", action="append", default=[], help="KEY=value passed to maestro")
+    maestro.add_argument("--env-file", help="KEY=value lines passed to maestro, e.g. a test account kept out of chat")
+    for retiming_parser in (maestro, polish_parser):
+        retiming_parser.add_argument("--hold", type=float, default=1.2, help="seconds held after each labeled step")
+        retiming_parser.add_argument("--payoff", type=float, default=3.0, help="seconds held after the last labeled step")
+        retiming_parser.add_argument("--fast-after", type=float, default=5.0, help="speed up commands longer than this")
+        retiming_parser.add_argument("--speed", type=float, default=8)
+    for output_parser in (play, polish_parser, maestro):
+        output_parser.add_argument("--height", type=int, default=1280)
+        output_parser.add_argument("--crf", type=int, default=28)
+        output_parser.add_argument("--gif", action="store_true")
+    play.set_defaults(fn=cmd_play)
+    polish_parser.set_defaults(fn=cmd_polish)
+    maestro.set_defaults(fn=cmd_maestro)
+    contact = sub.add_parser("contact")
+    contact.add_argument("video")
+    contact.add_argument("out")
+    contact.add_argument("--frames", type=int, default=8)
+    contact.set_defaults(fn=cmd_contact)
 
-    args = p.parse_args()
+    args = parser.parse_args()
     for stream in (sys.stdout, sys.stderr):
         stream.reconfigure(encoding="utf-8", errors="replace")
     try:
         args.fn(args)
-    except Fail as e:
-        print(f"error: {e}", file=sys.stderr)
+    except Fail as error:
+        print(f"error: {error}", file=sys.stderr)
         sys.exit(1)
 
 
