@@ -28,12 +28,18 @@ Under `#### Important Bug Fixes`:
 
 One bullet — it is the only user-observable, non-obvious risk. No step-by-step.
 
+## Risk level
+
+`pr-risk` proposes High (login and session code), the author keeps it, and the PR is created with `--label "High Risk"`.
+
 ## PR description
 
 ```markdown
 ### [CCCT-1929](https://dimagi.atlassian.net/browse/CCCT-1929)
 
 ## Safety story
+
+**Risk: High.** A bad retry in the auth interceptor could log every user out.
 
 **What gives confidence**
 - I reproduced the logout on a device and confirmed the fix survives an expiry.
@@ -48,7 +54,7 @@ One bullet — it is the only user-observable, non-obvious risk. No step-by-step
 Re-fetches once and retries on an invalid-token response instead of surfacing the failure; a one-shot guard prevents a refetch loop when the refreshed token is also rejected.
 ```
 
-Safety story 49 words (budget 55), Technical Summary 30 (budget 40), body 79 (ceiling 120). Note what is **absent**: no Product Description (no new user-facing capability — a bug fix, covered by the release note), no Automated test coverage section (no tests added), no Labels/Review section, no file-by-file walkthrough. Each omitted section is dropped whole, not filled with filler.
+Safety story 49 words plus a 14-word reason line (budget 55, the reason line not counted), Technical Summary 30 (budget 40), body 93 (ceiling 120). Note what is **absent**: no Product Description (no new user-facing capability — a bug fix, covered by the release note), no Automated test coverage section (no tests added), no Labels/Review section, no file-by-file walkthrough. Each omitted section is dropped whole, not filled with filler.
 
 ## Calibration: applying the diff test to a Technical Summary
 

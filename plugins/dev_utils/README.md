@@ -4,7 +4,7 @@ Utility commands and skills for general development — mostly the work that
 surrounds writing code: opening PRs, keeping them healthy, reviewing plans, and
 tidying git history.
 
-Nothing here is Dimagi-specific except `create-mobile-pr` and
+Nothing here is Dimagi-specific except `create-mobile-pr`, `pr-risk` and
 `add-mobile-string`, which target the CommCare Android repo.
 
 Most skills shell out to `gh`, so have the GitHub CLI installed and
@@ -31,6 +31,12 @@ authenticated.
 - `create-mobile-pr` — The Dimagi mobile variant: draft PR, JIRA-prefixed
   title, release and QA notes appended to `RELEASES.md` rather than the PR
   body. Triggers on repos with JIRA branch prefixes and a `RELEASES.md`.
+  Sets the PR's risk label through `pr-risk`.
+
+- `pr-risk` — Grades a mobile PR as Low, Medium or High risk, asks the author
+  to confirm or override, then sets exactly one `Low Risk` / `Medium Risk` /
+  `High Risk` label and a reason line in the Safety story. Run it on an
+  existing PR to grade it later or regrade it after changes.
 
 - `iterate-pr` — One pass over the current branch's PR: gather review feedback,
   fix CI failures, verify locally, commit, push, and reply to every thread.

@@ -5,7 +5,7 @@ description: Use when creating, opening, or submitting a pull request in a Dimag
 
 # Create GitHub Pull Request
 
-Open a **draft** PR with a JIRA-prefixed title, a description built from the repo's PR template, and `--assignee "@me"`. The user reviews and marks it ready on GitHub. Release/QA notes go in `RELEASES.md`, not the PR body.
+Open a **draft** PR with a JIRA-prefixed title, a description built from the repo's PR template, an author-confirmed risk label, and `--assignee "@me"`. The user reviews and marks it ready on GitHub. Release/QA notes go in `RELEASES.md`, not the PR body.
 
 Every artifact below has a **recipe** (what it contains) and a **budget** (how long it may be). Fill the recipe with true statements up to the budget, then stop. Write to that shape — do not treat the budget as a target to reach. An artifact that would be empty is omitted entirely, heading and all. **The whole PR body is capped at 120 words** — section bodies, excluding headings and the ticket link. Every section under budget but the body over 120 still fails; drop the least load-bearing section.
 
@@ -57,16 +57,20 @@ Find the topmost `## CommCare X.YZ` section. Release Notes and QA Notes are **se
 
 For each: show the user the exact bullet text verbatim and the **release version heading it will go under** (e.g. `## CommCare 2.56`) so they can confirm it is landing in the right release — plus the subsection (`### QA Notes`, or `### Release Notes` → `#### Important Bug Fixes`). Wait for their approval, then commit alone (`Add release notes for TICKET` / `Add QA notes for TICKET`). Do not decide on the user's behalf to skip a note they might want — when in doubt whether a note is warranted, ask.
 
-### 5. PR description
+### 5. Risk level
 
-Build from `.github/PULL_REQUEST_TEMPLATE.md`, replacing every HTML comment with content. **Do not show the description for approval** — it's a draft the user edits on GitHub. Only RELEASES.md needed approval.
+Follow the `pr-risk` skill in its before-the-PR mode, reusing the diff from step 1 and the testing answer from step 3. It proposes Low, Medium or High, the author confirms, overrides or skips, and it hands back a label and a reason line. If the author skips, the PR gets neither.
+
+### 6. PR description
+
+Build from `.github/PULL_REQUEST_TEMPLATE.md`, replacing every HTML comment with content. **Do not show the description for approval** — it's a draft the user edits on GitHub. Only RELEASES.md and the risk level needed approval.
 
 **Top of body:** `### [TICKET](https://dimagi.atlassian.net/browse/TICKET)` (display text is just the ticket).
 
 Fill a section only when its recipe has something true to say; otherwise delete that heading and body. Always keep the ticket link and Safety story. **Omit the Labels and Review section.**
 
-- **Safety story** — a neutral risk read in two lists, `**What gives confidence**` and `**Risks to review**`. Rank candidates by how much each one changes the reviewer's read and keep only the top ones, most important first — true is the floor, not the bar. Author actions in **first person** ("I exercised the happy path"); statements about the change in third person. Note a mitigation if there is one; otherwise leave it for the reviewer. `risk-categories.md` lists what to weigh.
-  **Budget:** ≤2 items per list, ≤15 words each; ≤55 words total.
+- **Safety story** — starts with the reason line from step 5, if there is one, then a blank line, then a neutral risk read in two lists, `**What gives confidence**` and `**Risks to review**`. Rank candidates by how much each one changes the reviewer's read and keep only the top ones, most important first — true is the floor, not the bar. Author actions in **first person** ("I exercised the happy path"); statements about the change in third person. Note a mitigation if there is one; otherwise leave it for the reviewer. `risk-categories.md` lists what to weigh.
+  **Budget:** ≤2 items per list, ≤15 words each; ≤55 words total, not counting the reason line (which still counts toward the 120-word body).
 - **Technical Summary** — *only* what survives the diff test: why this approach over the obvious alternative, and any non-obvious decision, exclusion, or ordering dependency a reviewer should know before reading. If the diff already speaks for itself, omit the whole section.
   **Budget:** ≤40 words.
 - **Product Description** — the user-facing behavior change.
@@ -76,7 +80,7 @@ Fill a section only when its recipe has something true to say; otherwise delete 
 
 **Verify before building the body:** count the words in each drafted section and recut any that exceeds its budget — drop the lowest-ranked item, or tighten. Then sum them; if the total exceeds 120, cut the least load-bearing section whole.
 
-### 6. Push
+### 7. Push
 
 ```bash
 git rev-parse --abbrev-ref --symbolic-full-name @{u}   # upstream?
@@ -84,7 +88,7 @@ git push -u origin HEAD    # if none
 git push                   # if behind (carries the RELEASES.md commits)
 ```
 
-### 7. Create the draft PR
+### 8. Create the draft PR
 
 ```bash
 gh pr create --draft \
@@ -93,12 +97,13 @@ gh pr create --draft \
 <generated description>
 EOF
 )" \
-  --assignee "@me"
+  --assignee "@me" \
+  --label "Medium Risk"    # the label from step 5; omit if the author skipped it
 ```
 
-No `--reviewer` — the user requests reviewers after leaving draft. Capture the printed PR URL for step 8.
+No `--reviewer` — the user requests reviewers after leaving draft. Capture the printed PR URL for step 9.
 
-### 8. Suggested Review Order comment
+### 9. Suggested Review Order comment
 
 Skip if fewer than 2 non-generated files changed.
 
@@ -119,6 +124,7 @@ Then output the PR URL.
 ## Hard rules (mechanical, always)
 
 - Draft PR: `--draft`, `--assignee "@me"`, never `--reviewer`.
+- At most one risk label, and only the one the author confirmed in step 5.
 - No JIRA ticket numbers in RELEASES.md (release notes or QA notes).
 - Each RELEASES.md update is its own commit, and only after the user approves the drafted bullets.
 - Omit the template's Labels and Review section.
