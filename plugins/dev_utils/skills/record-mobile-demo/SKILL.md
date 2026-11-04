@@ -20,6 +20,9 @@ D="python ${CLAUDE_PLUGIN_ROOT}/skills/record-mobile-demo/scripts/demo.py"
 
 - **Tools:** Python 3, `adb` and `ffmpeg` on PATH, and preferably `scrcpy`. Without scrcpy it
   falls back to `adb screenrecord`, which caps at 3 minutes.
+- **Speech** (only for `--narrate`): `edge-tts` (`pip install edge-tts`) if available, for natural
+  voices. It needs the network. Without it, the script uses macOS `say` or the built-in Windows
+  voice.
 - **Maestro** (for the Maestro path below): QA's pinned version, 1.39.13, either on PATH or
   unzipped to `~/.maestro-1.39.13/`.
 - **Staging account** (for the Maestro path): an env file, such as
@@ -224,6 +227,12 @@ $D polish ~/Videos/demos/opp-progress/demo.timeline.json --out ~/Videos/demos/op
 ```
 
 GitHub takes uploads up to 10 MB, and the script warns when a file is over that.
+
+**Narration (optional):** add `--narrate` to `play`, `maestro` or `polish` to speak each caption
+when it appears. Holds grow so that each line finishes before the next caption. Only add it when the
+user asks for a voice-over. Write captions as short spoken phrases, since they are read aloud
+as written. `--voice` picks the voice, such as `en-US-GuyNeural` for edge-tts
+(`edge-tts --list-voices`); the default is `en-US-JennyNeural`. A GIF stays silent.
 
 ## 5. Check it, then clean up
 

@@ -91,3 +91,4 @@ authenticated.
   PR. Cuts it from a QA Maestro flow, or rehearses an adb flow on a device or emulator and
   replays it while scrcpy records. Needs `adb`, `ffmpeg` and preferably `scrcpy`; the Maestro
   path also needs Maestro 1.39.13 and a staging account env file (see the skill's Setup).
+  `--narrate` adds an optional spoken voice-over of the captions.

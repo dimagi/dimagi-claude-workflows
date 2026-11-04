@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Drive an Android device or emulator, and record and polish demo videos of a flow."""
 import argparse
+import importlib.util
 import json
 import os
 import re
@@ -33,15 +34,18 @@ FONTS = [
 ]
 SHELL_SPECIAL = set("\\()<>|;&*'\"`$~?!#[]{}")
 WINDOWS = os.name == "nt"
+EDGE_VOICE = "en-US-JennyNeural"
+SPEECH_GAP = 0.4
 
 
 class Fail(Exception):
     pass
 
 
-def run(cmd, check=True, timeout=120, binary=False):
+def run(cmd, check=True, timeout=120, binary=False, env=None):
     text_options = {} if binary else {"text": True, "encoding": "utf-8", "errors": "replace"}
-    result = subprocess.run([str(part) for part in cmd], capture_output=True, timeout=timeout, **text_options)
+    result = subprocess.run([str(part) for part in cmd], capture_output=True, timeout=timeout, env=env,
+                            **text_options)
     if check and result.returncode != 0:
         stderr = result.stderr if not binary else result.stderr.decode("utf-8", "replace")
         raise Fail(f"{' '.join(map(str, cmd))} failed: {(stderr or '').strip()[:600]}")
@@ -348,8 +352,21 @@ def captions_from_timeline(timeline):
             for i, step in enumerate(captioned)]
 
 
-def polish(raw, out, captions, segments=None, height=1280, crf=28, gif=False, tail=1.0):
-    """captions are (start, end or None, text) on the output timeline; segments re-time the raw video."""
+def narration_graph(captions, narration):
+    """Delay each spoken line to its caption's start and mix them into one track."""
+    chains = [f"[{i + 1}:a]adelay=delays={round(start * 1000)}:all=1[v{i}]" for i, (start, _, _) in enumerate(captions)]
+    count = len(narration)
+    if count == 1:
+        return chains[0].replace("[v0]", "[aout]")
+    return ";".join(chains) + ";" + "".join(f"[v{i}]" for i in range(count)) + \
+        f"amix=inputs={count}:normalize=0:dropout_transition=0[aout]"
+
+
+def polish(raw, out, captions, segments=None, height=1280, crf=28, gif=False, tail=1.0, narration=None):
+    """captions are (start, end or None, text) on the output timeline; segments re-time the raw video.
+
+    narration gives one audio clip per caption, played from the caption's start.
+    """
     raw, out = Path(raw).resolve(), Path(out).resolve()
     raw_width, raw_height, _ = probe(raw)
     out_height = min(height, raw_height) // 2 * 2
@@ -387,10 +404,17 @@ def polish(raw, out, captions, segments=None, height=1280, crf=28, gif=False, ta
                 f":line_spacing={font_size // 5}:x=(w-text_w)/2:y={out_height}+({bar_height}-text_h)/2:enable='{when}'")
     elif captions:
         print("No font found; captions skipped", file=sys.stderr)
-    (work / "filter.txt").write_text(graph + "".join("," + f for f in filters) + "[out]", encoding="utf-8")
-    subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(raw),
+    video_graph = graph + "".join("," + f for f in filters) + "[out]"
+    if narration:
+        inputs = [arg for clip in narration for arg in ("-i", str(clip))]
+        audio = ["-map", "[aout]", "-c:a", "aac", "-b:a", "96k"]
+        video_graph += ";" + narration_graph(captions, narration)
+    else:
+        inputs, audio = [], ["-an"]
+    (work / "filter.txt").write_text(video_graph, encoding="utf-8")
+    subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(raw), *inputs,
                     "-filter_complex_script", "filter.txt", "-map", "[out]", "-r", "30", "-c:v", "libx264",
-                    "-preset", "slow", "-crf", str(crf), "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an",
+                    "-preset", "slow", "-crf", str(crf), "-pix_fmt", "yuv420p", "-movflags", "+faststart", *audio,
                     str(out)],
                    cwd=work, check=True)
     results = [out]
@@ -624,17 +648,12 @@ def cmd_play(args):
     timeline_path.write_text(json.dumps(data, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"raw {recorder.raw}\ntimeline {timeline_path}")
     if not args.raw_only:
-        polish(recorder.raw, out, captions_from_timeline(data), None, args.height, args.crf, args.gif)
+        finish(data, recorder.raw, out, args)
 
 
 def cmd_polish(args):
     data = json.loads(Path(args.timeline).read_text(encoding="utf-8"))
-    raw = args.raw or data["raw"]
-    if data.get("kind") == "maestro":
-        segments, captions = retime(data["steps"], probe(raw)[2], args.hold, args.payoff, args.fast_after, args.speed)
-        polish(raw, args.out, captions, segments, args.height, args.crf, args.gif)
-    else:
-        polish(raw, args.out, captions_from_timeline(data), None, args.height, args.crf, args.gif)
+    finish(data, args.raw or data["raw"], args.out, args)
 
 
 COMPOUND = ("runFlow", "repeat", "retry", "applyConfiguration", "defineVariables", "evalScript", "runScript")
@@ -666,9 +685,64 @@ def maestro_steps(debug_dir, t0):
     return sorted(steps, key=lambda step: step["start"])
 
 
-def retime(steps, video_dur, hold=1.2, payoff=3.0, fast_after=5.0, speed=8):
-    """Plan the re-timed video: start at the first label, hold after each label, speed up long commands."""
-    labeled = [step for step in steps if step["label"] and step["status"] == "COMPLETED"]
+def labeled_steps(steps):
+    return [step for step in steps if step["label"] and step["status"] == "COMPLETED"]
+
+
+def segments_for(begin, end, holds, fast_spans=(), speed=1):
+    cut_points = sorted({begin, end, *holds, *(point for span in fast_spans for point in span)})
+    cut_points = [point for point in cut_points if begin <= point <= end]
+    segments = []
+    for seg_start, seg_end in zip(cut_points, cut_points[1:]):
+        if seg_end - seg_start > 0.02:
+            in_fast_span = any(span_start <= seg_start + 1e-6 and seg_end <= span_end + 1e-6
+                               for span_start, span_end in fast_spans)
+            segments.append(("play", seg_start, seg_end, speed if in_fast_span else 1))
+        if seg_end in holds:
+            segments.append(("hold", seg_end, holds[seg_end]))
+    return segments
+
+
+def out_time(segments, raw_time):
+    """Map a time in the raw recording to the same moment in the re-timed video."""
+    elapsed = 0.0
+    for segment in segments:
+        if segment[0] == "play":
+            _, seg_start, seg_end, seg_speed = segment
+            if raw_time <= seg_end:
+                return elapsed + max(0.0, raw_time - seg_start) / seg_speed
+            elapsed += (seg_end - seg_start) / seg_speed
+        else:
+            elapsed += segment[2]
+    return elapsed
+
+
+def fit_speech(make_segments, holds, starts, slots, speech):
+    """Lengthen holds until each caption stays up long enough for its spoken line.
+
+    starts are the raw times the captions appear; slots[i] is the raw time where caption i's extra
+    hold goes, between its start and the next caption's.
+    """
+    for _ in range(len(starts) + 2):
+        segments = make_segments(holds)
+        shown = [out_time(segments, start) for start in starts] + [out_time(segments, float("inf"))]
+        short = False
+        for i, seconds in enumerate(speech):
+            missing = seconds + SPEECH_GAP - (shown[i + 1] - shown[i])
+            if missing > 0.01:
+                holds[slots[i]] = holds.get(slots[i], 0) + missing
+                short = True
+        if not short:
+            return segments
+    return make_segments(holds)
+
+
+def retime(steps, video_dur, hold=1.2, payoff=3.0, fast_after=5.0, speed=8, speech=None):
+    """Plan the re-timed video: start at the first label, hold after each label, speed up long commands.
+
+    speech gives the seconds each label's spoken line lasts; holds grow so no line is cut off.
+    """
+    labeled = labeled_steps(steps)
     if not labeled:
         raise Fail("No completed step has a label; add label: to the steps the video should show")
     begin = max(0.0, labeled[0]["start"])
@@ -684,36 +758,87 @@ def retime(steps, video_dur, hold=1.2, payoff=3.0, fast_after=5.0, speed=8):
             else:
                 fast_spans.append([span_start, span_end])
     holds = {}
-    for step in labeled:
-        hold_at = min(step["end"], end)
+    hold_ats = [min(step["end"], end) for step in labeled]
+    for step, hold_at in zip(labeled, hold_ats):
         holds[hold_at] = max(holds.get(hold_at, 0), payoff if step is labeled[-1] else hold)
-    cut_points = sorted({begin, end, *holds, *(point for span in fast_spans for point in span)})
-    cut_points = [point for point in cut_points if begin <= point <= end]
-    segments = []
-    for seg_start, seg_end in zip(cut_points, cut_points[1:]):
-        if seg_end - seg_start > 0.02:
-            in_fast_span = any(span_start <= seg_start + 1e-6 and seg_end <= span_end + 1e-6
-                               for span_start, span_end in fast_spans)
-            segments.append(("play", seg_start, seg_end, speed if in_fast_span else 1))
-        if seg_end in holds:
-            segments.append(("hold", seg_end, holds[seg_end]))
 
-    def out_time(raw_time):
-        elapsed = 0.0
-        for segment in segments:
-            if segment[0] == "play":
-                _, seg_start, seg_end, seg_speed = segment
-                if raw_time <= seg_end:
-                    return elapsed + max(0.0, raw_time - seg_start) / seg_speed
-                elapsed += (seg_end - seg_start) / seg_speed
-            else:
-                elapsed += segment[2]
-        return elapsed
+    def make_segments(current_holds):
+        return segments_for(begin, end, current_holds, fast_spans, speed)
 
-    starts = [out_time(step["start"] + 1e-4) for step in labeled]
+    raw_starts = [step["start"] + 1e-4 for step in labeled]
+    if speech:
+        slots = [hold_ats[i] if i + 1 == len(labeled) or hold_ats[i] <= labeled[i + 1]["start"]
+                 else labeled[i + 1]["start"] for i in range(len(labeled))]
+        segments = fit_speech(make_segments, holds, raw_starts, slots, speech)
+    else:
+        segments = make_segments(holds)
+    starts = [out_time(segments, raw_start) for raw_start in raw_starts]
     captions = [(starts[i], starts[i + 1] if i + 1 < len(starts) else None, step["label"])
                 for i, step in enumerate(labeled)]
     return segments, captions
+
+
+def stretch(captions, video_dur, speech, tail=1.0):
+    """Re-time a rehearsed recording so each caption stays up until its spoken line ends."""
+    raw_starts = [start + 1e-4 for start, _, _ in captions]
+    slots = [captions[i + 1][0] if i + 1 < len(captions) else video_dur for i in range(len(captions))]
+    segments = fit_speech(lambda holds: segments_for(0.0, video_dur, holds), {video_dur: tail},
+                          raw_starts, slots, speech)
+    starts = [out_time(segments, raw_start) for raw_start in raw_starts]
+    return segments, [(starts[i], starts[i + 1] if i + 1 < len(starts) else None, text)
+                      for i, (_, _, text) in enumerate(captions)]
+
+
+def speech_command(text, stem, voice):
+    if shutil.which("edge-tts") or importlib.util.find_spec("edge_tts"):
+        base = ["edge-tts"] if shutil.which("edge-tts") else [sys.executable, "-m", "edge_tts"]
+        path = stem.with_suffix(".mp3")
+        return "edge-tts", base + ["--voice", voice or EDGE_VOICE, "--text", text, "--write-media", path], path, None
+    if sys.platform == "darwin":
+        path = stem.with_suffix(".aiff")
+        return "say", ["say", *(["-v", voice] if voice else []), "-o", path, text], path, None
+    if WINDOWS:
+        path = stem.with_suffix(".wav")
+        script = ("Add-Type -AssemblyName System.Speech; $s = New-Object System.Speech.Synthesis.SpeechSynthesizer; "
+                  "if ($env:DEMO_VOICE) { $s.SelectVoice($env:DEMO_VOICE) }; $s.SetOutputToWaveFile($env:DEMO_SPEECH_OUT); "
+                  "$s.Speak($env:DEMO_SPEECH_TEXT); $s.Dispose()")
+        env = {**os.environ, "DEMO_SPEECH_OUT": str(path), "DEMO_SPEECH_TEXT": text, "DEMO_VOICE": voice or ""}
+        return "the Windows voice", ["powershell", "-NoProfile", "-NonInteractive", "-Command", script], path, env
+    raise Fail("--narrate needs a speech engine: pip install edge-tts")
+
+
+def narrate(texts, work, voice):
+    """Speak each text into an audio clip; returns (path, seconds) per text."""
+    clips, engine = [], None
+    for i, text in enumerate(texts):
+        engine, cmd, path, env = speech_command(text, work / f"line{i}", voice)
+        run(cmd, env=env)
+        output = run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "json", path]).stdout
+        clips.append((path, float(json.loads(output)["format"]["duration"])))
+    if engine:
+        print(f"narration: {len(clips)} lines spoken with {engine}")
+    return clips
+
+
+def finish(data, raw, out, args):
+    """Turn a recorded timeline into the final video: re-time Maestro runs and fit any narration."""
+    work = Path(tempfile.mkdtemp(prefix="record-mobile-demo-voice-")) if args.narrate else None
+    try:
+        if data.get("kind") == "maestro":
+            texts = [step["label"] for step in labeled_steps(data["steps"])]
+            clips = narrate(texts, work, args.voice) if work else None
+            segments, captions = retime(data["steps"], probe(raw)[2], args.hold, args.payoff, args.fast_after,
+                                        args.speed, [seconds for _, seconds in clips] if clips else None)
+        else:
+            segments, captions = None, captions_from_timeline(data)
+            clips = narrate([text for _, _, text in captions], work, args.voice) if work else None
+            if clips:
+                segments, captions = stretch(captions, probe(raw)[2], [seconds for _, seconds in clips])
+        polish(raw, out, captions, segments, args.height, args.crf, args.gif,
+               narration=[path for path, _ in clips] if clips else None)
+    finally:
+        if work:
+            shutil.rmtree(work, ignore_errors=True)
 
 
 def cmd_maestro(args):
@@ -752,8 +877,7 @@ def cmd_maestro(args):
     print(f"raw {recorder.raw}\ntimeline {timeline_path}")
     if result.returncode:
         raise Fail("the flow failed, so no demo was made; the raw recording shows what happened")
-    segments, captions = retime(steps, probe(recorder.raw)[2], args.hold, args.payoff, args.fast_after, args.speed)
-    polish(recorder.raw, out, captions, segments, args.height, args.crf, args.gif)
+    finish(data, recorder.raw, out, args)
 
 
 def cmd_contact(args):
@@ -853,6 +977,8 @@ def main():
         output_parser.add_argument("--height", type=int, default=1280)
         output_parser.add_argument("--crf", type=int, default=28)
         output_parser.add_argument("--gif", action="store_true")
+        output_parser.add_argument("--narrate", action="store_true", help="speak each caption over the video")
+        output_parser.add_argument("--voice", help=f"speech voice; for edge-tts the default is {EDGE_VOICE}")
     play.set_defaults(fn=cmd_play)
     polish_parser.set_defaults(fn=cmd_polish)
     maestro.set_defaults(fn=cmd_maestro)
