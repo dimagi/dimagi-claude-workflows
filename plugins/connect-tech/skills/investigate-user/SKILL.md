@@ -71,7 +71,8 @@ All four run in the BigQuery project **`commcare-a57e4`** and take named paramet
 is asked about. Dry runs in November 2026 priced a two-week window at about 45 GB each for
 `device_users.sql` and `user_devices.sql`, and 75 GB for `user_activity.sql`, which also
 reads the event parameters: about 120 GB (roughly $0.70) from a username, 165 GB (roughly
-$1) from a device id. `user_crashes.sql` reads about 0.1 GB. Keep the window as short as the
+$1) from a device id. `user_crashes.sql` reads about 0.1 GB for two weeks and 1.3 GB for its
+full 90 days, so its window can be wide when that helps. Keep the GA4 window as short as the
 question allows.
 
 ## Steps
@@ -144,6 +145,14 @@ use. One user: carry on with that username. Several: tell the user how many and 
 dates overlap, and ask which to follow (or follow each). None but the NULL row: nobody was
 logged in to PersonalID on the device in the window; skip b and c, run d with
 `--parameter=user_cid::` (empty), and say the report covers the device alone.
+
+No rows at all: the device logged nothing to GA4 in the window, not even logged-out use. Do
+not widen the GA4 window yet. Run d on the device alone (empty `user_cid`) over the last 90
+days, which costs about 1 GB. Crashes there while GA4 stays empty usually mean the app dies
+at startup before GA4 sends its events (see "What this cannot tell"): report the crashes,
+their dates and versions, and the last day the device was seen. Offer a wider GA4 window,
+priced from a dry run, only when the question needs to know who used the device; with no
+crashes either, say the device was silent in both sources and offer the same.
 
 Starting from a username, skip this step.
 
@@ -332,5 +341,8 @@ Write the report to a file only when the user asks, outside every repo.
   PersonalID username otherwise, so `events_user_id_is_user` confirms only some.
 - **The server side is not here**: why an OTP was refused, whether the account is locked or
   has a backup code, and anything about opportunities, visits or payments.
+- **An app that crashes at startup can be invisible in GA4.** GA4 batches events and sends
+  them later, so a device that crashes before the batch goes out logs nothing, while
+  Crashlytics still has every crash. An empty GA4 result is not proof the device was unused.
 - **Days are GA4 export days**, in the property's time zone rather than the user's, so a
   user's evening can land on the next day.
