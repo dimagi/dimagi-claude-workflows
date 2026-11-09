@@ -94,6 +94,8 @@ If today is the **review day**, this is the weekly close-out. Follow these steps
 [your 3-5 sentence feedback]
 ```
 
+5. Write this week's rollup following `${CLAUDE_PLUGIN_ROOT}/references/weekly-rollup.md`, including today's entry you just saved. Tell the user where it was saved.
+
 ## Regular Shutdown (non-review days)
 
 If today is **not the review day**, follow these steps:

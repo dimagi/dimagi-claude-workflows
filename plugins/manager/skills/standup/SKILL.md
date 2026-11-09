@@ -12,6 +12,7 @@ You are helping the user start their workday with a morning standup.
 3. Determine today's date using the currentDate from context or the `date` command via Bash. Determine the day of the week.
 4. Read the goals file (`<manager_dir>/goals.md`) to have the user's goals in context.
 5. Check if today's journal file (`<daily_dir>/YYYY-MM-DD.md`) already has a "Morning Standup" section. If it does, let the user know and ask if they want to redo it or skip. Don't silently append a duplicate.
+6. Find the most recent ISO week before the current one that has daily entries. If `<weekly_dir>` has no rollup for it (e.g. the user skipped their weekly close-out), write one following `${CLAUDE_PLUGIN_ROOT}/references/weekly-rollup.md` and mention it in one line. Only catch up that one week. Don't backfill older weeks unless the user asks.
 
 ## Weekly Review Mode
 

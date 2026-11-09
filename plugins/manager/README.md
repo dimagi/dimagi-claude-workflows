@@ -31,6 +31,15 @@ Both settings are optional:
 - `review_day` — the day `standup` and `shutdown` switch to weekly review mode.
   Defaults to Friday.
 
+## Weekly rollups
+
+The weekly close-out in `shutdown` also writes a short summary of the week
+to `weekly/YYYY-Www.md`: wins, what slipped, progress on each goal, and
+patterns. If you skip a close-out, the next `standup` catches up the
+missed week. `sync` reads rollups for full weeks instead of every daily
+entry, and they make quarterly or annual reflection much quicker. To
+backfill older weeks, ask for it.
+
 ## Custom questions
 
 To add your own questions to `standup` or `shutdown`, create
