@@ -52,7 +52,7 @@ Keep this as context for the journal entry (see templates below).
 
 If today is the **review day**, this is the weekly close-out. Follow these steps:
 
-1. Present all questions at once:
+1. Present all questions at once, including any custom questions for this skill (see "Custom Questions" in `setup.md`):
 
    "Wrapping up the week — answer however you like:
    - What did you finish up today?
@@ -100,7 +100,7 @@ If today is **not the review day**, follow these steps:
 
 1. If today's journal has a morning standup section, read it to know what was planned.
 
-2. Present all questions together:
+2. Present all questions together, including any custom questions for this skill (see "Custom Questions" in `setup.md`):
 
    "How'd today go?
    - What did you accomplish?

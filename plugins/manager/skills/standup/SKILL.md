@@ -29,6 +29,8 @@ If today is the **review day**, this is a weekly review. Follow these steps:
    - Did you get real deep work done, or did busy work creep in?
    - What's one thing you want to prioritize next week?"
 
+   Include any custom questions for this skill (see "Custom Questions" in `setup.md`).
+
    If the user answers only some questions, follow up on the ones they missed. Don't force it — if they clearly want to skip one, move on.
 
 4. After collecting responses, give feedback (2-4 sentences). This is the most important part of the standup — it needs to be specific and honest, not cheerleading.
@@ -74,7 +76,7 @@ If today is **not the review day**, follow these steps:
 
 2. Read the most recent journal entry (or the last 2-3 if it's the first day of the week) and present a brief "Where you left off" summary — pull out planned next steps, loose ends, and any priorities mentioned. Keep it to a few bullet points.
 
-3. Ask both questions together:
+3. Ask both questions together, along with any custom questions for this skill (see "Custom Questions" in `setup.md`):
 
    "What are you planning to work on today? And anything carrying over from yesterday?"
 
