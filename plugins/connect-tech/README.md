@@ -62,6 +62,16 @@ servers need to be connected.
   to fill in the Documentation section, or after to check and update it.
   Example: `/docs-affected-by-branch CCC-284`
 
+## Support
+
+- `investigate-user` — Look into one PersonalID or Connect user's app activity
+  from a username or a CommCare device id: their devices, what they did, what
+  failed (OTP requests by method, sync, form upload, the Connect API), their
+  crashes, and the red flags, as a short report of counts and flags with no PHI.
+  Runs the `mobile/investigate_user` queries of `commcare_analytics_queries`
+  through `bq`, so it needs BigQuery access to `commcare-a57e4`.
+  Example: `/investigate-user <username> 2026-10-20 2026-11-02`
+
 ## Agents
 
 - `code-simplifier` — Simplifies recently modified Django code (Python,
