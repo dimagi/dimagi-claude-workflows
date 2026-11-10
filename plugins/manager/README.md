@@ -30,3 +30,35 @@ Both settings are optional:
   plugin's own data directory.
 - `review_day` — the day `standup` and `shutdown` switch to weekly review mode.
   Defaults to Friday.
+
+## Weekly rollups
+
+The weekly close-out in `shutdown` also writes a short summary of the week
+to `weekly/YYYY-Www.md`: wins, what slipped, progress on each goal, and
+patterns. If you skip a close-out, the next `standup` catches up the
+missed week. `sync` reads rollups for full weeks instead of every daily
+entry, and they make quarterly or annual reflection much quicker. To
+backfill older weeks, ask for it.
+
+## Custom questions
+
+To add your own questions to `standup` or `shutdown`, create
+`questions.md` in your manager directory. Each `## <skill>` section holds
+the questions for that skill. A `## <skill> (weekly)` section applies
+only on your review day. An indented `→` line says what to do with the
+answer:
+
+```markdown
+## shutdown
+- What was painful today that others might not see?
+  → If answered, add it to the "Pain Points" section of ideas.md.
+
+## shutdown (weekly)
+- Did I make progress on this quarter's idea write-up?
+
+## standup
+- Anything from yesterday I'm avoiding?
+```
+
+Custom questions are asked alongside the built-in ones, and their answers
+are saved to the journal entry.

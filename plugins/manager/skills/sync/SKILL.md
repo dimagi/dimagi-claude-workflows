@@ -18,7 +18,7 @@ You are helping the user prepare for a 1:1 meeting with their manager by summari
 
 ## Gathering Context
 
-5. List journal files in `<daily_dir>` that fall within the date range. Read all of them.
+5. For each ISO week that falls entirely within the date range and has a rollup in `<weekly_dir>`, read the rollup instead of that week's daily entries. For everything else in the range (partial weeks, weeks without a rollup), list the journal files in `<daily_dir>` and read them. If a rollup is too thin to support a point you want to make, read that week's dailies too.
 5. If the user passed an argument (e.g. a manager name or topic), note it — you'll tailor the summary to that context.
 
 ## Generating the Sync Summary
