@@ -37,7 +37,10 @@ Reuse what the caller already gathered instead of fetching it again, including t
 
 Pick the **highest** level any part of the change reaches. Weigh what the change can break and how likely that is, not how big the diff is.
 
+**Core flows first.** `core-flows.md` lists the paths users take every day (CommCare login through sync, PersonalID signup, the Connect Opportunity flow). If the changed code runs on one of them, directly or through a caller, and a defect could block the user, lose their work or send wrong data, the grade is **High**, however small or isolated the change. Check reach by searching for callers of what changed, starting from the classes that file names. Copy, styling, logging or analytics on a core-flow screen does not count when it cannot block the flow; grade it as usual.
+
 **High** — a defect could lose or corrupt data, lock users out, or break the app for everyone:
+- A change on a core flow, as above.
 - Database migrations, or anything that rewrites persisted data, form instances, or the user's saved state.
 - Login, PersonalID, sessions, tokens, encryption, or keys.
 - Sync, form submission, case restore, or other server round trips most users depend on.
@@ -57,7 +60,7 @@ Pick the **highest** level any part of the change reaches. Weigh what the change
 - Logging or analytics events.
 - Tests, docs, or comments only.
 - New code behind a flag that is off by default.
-- One call site in one module, with the author having run it.
+- One call site in one module, off the core flows, with the author having run it.
 
 Then adjust for testing: if the author only read the diff, or did not exercise the paths the change touches, raise Low to Medium. Testing never lowers a High.
 
@@ -84,7 +87,7 @@ Then build the **reason line**:
 - Author kept the grade: `**Risk: Medium.** <reason>`
 - Author overrode it: `**Risk: High** (author's call; graded Medium). <reason>` — the reason is the author's, in their words if they gave one, otherwise the grader's reason for the level they picked.
 
-**Budget:** the reason is ≤15 words, says why this level and nothing the label already says. Lead with the risky thing, not the file name.
+**Budget:** the reason is ≤15 words, says why this level and nothing the label already says. Lead with the risky thing, not the file name. When a core flow made it High, name the flow: `**Risk: High.** Changes case list filtering on the case selection core flow.`
 
 If the author skips the label, there is no reason line either. On an existing PR, ask whether to also remove the current risk label and reason line; do only what they say.
 
