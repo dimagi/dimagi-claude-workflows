@@ -35,7 +35,8 @@ Both settings are optional:
 
 The weekly close-out in `shutdown` also writes a short summary of the week
 to `weekly/YYYY-Www.md`: wins, what slipped, progress on each goal, and
-patterns. If you skip a close-out, the next `standup` catches up the
+patterns. Each point links back to the daily entry it came from. If you
+skip a close-out, the next `standup` catches up the
 missed week. `sync` reads rollups for full weeks instead of every daily
 entry, and they make quarterly or annual reflection much quicker. To
 backfill older weeks, ask for it.
