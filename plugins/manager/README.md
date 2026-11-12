@@ -44,8 +44,8 @@ backfill older weeks, ask for it.
 
 To add your own questions to `standup` or `shutdown`, create
 `questions.md` in your manager directory. Each `## <skill>` section holds
-the questions for that skill. A `## <skill> (weekly)` section applies
-only on your review day. An indented `→` line says what to do with the
+the questions for that skill. A `## <skill> (weekly)` section adds
+questions on your review day. An indented `→` line says what to do with the
 answer:
 
 ```markdown

@@ -15,10 +15,10 @@
 
 ## Custom Questions
 
-`<manager_dir>/questions.md` is optional. It has one `## <skill>` section per skill (e.g. `## standup`, `## shutdown`). A section can also be named `## <skill> (weekly)`, meaning it only applies on the review day. Each bullet is a question. A bullet may have an indented line starting with `→`, which is an action to take with the answer.
+`<manager_dir>/questions.md` is optional. It has one `## <skill>` section per skill (e.g. `## standup`, `## shutdown`). A section can also be named `## <skill> (weekly)`, which adds extra questions on the review day. Each bullet is a question. A bullet may have an indented line starting with `→`, which is an action to take with the answer.
 
 When a skill reaches its "present questions" step:
-- On the review day, use the `## <skill> (weekly)` section. On any other day, use the plain `## <skill>` section. Ignore sections for other skills.
+- Every day, use the plain `## <skill>` section. On the review day, also use the `## <skill> (weekly)` section, with its questions after the plain ones. If the same question appears in both, ask it once. Ignore sections for other skills.
 - Ask the custom questions in the same message as the skill's built-in questions, after them. Don't ask them separately.
 - If the user doesn't answer a custom question, don't push. These are prompts, not requirements.
 - For each answer, follow its `→` action if it has one (e.g. update another file in `<manager_dir>`), and tell the user what you did.
