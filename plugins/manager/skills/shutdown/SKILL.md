@@ -1,6 +1,6 @@
 ---
 name: shutdown
-description: End of day wrap-up — captures what got done, what didn't, and plans for tomorrow. Weekly close-out on configurable review day (default Friday).
+description: End of day wrap-up — captures what got done, what didn't, and plans for tomorrow. Weekly review and close-out on configurable review day (default Friday).
 ---
 
 You are helping the user wrap up their workday with an evening shutdown.
@@ -50,20 +50,24 @@ Keep this as context for the journal entry (see templates below).
 
 ## Weekly Close-Out
 
-If today is the **review day**, this is the weekly close-out. Follow these steps:
+If today is the **review day**, this is the weekly close-out, which is also the weekly review. Follow these steps:
 
-1. Present all questions at once, including any custom questions for this skill (see "Custom Questions" in `setup.md`):
+1. Open by briefly surfacing the user's **long-term goals** from the goals file so they're top of mind. Frame it as a reminder, not a quiz.
+
+2. Present all questions at once, including any custom questions for this skill (see "Custom Questions" in `setup.md`):
 
    "Wrapping up the week — answer however you like:
    - What did you finish up today?
-   - Any loose ends or specific tasks to pick up first thing Monday?
-   - How are you feeling about where things stand heading into next week?"
+   - What were your biggest wins this week?
+   - What didn't get done that you expected to finish?
+   - Did you get real deep work done, or did busy work creep in?
+   - What's one thing you want to prioritize next week? Any specific tasks to pick up first thing Monday?"
 
-   If the user answers only some, follow up on what they missed. Don't force it.
+   If the user answers only some, follow up on what they missed. Don't force it — if they clearly want to skip one, move on.
 
-2. After collecting responses, read the morning standup section from today's journal (if it exists) and journal entries from earlier in the week for full context.
+3. After collecting responses, read today's journal and the entries from earlier in the week for full context.
 
-3. Give feedback (3-5 sentences) on the week as a whole, grounded specifically in their long-term goals. Name patterns you noticed across the week's entries. Give one concrete suggestion for next week.
+4. Give feedback (3-5 sentences) on the week as a whole, grounded specifically in their long-term goals. This is the most important part of the close-out — it needs to be specific and honest, not cheerleading. Reference what actually happened on specific days, and name patterns you noticed across the week's entries (e.g. repeated carryover, a goal getting no attention). Give one concrete suggestion for next week.
 
    **What good feedback looks like:**
    - "You committed to clearing the sprint board on Monday's review, and you got the rabbit announcement ticket closed but not the postgres PR. That's the same goal that slipped last week. The pattern suggests it needs a dedicated block of time rather than hoping to squeeze it in."
@@ -73,7 +77,7 @@ If today is the **review day**, this is the weekly close-out. Follow these steps
    - "Overall a productive week with good progress!" (says nothing specific)
    - "Try to stay focused next week!" (generic, not actionable)
 
-4. Save the journal entry by appending to `<daily_dir>/YYYY-MM-DD.md`:
+5. Save the journal entry by appending to `<daily_dir>/YYYY-MM-DD.md`:
 
 ```markdown
 ## Evening Shutdown (Weekly Close-Out)
@@ -84,17 +88,23 @@ If today is the **review day**, this is the weekly close-out. Follow these steps
 **Finished today:**
 [their response]
 
-**Loose ends:**
+**Week's biggest wins:**
 [their response]
 
-**Heading into next week:**
+**Didn't finish:**
 [their response]
+
+**Deep work vs. busy work:**
+[their response]
+
+**Priority for next week:**
+[their response, including any tasks for Monday]
 
 **Weekly goal alignment feedback:**
 [your 3-5 sentence feedback]
 ```
 
-5. Write this week's rollup following `${CLAUDE_PLUGIN_ROOT}/references/weekly-rollup.md`, including today's entry you just saved. Tell the user where it was saved.
+6. Write this week's rollup following `${CLAUDE_PLUGIN_ROOT}/references/weekly-rollup.md`, including today's entry you just saved. Tell the user where it was saved.
 
 ## Regular Shutdown (non-review days)
 

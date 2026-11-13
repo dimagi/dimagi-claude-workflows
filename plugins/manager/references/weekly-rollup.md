@@ -9,12 +9,13 @@ A weekly rollup condenses one ISO week of daily journal entries into a short sum
 3. Write `<weekly_dir>/YYYY-Www.md` using the template below. If the file already exists, overwrite it. The rollup is regenerated from the dailies, not appended to.
 4. Only summarize what the journal says. Don't invent outcomes. If something was planned but there's no record of whether it happened, say so.
 5. Keep it short: aim for under ~25 lines. It's an index into the week, not a retelling.
+6. End each bullet with a link to the daily entry (or entries) it comes from, as a standard relative markdown link: `([2026-11-10](../daily/2026-11-10.md))`. These let readers, and skills like `sync`, jump to the day behind a claim instead of rereading the whole week. Use standard links rather than `[[wikilinks]]` so they work everywhere, including Obsidian's graph and backlinks.
 
 ```markdown
 # Week YYYY-Www (Mon DD – Fri DD Month)
 
 **Wins:**
-- [things finished, shipped, or unblocked]
+- [things finished, shipped, or unblocked] ([YYYY-MM-DD](../daily/YYYY-MM-DD.md))
 
 **Slipped / carried over:**
 - [planned but not done, especially anything that carried over more than once]
