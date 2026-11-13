@@ -9,11 +9,10 @@ The four skills share one directory — `goals.md` at the top level and a
 ## Skills
 
 - `standup` — Morning check-in. Surfaces your goals, summarises where you left
-  off, captures today's plan, and gives goal-alignment feedback. Switches to
-  weekly review mode on your review day.
+  off, captures today's plan, and gives goal-alignment feedback.
 
 - `shutdown` — End-of-day wrap-up. Captures what got done, what didn't, and the
-  plan for tomorrow. Closes out the week on your review day.
+  plan for tomorrow. On your review day, it reviews and closes out the week.
 
 - `sync` — Prep for a 1:1. Summarises journal entries since your last sync into
   a briefing of wins, progress, and blockers.
@@ -28,7 +27,7 @@ Both settings are optional:
 
 - `manager_directory` — where goals and journal entries live. Defaults to the
   plugin's own data directory.
-- `review_day` — the day `standup` and `shutdown` switch to weekly review mode.
+- `review_day` — the day `shutdown` does the weekly review and close-out.
   Defaults to Friday.
 
 ## Weekly rollups
