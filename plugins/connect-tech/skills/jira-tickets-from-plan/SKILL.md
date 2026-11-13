@@ -19,6 +19,10 @@ The user MUST supply a GitHub link to the plan file (ideally a permalink pinned 
 
 Do not proceed until a GitHub link is provided.
 
+### Step 1b: Locate the Spec
+
+User stories come from the spec doc the plan was written from. Check the plan for a link to the spec. If there isn't one, ask the user for it. If there is no spec, note that and continue — you will draft stories yourself in Step 2b.
+
 ### Step 2: Review the Plan
 
 Read the full plan. Identify logical breakpoints using these criteria (in priority order):
@@ -27,6 +31,14 @@ Read the full plan. Identify logical breakpoints using these criteria (in priori
 2. **Max ~500 lines per PR** — keeps PRs easy to review; split further if a ticket would exceed this
 
 If the plan already lays out phases or explicit ticket breakpoints, match that structure rather than re-slicing.
+
+### Step 2b: Map User Stories to Tickets
+
+For each ticket that changes what a user can see or do, list the user stories it delivers. Take them from the spec, keeping the spec's wording. If the spec has no matching story, draft one and mark it as drafted so the user can review it in Step 5.
+
+Format each story as: *As a <role>, I want <goal>, so that <benefit>.*
+
+Tickets with no user-facing change (refactors, infrastructure, migrations) get no user stories.
 
 ### Step 3: Ask About Issue Type, Component, and Other Fields
 
@@ -44,7 +56,7 @@ Tickets with no user-facing change get "None".
 
 ### Step 5: Confirm Tickets
 
-Present the complete list of tickets to the user (summary + brief overview + acceptance criteria + documentation to update for each). Confirm before creating, or iterate with additional input.
+Present the complete list of tickets to the user (summary + brief overview + user stories + acceptance criteria + documentation to update for each). Point out any user stories you drafted rather than took from the spec. Confirm before creating, or iterate with additional input.
 
 Summary formatting requirements:
 - **Title case** for every summary. Capitalize all major words; lowercase short articles, conjunctions, and prepositions (`a`, `an`, `the`, `and`, `or`, `to`, `of`, `for`, `in`, `on`, `at`, `by`, `with`, `from`).
@@ -90,6 +102,11 @@ Each ticket description is plain text — no `## Overview` or `## Implementation
 
 See plan: [<section name>](<github permalink with line range>)
 
+**User Stories:**
+
+- As a [role], I want [goal], so that [benefit].
+- [Another story]
+
 **Acceptance Criteria:**
 
 - [Key outcome that signals this ticket is done]
@@ -101,12 +118,14 @@ See plan: [<section name>](<github permalink with line range>)
 - [Free-text item, e.g. "New page needed for <feature>"]
 ```
 
+If the ticket has no user-facing change, leave out the `**User Stories:**` block entirely.
+
 If no documentation needs updating, write `**Documentation to Update:** None` on one line.
 
 Formatting rules (each one matters — Jira renders content differently from GitHub):
 
 - **No headers.** The overview text is the first paragraph. There is no `## Overview` and no `## Implementation` section.
 - **Link to the plan at the end of the overview.** Use a GitHub permalink with a `#L<start>-L<end>` line-range anchor pointing to the relevant phase/section in the plan. Never copy the implementation details inline — the plan is the source of truth.
-- **`**Acceptance Criteria:**` and `**Documentation to Update:**` are plain bolded inline text**, not headers. Jira renders them as bold text above the bullet list.
-- **Acceptance criteria and documentation items are plain bullets** (`-` or `*`), NOT markdown checklists (`- [ ]`). Jira does not render markdown checklists.
+- **`**User Stories:**`, `**Acceptance Criteria:**`, and `**Documentation to Update:**` are plain bolded inline text**, not headers. Jira renders them as bold text above the bullet list.
+- **User stories, acceptance criteria, and documentation items are plain bullets** (`-` or `*`), NOT markdown checklists (`- [ ]`). Jira does not render markdown checklists.
 - Use `contentFormat: "markdown"` on every create/edit call.
