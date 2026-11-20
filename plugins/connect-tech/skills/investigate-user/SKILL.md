@@ -12,7 +12,7 @@ argument-hint: "<PersonalID username | device id> [start date] [end date]"
 
 # Investigate a user
 
-Looks at one user's app activity in BigQuery and says what stands out. It runs the four
+Looks at one user's app activity in BigQuery and says what stands out. It runs the five
 queries in `mobile/investigate_user/` of
 [dimagi/commcare_analytics_queries](https://github.com/dimagi/commcare_analytics_queries)
 and turns their rows into a short report. Read that folder's `README.md` once per session:
@@ -52,7 +52,7 @@ The rows hold ids, dates, counts and flags. The report keeps to those.
 
 ## The queries
 
-All four run in the BigQuery project **`commcare-a57e4`** and take named parameters.
+All five run in the BigQuery project **`commcare-a57e4`** and take named parameters.
 
 | File | Reads | Parameters |
 |---|---|---|
@@ -60,6 +60,7 @@ All four run in the BigQuery project **`commcare-a57e4`** and take named paramet
 | `user_devices.sql` | GA4, `commcare-a57e4.analytics_153906101.events_intraday_*` | `user_cid` (STRING), `start_date` (DATE), `end_date` (DATE) |
 | `user_activity.sql` | GA4, `commcare-a57e4.analytics_153906101.events_intraday_*` | `user_cid` (STRING), `start_date` (DATE), `end_date` (DATE) |
 | `user_crashes.sql` | Crashlytics, `commcare-a57e4.firebase_crashlytics.org_commcare_dalvik_ANDROID` | `device_ids` (ARRAY&lt;STRING&gt;), `user_cid` (STRING), `start_date` (DATE), `end_date` (DATE) |
+| `crashlytics_user_devices.sql` | Crashlytics, `commcare-a57e4.firebase_crashlytics.org_commcare_dalvik_ANDROID` | `user_cid` (STRING), `start_date` (DATE), `end_date` (DATE) |
 
 - `device_id` and the entries of `device_ids` may be given with or without `commcare_`.
 - `start_date` and `end_date` are inclusive. GA4 days are export days (the table suffix), and
@@ -72,8 +73,9 @@ is asked about. Dry runs in November 2026 priced a two-week window at about 45 G
 `device_users.sql` and `user_devices.sql`, and 75 GB for `user_activity.sql`, which also
 reads the event parameters: about 120 GB (roughly $0.70) from a username, 165 GB (roughly
 $1) from a device id. `user_crashes.sql` reads about 0.1 GB for two weeks and 1.3 GB for its
-full 90 days, so its window can be wide when that helps. Keep the GA4 window as short as the
-question allows.
+full 90 days, so its window can be wide when that helps; `crashlytics_user_devices.sql`, the
+Crashlytics user id lookup in step 4b, reads about 0.6 GB for 90 days. Keep the GA4 window
+as short as the question allows.
 
 ## Steps
 
@@ -93,12 +95,12 @@ behind GitHub:
 
 ```bash
 mkdir -p <scratch>/investigate-user/sql
-for f in device_users user_devices user_activity user_crashes; do
+for f in device_users user_devices user_activity user_crashes crashlytics_user_devices; do
   git -C <checkout> show master:mobile/investigate_user/$f.sql > <scratch>/investigate-user/sql/$f.sql
 done
 ```
 
-Without a checkout, fetch the same four files with
+Without a checkout, fetch the same five files with
 `gh api repos/dimagi/commcare_analytics_queries/contents/mobile/investigate_user/<file> -H "Accept: application/vnd.github.raw"`.
 Never copy the SQL into this skill or edit it: changes belong in the analytics repo.
 
@@ -148,11 +150,12 @@ logged in to PersonalID on the device in the window; skip b and c, run d with
 
 No rows at all: the device logged nothing to GA4 in the window, not even logged-out use. Do
 not widen the GA4 window yet. Run d on the device alone (empty `user_cid`) over the last 90
-days, which costs about 1 GB. Crashes there while GA4 stays empty usually mean the app dies
-at startup before GA4 sends its events (see "What this cannot tell"): report the crashes,
-their dates and versions, and the last day the device was seen. Offer a wider GA4 window,
-priced from a dry run, only when the question needs to know who used the device; with no
-crashes either, say the device was silent in both sources and offer the same.
+days, which costs about 1 GB. Crashes there while GA4 stays empty mean the app dies at
+startup before GA4 sends its events, or analytics is turned off in the app's settings (see
+"What this cannot tell"): report the crashes, their dates and versions, the last day the
+device was seen, and both possible causes. Offer a wider GA4 window, priced from a dry run,
+only when the question needs to know who used the device; with no crashes either, say the
+device was silent in both sources and offer the same.
 
 Starting from a username, skip this step.
 
@@ -167,7 +170,23 @@ bq --project_id=commcare-a57e4 query --use_legacy_sql=false --format=json --max_
 ```
 
 No rows means the username logged no event in the window: check its spelling and the window
-before reporting that.
+before reporting that. Then, before any wider GA4 read, look the username up as the
+Crashlytics user id over the last 90 days. It reads under 1 GB and returns the devices that
+crashed while the user was logged in to PersonalID, with no CommCare user logged in:
+
+```bash
+bq --project_id=commcare-a57e4 query --use_legacy_sql=false --format=json --max_rows=100000 \
+  --maximum_bytes_billed=200000000000 \
+  --parameter=user_cid::<username> \
+  --parameter=start_date:DATE:<start> --parameter=end_date:DATE:<end> \
+  < <sql>/crashlytics_user_devices.sql > <out>/crashlytics_user_devices.json
+```
+
+Each device it finds goes to d, and to a when the question needs the device's GA4 history.
+Nothing found is weak evidence: while a CommCare user is logged in, Crashlytics records the
+CommCare username instead, so most of a working user's crashes carry no PersonalID username.
+When GA4 has nothing for the username, ask for a device id (from the ticket or the user's
+team) and start again from a: Crashlytics finds a device's crashes whoever is logged in.
 
 **c. What the user did and what failed.**
 
@@ -344,5 +363,10 @@ Write the report to a file only when the user asks, outside every repo.
 - **An app that crashes at startup can be invisible in GA4.** GA4 batches events and sends
   them later, so a device that crashes before the batch goes out logs nothing, while
   Crashlytics still has every crash. An empty GA4 result is not proof the device was unused.
+- **Analytics can be turned off in the app's settings.** The opt-out is per CommCare app on
+  the device, and the settings screen offers no way to turn it back on. Once it is off,
+  `FirebaseAnalyticsUtil.reportEvent` sends nothing while that app is seated, so GA4 stays
+  empty for it while Crashlytics carries on. Nothing in BigQuery shows the setting, so when
+  an active user has no GA4 rows, name it as a likely cause in the report.
 - **Days are GA4 export days**, in the property's time zone rather than the user's, so a
   user's evening can land on the next day.
