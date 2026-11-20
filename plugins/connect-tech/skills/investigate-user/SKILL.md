@@ -12,7 +12,7 @@ argument-hint: "<PersonalID username | device id> [start date] [end date]"
 
 # Investigate a user
 
-Looks at one user's app activity in BigQuery and says what stands out. It runs the four
+Looks at one user's app activity in BigQuery and says what stands out. It runs the five
 queries in `mobile/investigate_user/` of
 [dimagi/commcare_analytics_queries](https://github.com/dimagi/commcare_analytics_queries)
 and turns their rows into a short report. Read that folder's `README.md` once per session:
@@ -52,7 +52,7 @@ The rows hold ids, dates, counts and flags. The report keeps to those.
 
 ## The queries
 
-All four run in the BigQuery project **`commcare-a57e4`** and take named parameters.
+All five run in the BigQuery project **`commcare-a57e4`** and take named parameters.
 
 | File | Reads | Parameters |
 |---|---|---|
@@ -60,6 +60,7 @@ All four run in the BigQuery project **`commcare-a57e4`** and take named paramet
 | `user_devices.sql` | GA4, `commcare-a57e4.analytics_153906101.events_intraday_*` | `user_cid` (STRING), `start_date` (DATE), `end_date` (DATE) |
 | `user_activity.sql` | GA4, `commcare-a57e4.analytics_153906101.events_intraday_*` | `user_cid` (STRING), `start_date` (DATE), `end_date` (DATE) |
 | `user_crashes.sql` | Crashlytics, `commcare-a57e4.firebase_crashlytics.org_commcare_dalvik_ANDROID` | `device_ids` (ARRAY&lt;STRING&gt;), `user_cid` (STRING), `start_date` (DATE), `end_date` (DATE) |
+| `crashlytics_user_devices.sql` | Crashlytics, `commcare-a57e4.firebase_crashlytics.org_commcare_dalvik_ANDROID` | `user_cid` (STRING), `start_date` (DATE), `end_date` (DATE) |
 
 - `device_id` and the entries of `device_ids` may be given with or without `commcare_`.
 - `start_date` and `end_date` are inclusive. GA4 days are export days (the table suffix), and
@@ -72,8 +73,9 @@ is asked about. Dry runs in November 2026 priced a two-week window at about 45 G
 `device_users.sql` and `user_devices.sql`, and 75 GB for `user_activity.sql`, which also
 reads the event parameters: about 120 GB (roughly $0.70) from a username, 165 GB (roughly
 $1) from a device id. `user_crashes.sql` reads about 0.1 GB for two weeks and 1.3 GB for its
-full 90 days, so its window can be wide when that helps; the Crashlytics user id lookup in
-step 4b reads about 0.6 GB for 90 days. Keep the GA4 window as short as the question allows.
+full 90 days, so its window can be wide when that helps; `crashlytics_user_devices.sql`, the
+Crashlytics user id lookup in step 4b, reads about 0.6 GB for 90 days. Keep the GA4 window
+as short as the question allows.
 
 ## Steps
 
@@ -93,12 +95,12 @@ behind GitHub:
 
 ```bash
 mkdir -p <scratch>/investigate-user/sql
-for f in device_users user_devices user_activity user_crashes; do
+for f in device_users user_devices user_activity user_crashes crashlytics_user_devices; do
   git -C <checkout> show master:mobile/investigate_user/$f.sql > <scratch>/investigate-user/sql/$f.sql
 done
 ```
 
-Without a checkout, fetch the same four files with
+Without a checkout, fetch the same five files with
 `gh api repos/dimagi/commcare_analytics_queries/contents/mobile/investigate_user/<file> -H "Accept: application/vnd.github.raw"`.
 Never copy the SQL into this skill or edit it: changes belong in the analytics repo.
 
@@ -174,20 +176,10 @@ crashed while the user was logged in to PersonalID, with no CommCare user logged
 
 ```bash
 bq --project_id=commcare-a57e4 query --use_legacy_sql=false --format=json --max_rows=100000 \
+  --maximum_bytes_billed=200000000000 \
   --parameter=user_cid::<username> \
   --parameter=start_date:DATE:<start> --parameter=end_date:DATE:<end> \
-  > <out>/crashlytics_user_id.json <<'EOF'
-SELECT
-  (SELECT k.value FROM UNNEST(c.custom_keys) k WHERE k.key = 'device_id') AS device_id,
-  COUNT(*) AS events,
-  MIN(DATE(c.event_timestamp)) AS first_event_date,
-  MAX(DATE(c.event_timestamp)) AS last_event_date
-FROM `commcare-a57e4.firebase_crashlytics.org_commcare_dalvik_ANDROID` c
-WHERE c.user.id = @user_cid
-  AND DATE(c.event_timestamp) BETWEEN @start_date AND @end_date
-GROUP BY device_id
-ORDER BY last_event_date DESC
-EOF
+  < <sql>/crashlytics_user_devices.sql > <out>/crashlytics_user_devices.json
 ```
 
 Each device it finds goes to d, and to a when the question needs the device's GA4 history.
