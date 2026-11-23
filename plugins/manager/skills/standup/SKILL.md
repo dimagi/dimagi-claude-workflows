@@ -1,6 +1,6 @@
 ---
 name: standup
-description: Morning check-in — surfaces goals, summarizes where you left off, captures today's plan, and gives goal-alignment feedback. Weekly review mode on configurable review day (default Friday).
+description: Morning check-in — surfaces goals, summarizes where you left off, captures today's plan, and gives goal-alignment feedback.
 ---
 
 You are helping the user start their workday with a morning standup.
@@ -14,64 +14,9 @@ You are helping the user start their workday with a morning standup.
 5. Check if today's journal file (`<daily_dir>/YYYY-MM-DD.md`) already has a "Morning Standup" section. If it does, let the user know and ask if they want to redo it or skip. Don't silently append a duplicate.
 6. Find the most recent ISO week before the current one that has daily entries. If `<weekly_dir>` has no rollup for it (e.g. the user skipped their weekly close-out), write one following `${CLAUDE_PLUGIN_ROOT}/references/weekly-rollup.md` and mention it in one line. Only catch up that one week. Don't backfill older weeks unless the user asks.
 
-## Weekly Review Mode
+## Standup
 
-If today is the **review day**, this is a weekly review. Follow these steps:
-
-1. Open by briefly surfacing the user's **long-term goals** from the goals file so they're top of mind. Frame it as a reminder, not a quiz.
-
-2. Read journal entries from earlier this week to have context on what actually happened.
-
-3. Present all questions at once so the user can answer in one go:
-
-   "A few questions for the weekly review — answer however you like:
-   - What were your biggest wins this week?
-   - What didn't get done that you expected to finish?
-   - Did you get real deep work done, or did busy work creep in?
-   - What's one thing you want to prioritize next week?"
-
-   Include any custom questions for this skill (see "Custom Questions" in `setup.md`).
-
-   If the user answers only some questions, follow up on the ones they missed. Don't force it — if they clearly want to skip one, move on.
-
-4. After collecting responses, give feedback (2-4 sentences). This is the most important part of the standup — it needs to be specific and honest, not cheerleading.
-
-   **What good feedback looks like:**
-   - "You shipped the rabbit migration PRs on Tuesday and Wednesday — that's the quarterly goal moving. But postgres didn't advance at all this week, and that's the second week in a row. If you don't protect time for it next week, it's going to slip the sprint."
-   - "Three of four days this week had carryover items. That's a signal that your daily plans are too ambitious or that interruptions are eating more time than you think."
-
-   **What bad feedback looks like:**
-   - "Great week! You made solid progress on your goals." (too vague, says nothing)
-   - "Keep up the good work and stay focused!" (generic encouragement)
-
-   Ground your feedback in specific entries from the week's journal. Reference what actually happened on specific days. If there's a pattern (e.g., repeated carryover, goals getting no attention), name it directly.
-
-5. Save the journal entry to `<daily_dir>/YYYY-MM-DD.md` using this format:
-
-```markdown
-# Journal - YYYY-MM-DD
-
-## Morning Standup (Weekly Review)
-
-**Week's biggest wins:**
-[their response]
-
-**Didn't finish:**
-[their response]
-
-**Goal alignment reflection:**
-[their response]
-
-**Priority for next week:**
-[their response]
-
-**Goal alignment feedback:**
-[your 2-4 sentence feedback]
-```
-
-## Regular Standup (Mon–Thu, or non-review days)
-
-If today is **not the review day**, follow these steps:
+The standup is the same every day, including the review day. The weekly review happens in the `shutdown` weekly close-out, once the week is actually over.
 
 1. Briefly surface the user's **long-term goals** as a one-line reminder at the top.
 
@@ -106,4 +51,4 @@ If today is **not the review day**, follow these steps:
 
 - If the file already exists, append the standup section rather than overwriting.
 - Always confirm to the user that the entry has been saved.
-- Wish them a productive day (or week, on review days).
+- Wish them a productive day.
