@@ -4,13 +4,17 @@
    - **Manager directory** (`<manager_dir>`): top-level. Holds `goals.md`, `.last_sync`, and any other standalone files the user adds over time.
    - **Daily directory** (`<daily_dir>`): `<manager_dir>/daily`. Holds daily journal entries (`YYYY-MM-DD.md`) from standup and shutdown.
    - **Weekly directory** (`<weekly_dir>`): `<manager_dir>/weekly`. Holds weekly rollups (`YYYY-Www.md`, ISO week). See `${CLAUDE_PLUGIN_ROOT}/references/weekly-rollup.md`.
+   - **Quarterly directory** (`<quarterly_dir>`): `<manager_dir>/quarterly`. Holds one file per quarter (`YYYY-Qn.md`) with that quarter's archived goals and its retro, written by the `quarterly` skill.
+   - **Yearly directory** (`<yearly_dir>`): `<manager_dir>/yearly`. Optional. If the user keeps a `YYYY.md` index here, skills that write quarterly files link them from it.
 2. Create directories if they don't exist:
    - If `<manager_dir>` doesn't exist, create it.
    - If `<daily_dir>` doesn't exist, create it.
    - If `<weekly_dir>` doesn't exist, create it.
+   - Create `<quarterly_dir>` only when writing a file to it.
    - If this is the first time the user is using the plugin (no journal files exist in `<daily_dir>` yet), mention where things are being saved so they know.
    - If the goals file (`<manager_dir>/goals.md`) doesn't exist yet, create it using the template at `${CLAUDE_PLUGIN_ROOT}/references/goals-template.md`.
 3. The weekly review day is `${user_config.review_day}` (default: Friday).
+   Quarters are calendar quarters (Q1 = Jan–Mar, and so on). An ISO week belongs to the quarter its Thursday falls in, so each weekly rollup counts toward exactly one quarter.
 4. If `<manager_dir>/questions.md` exists, read it. It holds the user's custom questions. See "Custom Questions" below.
 
 ## Custom Questions

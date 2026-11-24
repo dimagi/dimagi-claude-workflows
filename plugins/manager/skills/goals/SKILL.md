@@ -18,11 +18,12 @@ You are helping the user think through and update their professional goals.
 Adapt based on what the user needs. Common modes:
 
 ### Quarterly Refresh
+- Read the most recent file in `<quarterly_dir>`. If its `## Retro` section exists, start from it: what each goal led to, and the user's reflection on what they want more or less of. If the quarter that just ended has no retro, suggest running `/quarterly` first, since it looks back before this looks forward. If the user wants to go ahead anyway, read the quarter's weekly rollups instead.
 - Walk through each section of the goals file (long-term, specific task goals, notes)
 - For each goal, ask: "Is this still the right goal? Has anything changed?"
 - For specific task goals: "Did you finish this? Should it roll over or be replaced?"
-- Suggest new specific task goals based on what you know from recent journal entries (read the last 5-7 entries for context if available)
-- After the conversation, rewrite the goals file with the updated goals
+- Suggest new specific task goals based on the retro and the reflection answers. Name themes from the retro that the goals don't cover yet.
+- After the conversation, rewrite the goals file with the updated goals. Retitle the "Specific Task Goals" heading for the new quarter (e.g. `## Specific Task Goals (Q1 2027)`)
 
 ### Adding or Modifying a Goal
 
