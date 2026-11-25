@@ -17,6 +17,13 @@ be connected.
   with the fields pre-filled. Example:
   `/jira-cve https://github.com/dimagi/commcare-hq/security/dependabot/740`
 
+- `jira-cve-sync` — Bulk-sync Dependabot alerts for the repo you run it from
+  with SAAS security tickets: create missing tickets via `jira-cve`, close
+  tickets whose alert is fixed, link open/merged PRs, and record a one-time
+  impact investigation on every open ticket. Reads the repo's `AGENTS.md` for
+  context. Prints the plan, applies it, then reports only what deviated.
+  Example: `cd ~/dimagi/commcare-hq && /jira-cve-sync --dry-run`
+
 - `dependency-upgrade` — Upgrade a Python or JS dependency safely: find the
   latest safe version, review the changelog, assess impact from how the library
   is actually used in the repo, perform the upgrade, and open a PR with the
