@@ -31,9 +31,15 @@ Fold any notes/context/verification steps the user already gave into the right s
 
 Run the `code-review:code-review` skill (the code-review plugin's skill, not the built-in `/code-review`) on the branch, commit range `master..HEAD`. dev-utils declares the code-review plugin as a dependency, so it is normally installed already. If the skill isn't available, ask the author to run `/reload-plugins` (which installs missing dependencies) and retry; if it still isn't available, stop the skill: no PR is created without a review.
 
-Let its triage and expand/fix loop run as written: the author fixes, disputes or ignores each finding there. When the loop ends:
+Before starting, `git status --porcelain` must be empty; if it isn't, ask the author to commit or stash those changes first, so review fixes stay separate from other work.
 
-- **Commit fixes.** If the loop changed files, show `git diff --stat`, then commit them alone (`Address pre-PR review findings`). Re-run step 1's `git diff` and `--stat` so later steps describe the fixed branch.
+Let its triage and expand/fix loop run as written: the author fixes, disputes or ignores each finding there, with one change:
+
+- **One commit per finding.** After implementing each finding, before starting the next one, commit only that finding's changes. The subject line says what the fix does (e.g. `Close cursor when sync fails`), not "Address review finding". When a request covers several findings (`fix 2,5`), implement and commit them one at a time. If one change genuinely fixes two findings, commit it once and note both in the body.
+
+When the loop ends:
+
+- **Refresh the diff.** If any fixes were committed, re-run step 1's `git diff` and `--stat` so later steps describe the fixed branch.
 - **List unresolved findings.** Unresolved means 🔴 Critical or 🟠 Major, not fixed in the loop, and not withdrawn by the review after the author's pushback. Keep the author's reason when they pushed back and the finding stood. Ignore 🟡 Minor and 💡 Suggestion.
 - **Gate.** If any are unresolved, list them and ask with `AskUserQuestion`: "N Critical/Major review findings are unresolved. Continue creating the PR?" with options *Continue* and *Stop*. On *Stop*, end the skill: no RELEASES.md commits, no push, no PR. Never continue on the author's behalf.
 
@@ -163,4 +169,5 @@ Then output the PR URL.
 - Every PR body section is at or under its word budget, and the body is ≤120 words.
 - Push the branch before `gh pr create`.
 - Never skip the step 2 review or open a PR without it.
+- Each review fix from step 2 is its own commit, made before the next finding is worked on.
 - Never open the PR with unresolved Critical/Major review findings unless the author chose *Continue* in step 2, and then always post them as a comment (step 11).
