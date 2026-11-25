@@ -17,6 +17,12 @@ be connected.
   with the fields pre-filled. Example:
   `/jira-cve https://github.com/dimagi/commcare-hq/security/dependabot/740`
 
+- `vulnerability-management` — Carry a CommCare security vulnerability from
+  report to published advisory: COMMVULN tickets, draft GHSAs, readiness
+  checks on private PRs, public PRs, publishing, and mirror cleanup. Policy
+  stays on the team's Confluence pages, which the skill reads at each phase.
+  Example: `/vulnerability-management check COMMVULN tickets in Pre-disclosure are ready to release`
+
 - `dependency-upgrade` — Upgrade a Python or JS dependency safely: find the
   latest safe version, review the changelog, assess impact from how the library
   is actually used in the repo, perform the upgrade, and open a PR with the
