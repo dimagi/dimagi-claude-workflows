@@ -29,7 +29,7 @@ Fold any notes/context/verification steps the user already gave into the right s
 
 ### 2. Pre-PR code review
 
-Run the `code-review:code-review` skill (the code-review plugin's skill, not the built-in `/code-review`) on the branch, commit range `master..HEAD`. If that plugin isn't installed, tell the author and ask whether to continue without a review; if they continue, skip to step 3 and omit step 11.
+Run the `code-review:code-review` skill (the code-review plugin's skill, not the built-in `/code-review`) on the branch, commit range `master..HEAD`. dev-utils declares the code-review plugin as a dependency, so it is normally installed already. If the skill isn't available, ask the author to run `/reload-plugins` (which installs missing dependencies) and retry; if it still isn't available, ask whether to continue without a review. If they continue, skip to step 3 and omit step 11.
 
 Let its triage and expand/fix loop run as written: the author fixes, disputes or ignores each finding there. When the loop ends:
 

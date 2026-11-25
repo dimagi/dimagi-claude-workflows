@@ -13,5 +13,8 @@
     "workflow",
     "git",
     "github"
+  ],
+  "dependencies": [
+    "code-review"
   ]
 }
