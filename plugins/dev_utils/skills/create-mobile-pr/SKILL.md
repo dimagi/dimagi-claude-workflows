@@ -27,7 +27,19 @@ cat RELEASES.md
 
 Fold any notes/context/verification steps the user already gave into the right sections.
 
-### 2. Title
+### 2. Pre-PR code review
+
+Run the `code-review:code-review` skill (the code-review plugin's skill, not the built-in `/code-review`) on the branch, commit range `master..HEAD`. If that plugin isn't installed, tell the author and ask whether to continue without a review; if they continue, skip to step 3 and omit step 11.
+
+Let its triage and expand/fix loop run as written: the author fixes, disputes or ignores each finding there. When the loop ends:
+
+- **Commit fixes.** If the loop changed files, show `git diff --stat`, then commit them alone (`Address pre-PR review findings`). Re-run step 1's `git diff` and `--stat` so later steps describe the fixed branch.
+- **List unresolved findings.** Unresolved means 🔴 Critical or 🟠 Major, not fixed in the loop, and not withdrawn by the review after the author's pushback. Keep the author's reason when they pushed back and the finding stood. Ignore 🟡 Minor and 💡 Suggestion.
+- **Gate.** If any are unresolved, list them and ask with `AskUserQuestion`: "N Critical/Major review findings are unresolved. Continue creating the PR?" with options *Continue* and *Stop*. On *Stop*, end the skill: no RELEASES.md commits, no push, no PR. Never continue on the author's behalf.
+
+Hold the unresolved list for step 11.
+
+### 3. Title
 
 **Recipe:** `TICKET Short Description Of The Change`, derived from the commits and diff (not the branch slug).
 **Budget:** ≤72 chars. Title Case every word including short ones (On, To, For, The). Preserve acronym/identifier casing (`SSO`, `URL`, `iOS`, `CCCT-1929`).
@@ -35,7 +47,7 @@ Fold any notes/context/verification steps the user already gave into the right s
 Extract `TICKET` (`[A-Z]+-[0-9]+`) from the branch prefix; fall back to commit messages; if still none, ask.
 Example: `CCCT-1929 Re-Fetch SSO Token On Invalid Token Error`
 
-### 3. Ask about the author's testing
+### 4. Ask about the author's testing
 
 The Safety story needs what the *author* actually did. If they haven't already said, ask:
 
@@ -43,7 +55,7 @@ The Safety story needs what the *author* actually did. If they haven't already s
 
 Wait for the answer. Record it honestly, including "did not test locally." Never invent testing.
 
-### 4. Update RELEASES.md
+### 5. Update RELEASES.md
 
 Find the topmost `## CommCare X.YZ` section. Release Notes and QA Notes are **separate decisions, separate drafts-for-approval, separate commits**. **No JIRA ticket numbers anywhere in RELEASES.md.**
 
@@ -57,11 +69,11 @@ Find the topmost `## CommCare X.YZ` section. Release Notes and QA Notes are **se
 
 For each: show the user the exact bullet text verbatim and the **release version heading it will go under** (e.g. `## CommCare 2.56`) so they can confirm it is landing in the right release — plus the subsection (`### QA Notes`, or `### Release Notes` → `#### Important Bug Fixes`). Wait for their approval, then commit alone (`Add release notes for TICKET` / `Add QA notes for TICKET`). Do not decide on the user's behalf to skip a note they might want — when in doubt whether a note is warranted, ask.
 
-### 5. Risk level
+### 6. Risk level
 
-Follow the `pr-risk` skill in its before-the-PR mode, reusing the diff from step 1 and the testing answer from step 3. It proposes Low, Medium or High, the author confirms, overrides or skips, and it hands back a label and a reason line. If the author skips, the PR gets neither.
+Follow the `pr-risk` skill in its before-the-PR mode, reusing the diff from step 1 (as refreshed in step 2) and the testing answer from step 4. It proposes Low, Medium or High, the author confirms, overrides or skips, and it hands back a label and a reason line. If the author skips, the PR gets neither.
 
-### 6. PR description
+### 7. PR description
 
 Build from `.github/PULL_REQUEST_TEMPLATE.md`, replacing every HTML comment with content. **Do not show the description for approval** — it's a draft the user edits on GitHub. Only RELEASES.md and the risk level needed approval.
 
@@ -69,7 +81,7 @@ Build from `.github/PULL_REQUEST_TEMPLATE.md`, replacing every HTML comment with
 
 Fill a section only when its recipe has something true to say; otherwise delete that heading and body. Always keep the ticket link and Safety story. **Omit the Labels and Review section.**
 
-- **Safety story** — starts with the reason line from step 5, if there is one, then a blank line, then a neutral risk read in two lists, `**What gives confidence**` and `**Risks to review**`. Rank candidates by how much each one changes the reviewer's read and keep only the top ones, most important first — true is the floor, not the bar. Author actions in **first person** ("I exercised the happy path"); statements about the change in third person. Note a mitigation if there is one; otherwise leave it for the reviewer. `risk-categories.md` lists what to weigh.
+- **Safety story** — starts with the reason line from step 6, if there is one, then a blank line, then a neutral risk read in two lists, `**What gives confidence**` and `**Risks to review**`. Rank candidates by how much each one changes the reviewer's read and keep only the top ones, most important first — true is the floor, not the bar. Author actions in **first person** ("I exercised the happy path"); statements about the change in third person. Note a mitigation if there is one; otherwise leave it for the reviewer. `risk-categories.md` lists what to weigh.
   **Budget:** ≤2 items per list, ≤15 words each; ≤55 words total, not counting the reason line (which still counts toward the 120-word body).
 - **Technical Summary** — *only* what survives the diff test: why this approach over the obvious alternative, and any non-obvious decision, exclusion, or ordering dependency a reviewer should know before reading. If the diff already speaks for itself, omit the whole section.
   **Budget:** ≤40 words.
@@ -80,7 +92,7 @@ Fill a section only when its recipe has something true to say; otherwise delete 
 
 **Verify before building the body:** count the words in each drafted section and recut any that exceeds its budget — drop the lowest-ranked item, or tighten. Then sum them; if the total exceeds 120, cut the least load-bearing section whole.
 
-### 7. Push
+### 8. Push
 
 ```bash
 git rev-parse --abbrev-ref --symbolic-full-name @{u}   # upstream?
@@ -88,7 +100,7 @@ git push -u origin HEAD    # if none
 git push                   # if behind (carries the RELEASES.md commits)
 ```
 
-### 8. Create the draft PR
+### 9. Create the draft PR
 
 ```bash
 gh pr create --draft \
@@ -98,12 +110,12 @@ gh pr create --draft \
 EOF
 )" \
   --assignee "@me" \
-  --label "Medium Risk"    # the label from step 5; omit if the author skipped it
+  --label "Medium Risk"    # the label from step 6; omit if the author skipped it
 ```
 
-No `--reviewer` — the user requests reviewers after leaving draft. Capture the printed PR URL for step 9.
+No `--reviewer` — the user requests reviewers after leaving draft. Capture the printed PR URL for steps 10 and 11.
 
-### 9. Suggested Review Order comment
+### 10. Suggested Review Order comment
 
 Skip if fewer than 2 non-generated files changed.
 
@@ -119,15 +131,35 @@ EOF
 )"
 ```
 
+### 11. Unresolved review findings comment
+
+Skip if step 2 left nothing unresolved.
+
+**Recipe:** one bullet per unresolved finding from step 2, Critical first: severity, title, `file:line`, and a clause on the consequence. Append `— Author: <reason>` where the author disputed it.
+**Budget:** ≤30 words per bullet.
+
+```bash
+gh pr comment <PR-URL> --body "$(cat <<'EOF'
+## Unresolved Pre-PR Review Findings
+
+The author opened this PR with these Critical/Major findings from the pre-PR code review unresolved:
+
+- 🔴 **Title** (`path/to/file.kt:42`) — consequence
+- 🟠 **Title** (`path/to/file.kt:88`) — consequence — Author: reason
+EOF
+)"
+```
+
 Then output the PR URL.
 
 ## Hard rules (mechanical, always)
 
 - Draft PR: `--draft`, `--assignee "@me"`, never `--reviewer`.
-- At most one risk label, and only the one the author confirmed in step 5.
+- At most one risk label, and only the one the author confirmed in step 6.
 - No JIRA ticket numbers in RELEASES.md (release notes or QA notes).
 - Each RELEASES.md update is its own commit, and only after the user approves the drafted bullets.
 - Omit the template's Labels and Review section.
 - Never leave the template's HTML-comment placeholders in the body.
 - Every PR body section is at or under its word budget, and the body is ≤120 words.
 - Push the branch before `gh pr create`.
+- Never open the PR with unresolved Critical/Major review findings unless the author chose *Continue* in step 2, and then always post them as a comment (step 11).
