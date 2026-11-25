@@ -31,7 +31,9 @@ authenticated.
 - `create-mobile-pr` — The Dimagi mobile variant: draft PR, JIRA-prefixed
   title, release and QA notes appended to `RELEASES.md` rather than the PR
   body. Triggers on repos with JIRA branch prefixes and a `RELEASES.md`.
-  Sets the PR's risk label through `pr-risk`.
+  Sets the PR's risk label through `pr-risk`. Runs a pre-PR review with the
+  `code-review` plugin and comments any Critical/Major findings the author
+  left unresolved.
 
 - `pr-risk` — Grades a mobile PR as Low, Medium or High risk, asks the author
   to confirm or override, then sets exactly one `Low Risk` / `Medium Risk` /
