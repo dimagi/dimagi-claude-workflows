@@ -43,7 +43,7 @@ When the loop ends:
 - **List unresolved findings.** Unresolved means 🔴 Critical or 🟠 Major, not fixed in the loop, and not withdrawn by the review after the author's pushback. Keep the author's reason when they pushed back and the finding stood. Ignore 🟡 Minor and 💡 Suggestion.
 - **Gate.** If any are unresolved, list them and ask with `AskUserQuestion`: "N Critical/Major review findings are unresolved. Continue creating the PR?" with options *Continue* and *Stop*. On *Stop*, end the skill: no RELEASES.md commits, no push, no PR. Never continue on the author's behalf.
 
-Hold the unresolved list for step 11.
+Hold the unresolved list, and the count of Critical/Major findings fixed in the loop, for step 11.
 
 ### 3. Title
 
@@ -137,11 +137,17 @@ EOF
 )"
 ```
 
-### 11. Unresolved review findings comment
+### 11. Pre-PR review comment
 
-Skip if step 2 left nothing unresolved.
+Always post this comment.
 
-**Recipe:** one bullet per unresolved finding from step 2, Critical first: severity, title, `file:line`, and a clause on the consequence. Append `— Author: <reason>` where the author disputed it.
+**If nothing is unresolved**, post one line, adding the fixed count only when it is above zero:
+
+```bash
+gh pr comment <PR-URL> --body "Pre-PR code review: no unresolved Critical or Major findings. N were fixed on this branch."
+```
+
+**Otherwise — recipe:** one bullet per unresolved finding from step 2, Critical first: severity, title, `file:line`, and a clause on the consequence. Append `— Author: <reason>` where the author disputed it.
 **Budget:** ≤30 words per bullet.
 
 ```bash
@@ -170,4 +176,5 @@ Then output the PR URL.
 - Push the branch before `gh pr create`.
 - Never skip the step 2 review or open a PR without it.
 - Each review fix from step 2 is its own commit, made before the next finding is worked on.
-- Never open the PR with unresolved Critical/Major review findings unless the author chose *Continue* in step 2, and then always post them as a comment (step 11).
+- Never open the PR with unresolved Critical/Major review findings unless the author chose *Continue* in step 2, and then always post them as a comment.
+- Always post the step 11 review comment, even when nothing is unresolved.
