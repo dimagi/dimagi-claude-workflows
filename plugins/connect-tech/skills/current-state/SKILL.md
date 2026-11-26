@@ -1,11 +1,13 @@
 ---
 name: current-state
-description: 'Map how an existing commcare-connect feature or area works today, from the code, and write it up as a current-state design doc with the design issues it has: where state lives, every entry point and flow, the invariants it relies on, and what is fragile or wrong. Use before writing a spec or starting work that builds on or changes an existing feature, or when asked "how does X work today", "map the current design of X", "what is wrong with how we do X". Not for reviewing a spec (use spec-review) or a diff (use code-review).'
+description: 'Map how an existing commcare-connect feature or area works today, from the code, and write it up as a current-state design doc, plus a published page for people to read, with the design issues it has: where state lives, every entry point and flow, the invariants it relies on, and what is fragile or wrong. Use before writing a spec or starting work that builds on or changes an existing feature, or when asked "how does X work today", "map the current design of X", "what is wrong with how we do X". Not for reviewing a spec (use spec-review) or a diff (use code-review).'
 ---
 
 # Map the current state of a feature
 
 Write a document that says how a feature works **today**, as the code shows it, and what is wrong with that design. It is the input to a new spec: the spec author should not have to rediscover the system, and should know which existing problems their change will inherit.
+
+There are two outputs with the same content: a markdown doc in the repo, which is the complete record (step 4), and a published page ordered for a person who has to read it and decide what to do (step 5).
 
 The code is the only source of truth. READMEs, docs, ADRs, comments and the user's description are claims to check, not facts. When they disagree with the code, the doc says so.
 
@@ -50,7 +52,7 @@ Go through the system with the lenses in step 3 of `.claude/skills/spec-review/S
 - **Deletes and `on_delete` behaviour** that can remove records other records depend on.
 - **Docs that are wrong**: a README or doc that says something the code doesn't do.
 
-Each issue needs evidence (`file:line`), a concrete case where it goes wrong, and a severity: **High** (loses, duplicates or misstates money or data, or blocks users), **Medium** (wrong in edge cases, or makes changes in this area risky), **Low** (confusing or costly to work with). If there is a planned change, say for each issue whether the change will inherit it, make it worse, or is a good moment to fix it.
+Each issue needs an ID (`I1`, `I2`, ... so people can refer to it in discussion and tickets), evidence (`file:line`), a concrete case where it goes wrong, and a severity: **High** (loses, duplicates or misstates money or data, or blocks users), **Medium** (wrong in edge cases, or makes changes in this area risky), **Low** (confusing or costly to work with). If there is a planned change, say for each issue whether the change will inherit it, make it worse, or is a good moment to fix it.
 
 Don't design the fix. One line on the direction a fix would take is enough; the spec does the rest.
 
@@ -92,7 +94,7 @@ Each rule the system relies on, and whether it is enforced (constraint, check, t
 What the mobile app, HQ, ConnectID, exports and emails receive from this area.
 
 ## Design issues
-Most severe first. Each: severity, what is wrong, evidence (file:line), a concrete failure case,
+Most severe first. Each: ID, severity, what is wrong, evidence (file:line), a concrete failure case,
 relevance to the planned change, and a one-line fix direction.
 
 ## Docs that are out of date
@@ -104,7 +106,27 @@ What you couldn't determine from the code, and who could answer it.
 
 Use diagrams only where a flow has branches or several actors; a numbered list is usually clearer.
 
-## 5. Hand over
+## 5. Publish a page for people to read
 
-Tell the user the path, the three most important issues, and anything marked unverified. Suggest an ADR (via `create-adr`) for any High issue that is about how data or money is stored. If a README or `docs/core-flows.md` is wrong, offer to fix it in a separate change. Don't commit unless asked.
+The markdown doc is ordered for reference, and most readers won't get through it. Publish the same content as an HTML page with the Artifact tool (load the `artifact-design` skill first; write the HTML in the scratchpad, not the repo). If there is no Artifact tool in the session, skip this step and say so in the handover.
+
+The page answers three questions in this order: what is wrong, what is still unknown, and how the feature works. Put reference material last.
+
+1. **Header**: area, date, commit, planned change, and the count of issues at each severity.
+2. **Summary**: the five lines from the doc.
+3. **Design issues**: one card per issue, most severe first. The card shows the ID, the severity, one sentence on what is wrong, the concrete failure case, and the relevance to the planned change (inherits, makes worse, good moment to fix). Evidence and fix direction go in an expandable part of the card. Add filters for severity and for relevance to the planned change.
+4. **Open questions and unverified items**: each with who could answer it. These are what the reader has to act on, so don't put them at the bottom.
+5. **Flows**: one collapsed section per flow, with the steps as a numbered list. Draw a diagram for a flow that has branches or several actors (load `artifact-diagramming`).
+6. **Reference**: source-of-truth table, entry points, invariants (marked enforced or assumed), external contracts, out-of-date docs, terms. Collapsed by default. Give the wide tables a text filter.
+
+Rules for the page:
+
+- Write sections 1 to 4 for someone who hasn't read the code: say what happens to a user, a payment or a record, then name the model or function. Sections 5 and 6 can use code terms freely.
+- Every `file:line` is a link to that line on GitHub at the commit the doc was written at, so the links stay correct when the code moves.
+- Add a sticky table of contents, and an anchor on each issue (`#I3`) so a link can point at one issue.
+- The page has nothing the markdown doc doesn't have. If you change one, change the other and republish to the same URL.
+
+## 6. Hand over
+
+Tell the user the path, the page URL (it is private until they share it), the three most important issues, and anything marked unverified. Suggest an ADR (via `create-adr`) for any High issue that is about how data or money is stored. If a README or `docs/core-flows.md` is wrong, offer to fix it in a separate change. Don't commit unless asked.
 
