@@ -28,6 +28,7 @@ This step should be used whenever the user does not have a spec, or have provide
 5. **Track dependencies.** If a decision depends on an earlier unresolved one, resolve the dependency first.
 6. **Challenge weak answers.** If the user's answer is vague, contradictory, or hand-wavy, push back with a specific follow-up.
 7. **Maintain a design document.** Record every question and its resolution in the design doc. Update it as you go so the user can see the accumulated decisions. Follow the code names rule below from the start, so the names don't have to be stripped out later.
+8. **Mark product decisions.** When a question is a product question, record it under the product decisions rule below at the moment it is resolved, not at the end.
 
 ### When to stop
 
@@ -48,6 +49,8 @@ The audience is software developers, so technical terms can be used, but the doc
 
 The code names rule below applies here, and the identifier check at the end of this step is mandatory.
 
+The product decisions rule below also applies. If the spec was written from a product design doc, compare the two and record every place where the spec settles something the design doc left unclear or did not cover.
+
 ### Style rules
 
 - Use bullets for any list of related points, not a paragraph that counts them ("Four properties of these rules are…").
@@ -66,6 +69,31 @@ Don't hand over the spec until you've done this pass:
    - **Is it used before that point?** If so, move the explanation up or rewrite the earlier sentence without the name.
 3. Check that the Overview contains no code names at all.
 4. Fix the draft, then hand it over. Tell the user in one line how many names you removed or explained.
+
+### Product team summary (mandatory when the spec has product decisions)
+
+When you hand over the spec, also give the user a short message they can send to the product team. Don't send it yourself unless the user asks.
+
+- Start with the feature name and a link to the spec, if there is one.
+- List the items that need an answer first, then the items already decided.
+- For each item give its ID, the question, what was decided or proposed, and why.
+- Use plain language with no code names. The reader hasn't read the spec.
+
+## Product decisions rule
+
+This applies to everything this skill writes, including the design document kept during Step 1.
+
+A product decision is any choice that changes what a user sees or can do: wording, limits, permissions, defaults, what happens in an error or edge case, and what is in or out of scope. These come up during spec work in two ways:
+
+- the product design doc is unclear or contradicts itself on a point
+- the spec work raises a case the design doc did not consider
+
+Developers often settle these while writing the spec, and the product team never hears about it. To prevent that:
+
+- **Don't settle a product question silently.** Ask the user whether the product team has answered it. If not, record the answer the spec is built on as proposed.
+- **Record each one** in the "Product decisions" section of the outline, with its status: confirmed (and by whom), proposed, or open.
+- **Build the spec on the proposed answer** so work is not blocked, and say what would change if the product team decides differently.
+- **Keep it out of the technical sections.** A product decision doesn't go in Assumptions or Decisions.
 
 ## Code names rule
 
