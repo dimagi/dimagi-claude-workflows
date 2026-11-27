@@ -75,8 +75,7 @@ Don't hand over the spec until you've done this pass:
 When you hand over the spec, also give the user a short message they can send to the product team. Don't send it yourself unless the user asks.
 
 - Start with the feature name and a link to the spec, if there is one.
-- List the items that need an answer first, then the items already decided.
-- For each item give its ID, the question, what was decided or proposed, and why.
+- For each decision give its ID, the question, what was decided, and why.
 - Use plain language with no code names. The reader hasn't read the spec.
 
 ## Product decisions rule
@@ -90,9 +89,9 @@ A product decision is any choice that changes what a user sees or can do: wordin
 
 Developers often settle these while writing the spec, and the product team never hears about it. To prevent that:
 
-- **Don't settle a product question silently.** Ask the user whether the product team has answered it. If not, record the answer the spec is built on as proposed.
-- **Record each one** in the "Product decisions" section of the outline, with its status: confirmed (and by whom), proposed, or open.
-- **Build the spec on the proposed answer** so work is not blocked, and say what would change if the product team decides differently.
+- **Don't settle a product question silently.** Make the decision with the user, then record it.
+- **Record each one** in the "Product decisions" section of the outline.
+- **Build the spec on the decision.** If the product team later changes it, update the decision and the sections that depend on it.
 - **Keep it out of the technical sections.** A product decision doesn't go in Assumptions or Decisions.
 
 ## Code names rule

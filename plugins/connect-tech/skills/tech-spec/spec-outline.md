@@ -34,15 +34,13 @@ This is the first place code names can appear, so each row describes the change 
 
 Choices made during spec work that change what a user sees or can do, where the product design doc was unclear or did not cover the case. The product team reads this section, so use plain language and no code names. See the product decisions rule in SKILL.md.
 
-Order the rows with open and proposed items first.
+| ID | Question | Why it came up | Decision |
+|---|---|---|---|
+| P1 | Can an admin raise the limit on things after the opportunity has started? | The design doc doesn't say. | Yes, but never below the number of things that already exist. |
+| P2 | What does a user see when they reach the limit? | Not considered in the design doc. | The "Add thing" button is disabled, with a message giving the limit. |
+| P3 | Do archived things count towards the limit? | The design doc says both yes and no. | No. Only active things count. |
 
-| ID | Question | Why it came up | Decision | Status |
-|---|---|---|---|---|
-| P1 | Can an admin raise the limit on things after the opportunity has started? | The design doc doesn't say. | Yes, but never below the number of things that already exist. | Proposed. Needs product confirmation. |
-| P2 | What does a user see when they reach the limit? | Not considered in the design doc. | The "Add thing" button is disabled, with a message giving the limit. | Confirmed by the product owner, 2026-01-15. |
-| P3 | Do archived things count towards the limit? | The design doc says both yes and no. | | Open. The spec assumes they don't count. |
-
-For each proposed or open item, add a line below the table saying what the spec would need to change if the product team decides differently.
+If the product team changes a decision, update its row and the sections that depend on it.
 
 ## Assumptions
 
