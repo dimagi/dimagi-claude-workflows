@@ -57,8 +57,8 @@ If today is the **review day**, this is the weekly close-out, which is also the 
 2. Present all questions at once, including any custom questions for this skill (see "Custom Questions" in `setup.md`):
 
    "Wrapping up the week — answer however you like:
-   - What did you finish up today?
-   - What were your biggest wins this week?
+   - What did you accomplish today? Count more than shipped work: helping or unblocking someone, feedback you got, anything you learned.
+   - What were your biggest wins this week, and what did they change?
    - What didn't get done that you expected to finish?
    - Did you get real deep work done, or did busy work creep in?
    - What's one thing you want to prioritize next week? Any specific tasks to pick up first thing Monday?"
@@ -85,8 +85,17 @@ If today is the **review day**, this is the weekly close-out, which is also the 
 **GitHub activity:**
 [bullet list from the GitHub activity section, or omit if none]
 
-**Finished today:**
-[their response]
+**Accomplished:**
+[today's work, with its effect where they gave one]
+
+**Helped others:**
+[omit if nothing]
+
+**Feedback received:**
+[omit if nothing]
+
+**Learned:**
+[omit if nothing]
 
 **Week's biggest wins:**
 [their response]
@@ -115,17 +124,19 @@ If today is **not the review day**, follow these steps:
 2. Present all questions together, including any custom questions for this skill (see "Custom Questions" in `setup.md`):
 
    "How'd today go?
-   - What did you accomplish?
-   - Any blockers or things that didn't get done?
+   - What did you accomplish? Count more than shipped work: helping or unblocking someone, feedback you got, anything you learned.
+   - Any blockers, friction, or things that didn't get done?
    - What are the specific tasks you're picking up tomorrow?"
 
-   If the user answers everything in one message, don't re-ask.
+   If the user answers everything in one message, don't re-ask. If the GitHub activity already shows something (e.g. reviews they did), don't ask them to repeat it.
 
-3. **Sharpen the tasks for tomorrow.** This is the most important part of shutdown — tomorrow's standup reads this as "where you left off," so vague entries here make the next morning worse. If the user's answer is concrete (e.g. "finish the JWT refresh logic in auth.py and open the PR", "draft the Q3 roadmap section on migrations"), accept it. If it's vague ("keep working on the migration", "follow up on PRs", "more onboarding stuff"), push back once: ask what specifically they'll start with — the first file to open, the first person to ping, the first concrete sub-task. One round of sharpening, not an interrogation. If they push back ("I'll figure it out in the morning"), respect that and save what they have.
+3. **Ask what changed.** If an accomplishment is a finished piece of work with no stated effect ("shipped X", "merged the Y PR"), ask once what it changed and for whom (faster tests, a team unblocked, a customer issue closed). Ask about the one or two biggest items, not every bullet. If the user doesn't know yet or skips it, move on. Effects are often only clear later, and the quarterly review checks back on them.
 
-4. After sharpening, give a brief (1-2 sentence) observation grounded in their long-term goals. If a morning standup exists for today, compare what was planned vs. what actually happened — note if the day went to plan or veered off. If today was disconnected from their goals, name it plainly.
+4. **Sharpen the tasks for tomorrow.** This is the most important part of shutdown — tomorrow's standup reads this as "where you left off," so vague entries here make the next morning worse. If the user's answer is concrete (e.g. "finish the JWT refresh logic in auth.py and open the PR", "draft the Q3 roadmap section on migrations"), accept it. If it's vague ("keep working on the migration", "follow up on PRs", "more onboarding stuff"), push back once: ask what specifically they'll start with — the first file to open, the first person to ping, the first concrete sub-task. One round of sharpening, not an interrogation. If they push back ("I'll figure it out in the morning"), respect that and save what they have.
 
-5. Append to `<daily_dir>/YYYY-MM-DD.md`:
+5. After sharpening, give a brief (1-2 sentence) observation grounded in their long-term goals. If a morning standup exists for today, compare what was planned vs. what actually happened — note if the day went to plan or veered off. If today was disconnected from their goals, name it plainly.
+
+6. Append to `<daily_dir>/YYYY-MM-DD.md`:
 
 ```markdown
 ## Evening Shutdown
@@ -134,9 +145,18 @@ If today is **not the review day**, follow these steps:
 [bullet list from the GitHub activity section, or omit if none]
 
 **Accomplished:**
-[their response]
+[work they finished or moved forward, with its effect where they gave one]
 
-**Blockers / Didn't finish:**
+**Helped others:**
+[people they helped, unblocked, reviewed for, or answered questions for]
+
+**Feedback received:**
+[anyone who told them they did something well, quoted or paraphrased, and who said it]
+
+**Learned:**
+[things they learned]
+
+**Blockers / Friction / Didn't finish:**
 [their response]
 
 **Tomorrow's tasks:**
@@ -145,6 +165,8 @@ If today is **not the review day**, follow these steps:
 **Goal connection:**
 [your 1-2 sentence observation]
 ```
+
+Leave out "Helped others", "Feedback received", and "Learned" when there's nothing for them. Don't write "none."
 
 ## General Rules
 

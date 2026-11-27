@@ -3,8 +3,9 @@
 A daily rhythm for professional goals: check in each morning, wrap up each
 evening, and keep a journal that turns into 1:1 material without extra effort.
 
-The four skills share one directory — `goals.md` at the top level and a
-`daily/` folder of `YYYY-MM-DD.md` journal entries. It's created on first use.
+The skills share one directory: `goals.md` at the top level, a `daily/`
+folder of `YYYY-MM-DD.md` journal entries, `weekly/` rollups, and a
+`quarterly/` folder of `YYYY-Qn.md` reviews. It's created on first use.
 
 ## Skills
 
@@ -21,6 +22,12 @@ The four skills share one directory — `goals.md` at the top level and a
 - `goals` — Review, update, and refine your goals conversationally.
   Example: `/goals quarterly refresh`
 
+- `quarterly` — End-of-quarter review. Archives the quarter's goals, drafts
+  a retro from your weekly rollups (what you did, what it changed, who you
+  helped, what you learned), asks a few reflection questions, then hands
+  off to `/goals quarterly refresh`. `standup` reminds you when one is due.
+  Example: `/quarterly 2026-Q4`
+
 ## Configuration
 
 Both settings are optional:
@@ -33,11 +40,12 @@ Both settings are optional:
 ## Weekly rollups
 
 The weekly close-out in `shutdown` also writes a short summary of the week
-to `weekly/YYYY-Www.md`: wins, what slipped, progress on each goal, and
+to `weekly/YYYY-Www.md`: wins, what slipped, progress on each goal, who you
+helped, what you learned, and
 patterns. Each point links back to the daily entry it came from. If you
 skip a close-out, the next `standup` catches up the
 missed week. `sync` reads rollups for full weeks instead of every daily
-entry, and they make quarterly or annual reflection much quicker. To
+entry, and `quarterly` builds its retro from them. To
 backfill older weeks, ask for it.
 
 ## Custom questions

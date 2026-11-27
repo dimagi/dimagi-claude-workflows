@@ -29,7 +29,8 @@ You are helping the user prepare for a 1:1 meeting with their manager by summari
 ## 1:1 Sync Prep — [date range]
 
 ### Wins & Accomplishments
-- [Concrete things completed, shipped, or unblocked — pull from "Accomplished" and "Finished today" sections]
+- [Concrete things completed, shipped, or unblocked, with what they changed where the journal says — pull from "Accomplished" and "Finished today" sections]
+- [People helped and feedback received — pull from "Helped others" and "Feedback received". Managers often don't see this work, so include it.]
 
 ### In Progress
 - [Work that's actively ongoing — pull from recent "Plans for today" and "Notes for tomorrow" sections]
