@@ -40,7 +40,7 @@ Choices made during spec work that change what a user sees or can do, where the 
 | P2 | What does a user see when they reach the limit? | Not considered in the design doc. | The "Add thing" button is disabled, with a message giving the limit. |
 | P3 | Do archived things count towards the limit? | The design doc says both yes and no. | No. Only active things count. |
 
-If the product team changes a decision, update its row and the sections that depend on it.
+If a decision changes later, update its row and the sections that depend on it.
 
 ## Assumptions
 

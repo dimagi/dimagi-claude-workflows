@@ -91,7 +91,7 @@ Developers often settle these while writing the spec, and the product team never
 
 - **Don't settle a product question silently.** Make the decision with the user, then record it.
 - **Record each one** in the "Product decisions" section of the outline.
-- **Build the spec on the decision.** If the product team later changes it, update the decision and the sections that depend on it.
+- **Build the spec on the decision.** If the decision changes later, update it and the sections that depend on it.
 - **Keep it out of the technical sections.** A product decision doesn't go in Assumptions or Decisions.
 
 ## Code names rule
